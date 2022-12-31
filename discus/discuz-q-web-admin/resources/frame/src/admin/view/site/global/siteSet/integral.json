@@ -1,0 +1,165 @@
+[{
+    "key": 1,
+    "desc": "登录积分设置",
+    "name": "登录积分设置",
+    "ivalue": 10,
+    "name2": "每天登录积分设置",
+    "value": 0
+  },
+  {
+    "key": 2,
+    "desc": "注册",
+    "name": "注册",
+    "ivalue": 10
+  },
+  {
+    "key": 3,
+    "desc": "评论积分",
+    "name": "评论积分",
+    "value": 1,
+    "name2": "每天奖励次数",
+    "ivalue": 0
+  },
+  {
+    "key": 4,
+    "name": "点赞积分",
+    "ivalue": 1,
+    "name2": "每天奖励次数",
+    "value": 0,
+    "name3": "取消点赞积分",
+    "unvalue": 1,
+    "name4": "每天扣除取消点赞积分",
+    "unvalueday": 0
+  },
+  {
+    "key": 5,
+    "name": "收藏积分",
+    "ivalue": 1,
+    "name2": "每天奖励次数",
+    "value": 0,
+    "name3": "取消收藏积分",
+    "unvalue": 1,
+    "name4": "每天扣除取消收藏积分",
+    "unvalueday": 0
+  },
+  {
+    "key": 6,
+    "name": "关注积分",
+    "ivalue": 1,
+    "name2": "每天关注奖励次数",
+    "value": 0,
+    "name3": "取消关注积分",
+    "unvalue": 1,
+    "name4": "每天扣除取消关注积分",
+    "unvalueday": 0
+  },
+  {
+    "key": 7,
+    "name": "发布帖子积分",
+    "ivalue": 1,
+    "name2": "每天发布帖子奖励次数",
+    "value": 0,
+    "name3": "取消发布帖子积分",
+    "unvalue": 1,
+    "name4": "每天扣除取消发布帖子积分",
+    "unvalueday": 0
+  },
+  {
+    "key": 8,
+    "name": "发布文章积分",
+    "ivalue": 1,
+    "name2": "每天发布文章奖励次数",
+    "value": 0,
+    "name3": "取消发布文章积分",
+    "unvalue": 1,
+    "name4": "每天扣除取消发布文章积分",
+    "unvalueday": 0
+  },
+  {
+    "key": 9,
+    "name": "发布图片积分",
+    "ivalue": 1,
+    "name2": "每天发布图片奖励次数",
+    "value": 0,
+    "name3": "取消发布图片积分",
+    "unvalue": 1,
+    "name4": "每天扣除取消发布图片积分",
+    "unvalueday": 0
+  },
+  {
+    "key": 10,
+    "name": "发布视频积分",
+    "ivalue": 1,
+    "name2": "每天发布视频奖励次数",
+    "value": 0,
+    "name3": "取消发布视频积分",
+    "unvalue": 1,
+    "name4": "每天扣除取消发布视频积分",
+    "unvalueday": 0
+  },
+  {
+    "key": 11,
+    "name": "发布视频积分",
+    "ivalue": 1,
+    "name2": "每天发布视频奖励次数",
+    "value": 0,
+    "name3": "取消发布视频积分",
+    "unvalue": 1,
+    "name4": "每天扣除取消发布视频积分",
+    "unvalueday": 0
+  },
+  {
+    "key": 12,
+    "name": "发布问答积分",
+    "ivalue": 1,
+    "name2": "每天发布问答奖励次数",
+    "value": 0,
+    "name3": "取消发布问答积分",
+    "unvalue": 1,
+    "name4": "每天扣除取消发布问答积分",
+    "unvalueday": 0
+  },
+  {
+    "key": 13,
+    "name": "分享积分",
+    "ivalue": 1,
+    "name2": "每天分享奖励次数",
+    "value": 0
+  },
+  {
+    "key": 14,
+    "name": "阅读积分",
+    "ivalue": 1,
+    "name2": "每天阅读奖励次数",
+    "value": 0
+  },
+  {
+    "key": 15,
+    "name": "精华积分",
+    "ivalue": 1,
+    "name2": "每天精华奖励次数",
+    "value": 0
+  },
+  {
+    "key": 16,
+    "name": "发布圈帖积分",
+    "ivalue": 1,
+    "name2": "每天发布圈帖奖励次数",
+    "value": 0,
+    "name3": "取消发布圈帖积分",
+    "unvalue": 1,
+    "name4": "每天扣除取消发布圈帖积分",
+    "unvalueday": 0
+  },
+  {
+    "key": 17,
+    "name": "发布课帖积分",
+    "ivalue": 1,
+    "name2": "每天发布课帖奖励次数",
+    "value": 0,
+    "name3": "取消发布课帖积分",
+    "unvalue": 1,
+    "name4": "每天扣除取消发布课帖积分",
+    "unvalueday": 0
+  }
+]

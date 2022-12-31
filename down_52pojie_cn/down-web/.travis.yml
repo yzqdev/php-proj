@@ -1,0 +1,28 @@
+language: node_js
+node_js:
+  - "10"
+cache: npm
+branches:
+  only:
+  - master
+  - /^v\d+\.\d+(\.\d+)?(-\S*)?$/
+before_script:
+  - phpenv global 7.1
+  - chmod u+x ./build/*
+script:
+  - ./build/build_release.sh
+  - ./build/build_github_pages.sh
+deploy:
+  - provider: releases
+    api-key: $GITHUB_TOKEN
+    file: ./dist.zip
+    skip-cleanup: true
+    on:
+      tags: true
+  - provider: pages
+    local-dir: gh-pages
+    skip-cleanup: true
+    github-token: $GITHUB_TOKEN
+    keep-history: true
+    on:
+      branch: master

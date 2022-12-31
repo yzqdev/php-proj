@@ -1,0 +1,120 @@
+@mixin text-hidden($line: 1){
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: $line;
+  -webkit-box-orient: vertical;
+  word-break:break-all;
+}
+@mixin background(){
+  background: #fff;
+  border-radius: 5px;
+  box-shadow: 0 3px 3px rgba(0, 0, 0, 0.03);
+}
+@mixin text-multiple-lines($line){
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: $line;
+  overflow: hidden;
+}
+
+@mixin custom-el-input-style(){
+  ::v-deep .el-input{
+    width: 220px;
+    margin-right: 50px;
+    .el-input__inner{
+      background: #fff;
+      &:focus{
+        border-color: #1878f3;
+        // border-color: rgb(220, 223, 230);
+      }
+    }
+  }
+  // 移除input[number]的上下箭头
+  ::v-deep input::-webkit-outer-spin-button,
+  ::v-deep input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+  }
+  ::v-deep input[type='number'] {
+    -moz-appearance: textfield;
+  }
+}
+
+@mixin custom-el-radio-style(){
+  // 自定义单选框样式
+  ::v-deep .el-radio__input {
+    width:22px;
+    height:22px;
+    .el-radio__inner{
+      width:22px;
+      height:22px;
+      &:hover{
+        border-color:#e6e6e6;
+      }
+    }
+    &+.el-radio__label{
+      line-height: 22px;
+    }
+    &.is-checked {
+      .el-radio__inner{
+        border-color: #1878f3;
+        background-color: #1878f3;
+        &::after {
+          content: '';
+          display: block;
+          position: absolute;
+          top: 4px;
+          left: 3px;
+          width: 14px;
+          height: 7px;
+          border: 2px solid white;
+          border-top: none;
+          border-right: none;
+          transform: rotate(-45deg);
+          border-radius: 0px;
+          background: none;
+        }
+      }
+      &+.el-radio__label{
+        color: #1878f3;
+      }
+    }
+  }
+  .el-radio{
+    min-width: 75px;
+  }
+}
+
+@mixin custom-el-select-style(){
+  ::v-deep .el-select .el-input{
+    .el-input__inner{
+      background: #fff;
+    }
+    &.is_focus .el-input__inner{
+      border-color: #1878f3 !important;
+    }
+  }
+  // 下拉框样式
+  ::v-deep .selectinfo{
+    max-height: 190px !important;
+    overflow: hidden !important;
+    .el-scrollbar{
+      max-height: 190px !important;
+      .el-scrollbar__wrap{
+        max-height: 190px !important;
+        .el-select-dropdown__list{
+          .el-select-dropdown__item{
+            color: #c5c6cb !important;
+            &.selected{
+              font-weight: bold;
+              color: #1878f3 !important;
+            }
+            &:hover{
+              color: #1878f3 !important;
+            }
+          }
+        }
+      }
+    }
+  }
+}

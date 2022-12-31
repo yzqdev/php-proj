@@ -1,0 +1,73 @@
+[{
+    "key": 1,
+    "desc": "成长值设置",
+    "name": "成长值身份一",
+    "ivalue": "新人",
+    "name2": "需要成长值",
+    "value": 0,
+    "imageUrl": ""
+  },
+  {
+    "key": 2,
+    "desc": "成长值设置",
+    "name": "成长值身份二",
+    "ivalue": "秀才",
+    "name2": "需要成长值",
+    "value": 100,
+    "imageUrl": ""
+  },
+  {
+    "key": 3,
+    "desc": "成长值设置",
+    "name": "成长值身份三",
+    "ivalue": "举人",
+    "name2": "需要成长值",
+    "value": 150,
+    "imageUrl": ""
+  },
+  {
+    "key": 4,
+    "desc": "成长值设置",
+    "name": "成长值身份四",
+    "ivalue": "贡士",
+    "name2": "需要成长值",
+    "value": 200,
+    "imageUrl": ""
+  },
+  {
+    "key": 5,
+    "desc": "成长值设置",
+    "name": "成长值身份五",
+    "ivalue": "进士",
+    "name2": "需要成长值",
+    "value": 400,
+    "imageUrl": ""
+  },
+  {
+    "key": 6,
+    "desc": "成长值设置",
+    "name": "成长值身份五",
+    "ivalue": "状元",
+    "name2": "需要成长值",
+    "value": 600,
+    "imageUrl": ""
+  },
+  {
+    "key": 7,
+    "desc": "成长值设置",
+    "name": "成长值身份五",
+    "ivalue": "榜眼",
+    "name2": "需要成长值",
+    "value": 1000,
+    "imageUrl": ""
+  },
+  {
+    "key": 8,
+    "desc": "成长值设置",
+    "name": "成长值身份五",
+    "ivalue": "探花",
+    "name2": "需要成长值",
+    "value": 5000,
+    "imageUrl": ""
+  }
+]
