@@ -13,6 +13,11 @@ class Index extends BaseController
 
     public function hello($name = 'ThinkPHP8')
     {
-        return 'hello,' . $name;
+        return  'Hello,' . $name . '！This is ' . $this->request->action();
+    }
+    public function getSth()
+    {
+
+        return $this->request->method();
     }
 }

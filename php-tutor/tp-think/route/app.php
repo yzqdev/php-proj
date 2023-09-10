@@ -8,6 +8,8 @@
 // +----------------------------------------------------------------------
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
+
+use app\controller\Index;
 use think\facade\Route;
 
 Route::get('think', function () {
@@ -15,3 +17,4 @@ Route::get('think', function () {
 });
 
 Route::get('hello/:name', 'index/hello');
+Route::get("a",  Index::class);
