@@ -14,13 +14,15 @@
         "php": "^8.1",
         "ext-pdo": "*",
         "ext-zip": "*",
+        "catchadmin/core": "^0.2.2",
         "doctrine/dbal": "^3.4",
         "guzzlehttp/guzzle": "^7.2",
         "laravel/framework": "^10.0",
         "laravel/tinker": "^2.8",
-        "catchadmin/core": "^0.2.2"
+        "monolog/monolog": "^3.4"
     },
     "require-dev": {
+        "barryvdh/laravel-ide-helper": "^2.13",
         "fakerphp/faker": "^1.9.1",
         "mockery/mockery": "^1.4.4",
         "pestphp/pest": "^1.22"

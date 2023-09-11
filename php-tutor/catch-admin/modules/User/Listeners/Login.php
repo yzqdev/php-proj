@@ -32,7 +32,7 @@ class Login
             $event->user->save();
         }
     }
-    
+
     /**
      * login log
      *
@@ -42,6 +42,7 @@ class Login
      */
     protected function log(Request $request, int $isSuccess): void
     {
+        print("hello");
         LogLogin::insert([
             'account' => $request->get('email'),
             'login_ip' => $request->ip(),

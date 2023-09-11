@@ -98,6 +98,6 @@ trait DataRange
     {
         $userModel = app(getAuthUserModel());
 
-        return $userModel->whereIn('department_id', $departmentIds)->pluck('id');
+        return $userModel-> whereIn('department_id', $departmentIds)->pluck('id');
     }
 }

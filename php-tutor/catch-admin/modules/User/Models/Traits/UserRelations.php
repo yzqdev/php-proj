@@ -64,7 +64,7 @@ trait UserRelations
             $permissionIds = Collection::make();
             $this->roles()->with('permissions')->get()
                 ->each(function ($role) use (&$permissionIds) {
-                    $permissionIds = $permissionIds->concat($role->permissions?->pluck('id'));
+                    $permissionIds = $permissionIds->concat((array)$role->permissions?->pluck('id'));
                 });
 
             $permissions = $permissionsModel->whereIn('id', $permissionIds->unique())->get();

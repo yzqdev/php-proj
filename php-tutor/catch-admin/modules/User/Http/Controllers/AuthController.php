@@ -10,7 +10,11 @@ use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Hash;
 use Modules\User\Events\Login;
 use Modules\User\Models\User;
-
+use Monolog\Handler\ErrorLogHandler;
+use Monolog\Handler\FirePHPHandler;
+use Monolog\Level;
+use Monolog\Logger;
+use Monolog\Handler\StreamHandler;
 class AuthController extends Controller
 {
     /**
@@ -19,12 +23,23 @@ class AuthController extends Controller
      */
     public function login(Request $request): array
     {
+
+
+
+// create a log channel
+        $log = new Logger('name');
+//        $log ->pushHandler(new ErrorLogHandler());
+        $log->pushHandler(new StreamHandler('php://stderr'));
+        $log->warning('Foo');
+        $log->error('Bar');
+//这样不会中断程序的运行
         /* @var User $user */
         $user = User::query()->where('email', $request->get('email'))->first();
 
         Event::dispatch(new Login($request, $user));
 
         if ($user && Hash::check($request->get('password'), $user->password)) {
+
             $token = $user->createToken('token')->plainTextToken;
             return compact('token');
         }
