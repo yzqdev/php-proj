@@ -1,0 +1,1128 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "CodeForge API",
+        "description": "CodeForge 是代码托管与文件管理平台，提供用户管理、文件管理、日志查看等能力。\n\n统一响应结构：`{ \"code\": 0, \"message\": \"...\", \"data\": ... }`\n- `code = 0` 表示成功\n- `code > 0` 表示业务错误，取值与 HTTP 状态码一致\n\n开发环境 CORS 默认放行全部来源。",
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "http:\/\/localhost:6966",
+            "description": "本地开发环境"
+        }
+    ],
+    "paths": {
+        "\/api\/files": {
+            "get": {
+                "tags": [
+                    "文件"
+                ],
+                "summary": "获取文件列表",
+                "description": "GET \/api\/files — 文件列表\n\n查询参数：limit（可选，1..500，默认 100）",
+                "operationId": "c3b214cb03ec61a12c689c4534de75ae",
+                "parameters": [
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "description": "返回条数，默认 100，最大 500",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "maximum": 500,
+                            "minimum": 1,
+                            "example": 100
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "获取成功",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "$ref": "#\/components\/schemas\/FilesPageResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "服务器错误",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "$ref": "#\/components\/schemas\/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "文件"
+                ],
+                "summary": "上传文件",
+                "description": "POST \/api\/files — 上传文件\n\n请求体：multipart\/form-data，字段名为 file。",
+                "operationId": "4651395956b9ca3aa3ba64d7e49f5b23",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart\/form-data": {
+                            "schema": {
+                                "required": [
+                                    "file"
+                                ],
+                                "properties": {
+                                    "file": {
+                                        "description": "待上传的文件",
+                                        "type": "string",
+                                        "format": "binary"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "上传成功",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "$ref": "#\/components\/schemas\/FileResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "缺少 file 字段或文件校验未通过",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "$ref": "#\/components\/schemas\/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "服务器错误",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "$ref": "#\/components\/schemas\/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "\/api\/files\/{id}": {
+            "get": {
+                "tags": [
+                    "文件"
+                ],
+                "summary": "获取文件详情",
+                "description": "GET \/api\/files\/{id} — 文件详情",
+                "operationId": "7ae6c1bfcd34355a65877f30819a605b",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "文件记录 ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "获取成功",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "$ref": "#\/components\/schemas\/FileResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "文件不存在",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "$ref": "#\/components\/schemas\/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "服务器错误",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "$ref": "#\/components\/schemas\/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "文件"
+                ],
+                "summary": "删除文件",
+                "description": "DELETE \/api\/files\/{id} — 删除文件",
+                "operationId": "92895dc994379dceae0b8e68ec44d2bf",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "文件记录 ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "删除成功",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "$ref": "#\/components\/schemas\/EmptyDataResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "文件不存在",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "$ref": "#\/components\/schemas\/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "服务器错误",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "$ref": "#\/components\/schemas\/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "\/api\/files\/{id}\/download": {
+            "get": {
+                "tags": [
+                    "文件"
+                ],
+                "summary": "下载文件",
+                "description": "GET \/api\/files\/{id}\/download — 下载文件（流式输出）",
+                "operationId": "0a9cad1f397cc164cc798a4454070737",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "文件记录 ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "文件二进制流，Content-Disposition 为 attachment",
+                        "headers": {
+                            "Content-Disposition": {
+                                "schema": {
+                                    "type": "string",
+                                    "example": "attachment; filename=\"report.pdf\""
+                                }
+                            }
+                        },
+                        "content": {
+                            "application\/octet-stream": {}
+                        }
+                    },
+                    "404": {
+                        "description": "文件不存在或磁盘文件已丢失",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "$ref": "#\/components\/schemas\/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "文件读取失败",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "$ref": "#\/components\/schemas\/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "\/api\/logs": {
+            "get": {
+                "tags": [
+                    "日志"
+                ],
+                "summary": "获取应用日志",
+                "description": "GET \/api\/logs — 获取应用日志\n\n查询参数：\n  level 日志级别过滤（INFO \/ WARNING \/ ERROR \/ DEBUG，默认不过滤）\n  limit 返回条数（默认 100，最大 500）\n  date  指定日期 YYYY-MM-DD（默认当天，格式非法时回退到当天）",
+                "operationId": "0aa1a8c5b6ee61f1c22bb25143543613",
+                "parameters": [
+                    {
+                        "name": "level",
+                        "in": "query",
+                        "description": "日志级别过滤，默认不过滤",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "DEBUG",
+                                "INFO",
+                                "WARNING",
+                                "ERROR"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "description": "返回条数，默认 100，最大 500",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "maximum": 500,
+                            "minimum": 1,
+                            "example": 100
+                        }
+                    },
+                    {
+                        "name": "date",
+                        "in": "query",
+                        "description": "指定日期 YYYY-MM-DD，默认当天；格式非法时回退到当天",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+                            "example": "2026-09-09"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "获取成功",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "$ref": "#\/components\/schemas\/LogsPageResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "服务器错误",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "$ref": "#\/components\/schemas\/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "\/api\/path\/getpath": {
+            "get": {
+                "tags": [
+                    "其它"
+                ],
+                "summary": "获取配置目录绝对路径",
+                "description": "GET \/api\/path\/getpath — 返回配置目录的绝对路径",
+                "operationId": "04d0687ebf1d90385ac19fe54c51a0a9",
+                "responses": {
+                    "200": {
+                        "description": "获取成功",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "required": [
+                                        "code",
+                                        "message",
+                                        "data"
+                                    ],
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 0
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "获取成功"
+                                        },
+                                        "data": {
+                                            "type": "string",
+                                            "example": "F:\\\\PhpStormProjects\\\\php-proj\\\\php-tutor\\\\codeforge\\\\config"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "\/api\/users": {
+            "get": {
+                "tags": [
+                    "用户"
+                ],
+                "summary": "获取用户列表",
+                "description": "GET \/api\/users — 获取用户列表\n\n查询参数：\n  page    页码（默认 1）\n  pageSize 每页条数（默认 20，最大 100）",
+                "operationId": "d28ab56f51ec755b8e892c309ad705c1",
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "页码，默认 1",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "example": 1
+                        }
+                    },
+                    {
+                        "name": "pageSize",
+                        "in": "query",
+                        "description": "每页条数，默认 20，最大 100",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "maximum": 100,
+                            "minimum": 1,
+                            "example": 20
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "获取成功",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "$ref": "#\/components\/schemas\/UsersPageResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "服务器错误",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "$ref": "#\/components\/schemas\/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "用户"
+                ],
+                "summary": "创建用户",
+                "description": "POST \/api\/users — 创建新用户\n\n请求体：{ \"name\": \"姓名\", \"email\": \"邮箱\" }",
+                "operationId": "96c170212f01609568831a02851d21ac",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application\/json": {
+                            "schema": {
+                                "$ref": "#\/components\/schemas\/UserCreateRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "创建成功",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "$ref": "#\/components\/schemas\/UserResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "参数缺失、邮箱格式错误或邮箱已注册",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "$ref": "#\/components\/schemas\/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "服务器错误",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "$ref": "#\/components\/schemas\/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "\/api\/users\/{id}": {
+            "get": {
+                "tags": [
+                    "用户"
+                ],
+                "summary": "获取单个用户",
+                "description": "GET \/api\/users\/{id} — 获取单个用户",
+                "operationId": "59dd931e476e7b49426228f5b824a6b5",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "用户 ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "获取成功",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "$ref": "#\/components\/schemas\/UserResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "用户不存在",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "$ref": "#\/components\/schemas\/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "服务器错误",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "$ref": "#\/components\/schemas\/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "用户"
+                ],
+                "summary": "更新用户",
+                "description": "PUT \/api\/users\/{id} — 更新用户\n\n请求体：{ \"name\": \"新姓名\", \"email\": \"新邮箱\" }（字段可选，只传需要更新的）",
+                "operationId": "c06f12349a2fe69cac28314bd42d31f4",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "用户 ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "example": 1
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application\/json": {
+                            "schema": {
+                                "$ref": "#\/components\/schemas\/UserUpdateRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "更新成功",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "$ref": "#\/components\/schemas\/UserResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "用户不存在",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "$ref": "#\/components\/schemas\/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "未提供任何字段或邮箱格式错误",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "$ref": "#\/components\/schemas\/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "服务器错误",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "$ref": "#\/components\/schemas\/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "用户"
+                ],
+                "summary": "删除用户",
+                "description": "DELETE \/api\/users\/{id} — 删除用户",
+                "operationId": "bb5c18c79c777e30ce6f14c6f71f86d1",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "用户 ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "删除成功",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "$ref": "#\/components\/schemas\/EmptyDataResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "用户不存在",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "$ref": "#\/components\/schemas\/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "服务器错误",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "$ref": "#\/components\/schemas\/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "\/pelican": {
+            "get": {
+                "tags": [
+                    "其它"
+                ],
+                "summary": "鹈鹕骑单车动态 SVG",
+                "description": "GET \/pelican — 鹈鹕骑单车动态 SVG",
+                "operationId": "53e43eaad2cc68bbd450375b3c50ac74",
+                "responses": {
+                    "200": {
+                        "description": "SVG 图片",
+                        "content": {
+                            "image\/svg+xml": {}
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "EmptyDataResponse": {
+                "required": [
+                    "code",
+                    "message",
+                    "data"
+                ],
+                "properties": {
+                    "code": {
+                        "description": "0 表示成功，非 0 为业务错误码",
+                        "type": "integer",
+                        "example": 0
+                    },
+                    "message": {
+                        "type": "string",
+                        "example": " "
+                    },
+                    "data": {
+                        "description": "删除操作不返回数据",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "ErrorResponse": {
+                "required": [
+                    "code",
+                    "message"
+                ],
+                "properties": {
+                    "code": {
+                        "description": "业务错误码，与 HTTP 状态码一致",
+                        "type": "integer",
+                        "example": 404
+                    },
+                    "message": {
+                        "description": "错误提示",
+                        "type": "string",
+                        "example": "资源不存在"
+                    },
+                    "data": {
+                        "description": "附加信息，无则为 null",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "FileResponse": {
+                "required": [
+                    "code",
+                    "message",
+                    "data"
+                ],
+                "properties": {
+                    "code": {
+                        "description": "0 表示成功，非 0 为业务错误码",
+                        "type": "integer",
+                        "example": 0
+                    },
+                    "message": {
+                        "type": "string",
+                        "example": "获取成功"
+                    },
+                    "data": {
+                        "$ref": "#\/components\/schemas\/File"
+                    }
+                },
+                "type": "object"
+            },
+            "File": {
+                "required": [
+                    "id",
+                    "original_name",
+                    "extension",
+                    "mime",
+                    "size",
+                    "created_at"
+                ],
+                "properties": {
+                    "id": {
+                        "description": "文件记录 ID",
+                        "type": "integer",
+                        "format": "int64",
+                        "example": 1
+                    },
+                    "original_name": {
+                        "description": "上传时的原始文件名",
+                        "type": "string",
+                        "maxLength": 255,
+                        "example": "report.pdf"
+                    },
+                    "extension": {
+                        "description": "扩展名，小写不含点",
+                        "type": "string",
+                        "example": "pdf"
+                    },
+                    "mime": {
+                        "description": "MIME 类型",
+                        "type": "string",
+                        "example": "application\/pdf"
+                    },
+                    "size": {
+                        "description": "文件大小，字节",
+                        "type": "integer",
+                        "format": "int64",
+                        "example": 204800
+                    },
+                    "created_at": {
+                        "description": "上传时间，格式 Y-m-d H:i:s",
+                        "type": "string",
+                        "example": "2026-09-08 14:50:23"
+                    }
+                },
+                "type": "object"
+            },
+            "FilesPageResponse": {
+                "required": [
+                    "code",
+                    "message",
+                    "data"
+                ],
+                "properties": {
+                    "code": {
+                        "description": "0 表示成功，非 0 为业务错误码",
+                        "type": "integer",
+                        "example": 0
+                    },
+                    "message": {
+                        "type": "string",
+                        "example": "获取成功"
+                    },
+                    "data": {
+                        "description": "文件记录列表",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#\/components\/schemas\/File"
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "LogEntry": {
+                "required": [
+                    "datetime",
+                    "level",
+                    "channel",
+                    "message"
+                ],
+                "properties": {
+                    "datetime": {
+                        "description": "ISO-8601 时间戳，带时区",
+                        "type": "string",
+                        "example": "2026-09-09T01:58:07.333737+08:00"
+                    },
+                    "level": {
+                        "description": "日志级别",
+                        "type": "string",
+                        "example": "INFO"
+                    },
+                    "channel": {
+                        "description": "日志通道",
+                        "type": "string",
+                        "example": "app"
+                    },
+                    "message": {
+                        "description": "日志内容",
+                        "type": "string",
+                        "example": "获取用户列表 [] []"
+                    }
+                },
+                "type": "object"
+            },
+            "LogsPageResponse": {
+                "required": [
+                    "code",
+                    "message",
+                    "data"
+                ],
+                "properties": {
+                    "code": {
+                        "description": "0 表示成功，非 0 为业务错误码",
+                        "type": "integer",
+                        "example": 0
+                    },
+                    "message": {
+                        "type": "string",
+                        "example": "获取成功"
+                    },
+                    "data": {
+                        "$ref": "#\/components\/schemas\/LogsPage"
+                    }
+                },
+                "type": "object"
+            },
+            "LogsPage": {
+                "required": [
+                    "total",
+                    "entries"
+                ],
+                "properties": {
+                    "total": {
+                        "description": "命中条数",
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "entries": {
+                        "description": "日志条目",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#\/components\/schemas\/LogEntry"
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "UserCreateRequest": {
+                "required": [
+                    "name",
+                    "email"
+                ],
+                "properties": {
+                    "name": {
+                        "description": "用户姓名，不能为空",
+                        "type": "string",
+                        "maxLength": 100,
+                        "example": "Alice"
+                    },
+                    "email": {
+                        "description": "用户邮箱，不能为空且需全局唯一",
+                        "type": "string",
+                        "format": "email",
+                        "maxLength": 150,
+                        "example": "alice@example.com"
+                    }
+                },
+                "type": "object"
+            },
+            "UserResponse": {
+                "required": [
+                    "code",
+                    "message",
+                    "data"
+                ],
+                "properties": {
+                    "code": {
+                        "description": "0 表示成功，非 0 为业务错误码",
+                        "type": "integer",
+                        "example": 0
+                    },
+                    "message": {
+                        "type": "string",
+                        "example": "获取成功"
+                    },
+                    "data": {
+                        "$ref": "#\/components\/schemas\/User"
+                    }
+                },
+                "type": "object"
+            },
+            "User": {
+                "required": [
+                    "id",
+                    "name",
+                    "email",
+                    "created_at",
+                    "updated_at"
+                ],
+                "properties": {
+                    "id": {
+                        "description": "用户 ID",
+                        "type": "integer",
+                        "format": "int64",
+                        "example": 1
+                    },
+                    "name": {
+                        "description": "用户姓名",
+                        "type": "string",
+                        "maxLength": 100,
+                        "example": "Alice"
+                    },
+                    "email": {
+                        "description": "用户邮箱（唯一）",
+                        "type": "string",
+                        "format": "email",
+                        "maxLength": 150,
+                        "example": "alice@example.com"
+                    },
+                    "created_at": {
+                        "description": "创建时间，格式 Y-m-d H:i:s",
+                        "type": "string",
+                        "example": "2026-09-08 14:50:23"
+                    },
+                    "updated_at": {
+                        "description": "更新时间，格式 Y-m-d H:i:s",
+                        "type": "string",
+                        "example": "2026-09-08 14:50:23"
+                    }
+                },
+                "type": "object"
+            },
+            "UserUpdateRequest": {
+                "properties": {
+                    "name": {
+                        "description": "用户姓名",
+                        "type": "string",
+                        "maxLength": 100,
+                        "example": "Alice2"
+                    },
+                    "email": {
+                        "description": "用户邮箱，需全局唯一",
+                        "type": "string",
+                        "format": "email",
+                        "maxLength": 150,
+                        "example": "alice2@example.com"
+                    }
+                },
+                "type": "object"
+            },
+            "UsersPageResponse": {
+                "required": [
+                    "code",
+                    "message",
+                    "data"
+                ],
+                "properties": {
+                    "code": {
+                        "description": "0 表示成功，非 0 为业务错误码",
+                        "type": "integer",
+                        "example": 0
+                    },
+                    "message": {
+                        "type": "string",
+                        "example": "获取成功"
+                    },
+                    "data": {
+                        "$ref": "#\/components\/schemas\/UsersPage"
+                    }
+                },
+                "type": "object"
+            },
+            "UsersPage": {
+                "required": [
+                    "data",
+                    "total",
+                    "page",
+                    "pageSize",
+                    "lastPage"
+                ],
+                "properties": {
+                    "data": {
+                        "description": "当前页用户列表",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#\/components\/schemas\/User"
+                        }
+                    },
+                    "total": {
+                        "description": "总条数",
+                        "type": "integer",
+                        "example": 4
+                    },
+                    "page": {
+                        "description": "当前页码",
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "pageSize": {
+                        "description": "每页条数",
+                        "type": "integer",
+                        "example": 20
+                    },
+                    "lastPage": {
+                        "description": "最后一页页码",
+                        "type": "integer",
+                        "example": 1
+                    }
+                },
+                "type": "object"
+            }
+        },
+        "securitySchemes": {
+            "bearerAuth": {
+                "type": "http",
+                "description": "输入你的 xAI API Key (格式：Bearer xai-xxx)",
+                "name": "Authorization",
+                "in": "header",
+                "bearerFormat": "JWT",
+                "scheme": "bearer"
+            }
+        }
+    },
+    "security": [
+        {
+            "bearerAuth": []
+        }
+    ],
+    "tags": [
+        {
+            "name": "用户",
+            "description": "用户增删改查"
+        },
+        {
+            "name": "文件",
+            "description": "文件上传、列表、下载与删除"
+        },
+        {
+            "name": "日志",
+            "description": "应用日志查询"
+        },
+        {
+            "name": "其它",
+            "description": "非业务接口"
+        }
+    ]
+}

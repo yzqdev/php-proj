@@ -1,0 +1,1116 @@
+{
+    "openapi": "3.0.3",
+    "info": {
+        "title": "php-learn API",
+        "description": "PHP 8.5 无框架后端 + Vue 3 SPA 前后端分离项目的 REST API。\n\n鉴权方式：Bearer Token（JWT Access + Refresh Token）\n响应结构：统一 envelope {code, message, data, errors?}\n业务 code：0=成功, 40101=未登录, 40102=token 无效, 40301=无权限, 40401=资源不存在, 42201=校验失败, 50000=内部错误",
+        "contact": {
+            "name": "php-learn",
+            "url": "https:\/\/github.com\/example\/php-learn"
+        },
+        "license": {
+            "name": "MIT"
+        },
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "\/api\/v1",
+            "description": "API v1（同域部署）"
+        },
+        {
+            "url": "http:\/\/127.0.0.1:8000\/api\/v1",
+            "description": "本地开发"
+        }
+    ],
+    "paths": {
+        "\/activities": {
+            "get": {
+                "tags": [
+                    "Activities"
+                ],
+                "summary": "活动列表",
+                "description": "支持分页，upcoming=true 只返回即将开始的活动",
+                "operationId": "a8170488c07f400aac287f1c6c1ff895",
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "页码",
+                        "schema": {
+                            "type": "integer",
+                            "default": 1
+                        }
+                    },
+                    {
+                        "name": "pageSize",
+                        "in": "query",
+                        "description": "每页条数",
+                        "schema": {
+                            "type": "integer",
+                            "default": 8,
+                            "maximum": 100
+                        }
+                    },
+                    {
+                        "name": "upcoming",
+                        "in": "query",
+                        "description": "传 true 时只返回未来的活动",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "活动分页列表"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Activities"
+                ],
+                "summary": "新建活动",
+                "description": "需要 Bearer Token",
+                "operationId": "4c1a7613c6d25f9b0bd5aa280c4e1c9b",
+                "requestBody": {
+                    "required": true
+                },
+                "responses": {
+                    "201": {
+                        "description": "创建成功",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "$ref": "#\/components\/schemas\/Activity"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "未登录",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "$ref": "#\/components\/schemas\/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "参数校验失败",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "$ref": "#\/components\/schemas\/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "\/activities\/{id}": {
+            "get": {
+                "tags": [
+                    "Activities"
+                ],
+                "summary": "活动详情",
+                "description": "获取指定 ID 的活动详情",
+                "operationId": "22d2fceeee1395777adb5e35cb4b0d53",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "活动 ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1
+                        },
+                        "example": 1
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "活动详情"
+                    },
+                    "404": {
+                        "description": "活动不存在"
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Activities"
+                ],
+                "summary": "更新活动",
+                "description": "PATCH 语义：只更新提交了字段",
+                "operationId": "f68d2a5a85eb2f5111c90c0dc51236fd",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "活动 ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1
+                        },
+                        "example": 1
+                    }
+                ],
+                "requestBody": {
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "更新成功",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "$ref": "#\/components\/schemas\/Activity"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "未登录",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "$ref": "#\/components\/schemas\/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "活动不存在",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "$ref": "#\/components\/schemas\/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "参数校验失败",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "$ref": "#\/components\/schemas\/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Activities"
+                ],
+                "summary": "删除活动",
+                "description": "DELETE \/api\/v1\/activities\/{id}（需鉴权）",
+                "operationId": "a7e52a4c35d0fa9cbaadd7f61c6fd498",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "活动 ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1
+                        },
+                        "example": 1
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "删除成功（无 body）"
+                    },
+                    "401": {
+                        "description": "未登录",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "$ref": "#\/components\/schemas\/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "活动不存在",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "$ref": "#\/components\/schemas\/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "\/articles": {
+            "get": {
+                "tags": [
+                    "Articles"
+                ],
+                "summary": "文章列表",
+                "description": "支持分页 + 分类\/状态筛选",
+                "operationId": "66bf6230eeef4cfa0a5c8e7a25e9715e",
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "页码",
+                        "schema": {
+                            "type": "integer",
+                            "default": 1
+                        }
+                    },
+                    {
+                        "name": "pageSize",
+                        "in": "query",
+                        "description": "每页条数",
+                        "schema": {
+                            "type": "integer",
+                            "default": 8,
+                            "maximum": 100
+                        }
+                    },
+                    {
+                        "name": "category",
+                        "in": "query",
+                        "description": "分类筛选（php\/java\/db\/other）",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "php",
+                                "java",
+                                "db",
+                                "other"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "description": "状态筛选（published\/draft）",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "draft",
+                                "published"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "分页列表"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Articles"
+                ],
+                "summary": "新建文章",
+                "description": "需要 Bearer Token",
+                "operationId": "e5e5b148ab57bfb1c951ddf23fec45d7",
+                "requestBody": {
+                    "required": true
+                },
+                "responses": {
+                    "201": {
+                        "description": "创建成功",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "$ref": "#\/components\/schemas\/Article"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "未登录",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "$ref": "#\/components\/schemas\/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "参数校验失败",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "$ref": "#\/components\/schemas\/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "\/articles\/{id}": {
+            "get": {
+                "tags": [
+                    "Articles"
+                ],
+                "summary": "文章详情",
+                "description": "获取指定 ID 的文章详情",
+                "operationId": "b52c3be0bc4fedb09a4b12b9e4802165",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "文章 ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1
+                        },
+                        "example": 1
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "文章详情",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "$ref": "#\/components\/schemas\/Article"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "文章不存在",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "$ref": "#\/components\/schemas\/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Articles"
+                ],
+                "summary": "更新文章",
+                "description": "PATCH 语义：只更新提交了字段",
+                "operationId": "822c46f61b39bce0ca3e8158393301f6",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "文章 ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1
+                        },
+                        "example": 1
+                    }
+                ],
+                "requestBody": {
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "更新成功",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "$ref": "#\/components\/schemas\/Article"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "未登录",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "$ref": "#\/components\/schemas\/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "文章不存在",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "$ref": "#\/components\/schemas\/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "参数校验失败",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "$ref": "#\/components\/schemas\/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Articles"
+                ],
+                "summary": "删除文章",
+                "description": "DELETE \/api\/v1\/articles\/{id}（需鉴权）",
+                "operationId": "8ec6712f08b29739e503b70f0487584d",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "文章 ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1
+                        },
+                        "example": 1
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "删除成功（无 body）"
+                    },
+                    "401": {
+                        "description": "未登录",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "$ref": "#\/components\/schemas\/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "文章不存在",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "$ref": "#\/components\/schemas\/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "\/auth\/login": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "登录",
+                "description": "用登录名和密码换取 Access + Refresh Token",
+                "operationId": "c542ba0f20b129ebb73c48d9561d560b",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application\/json": {
+                            "schema": {
+                                "required": [
+                                    "login",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "login": {
+                                        "description": "登录名（用户名或邮箱）",
+                                        "type": "string",
+                                        "example": "admin"
+                                    },
+                                    "password": {
+                                        "description": "密码",
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "admin123"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "登录成功",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "required": [
+                                        "accessToken",
+                                        "refreshToken"
+                                    ],
+                                    "properties": {
+                                        "accessToken": {
+                                            "description": "Access Token（JWT，15 分钟有效）",
+                                            "type": "string"
+                                        },
+                                        "refreshToken": {
+                                            "description": "Refresh Token（7 天有效）",
+                                            "type": "string"
+                                        },
+                                        "tokenType": {
+                                            "type": "string",
+                                            "example": "Bearer"
+                                        },
+                                        "expiresIn": {
+                                            "description": "Access Token 剩余秒数",
+                                            "type": "integer",
+                                            "example": 900
+                                        },
+                                        "user": {
+                                            "$ref": "#\/components\/schemas\/User"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "账号或密码错误",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "required": [
+                                        "code",
+                                        "message",
+                                        "data"
+                                    ],
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 40101
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "账号或密码错误"
+                                        },
+                                        "data": {
+                                            "type": "object",
+                                            "nullable": true
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "参数校验失败",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "required": [
+                                        "code",
+                                        "message",
+                                        "data"
+                                    ],
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 42201
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "data": {
+                                            "description": "字段级错误",
+                                            "type": "object",
+                                            "nullable": true,
+                                            "additionalProperties": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "\/auth\/refresh": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "刷新令牌",
+                "description": "用 Refresh Token 换取新的 Access Token（同时轮转 Refresh Token）",
+                "operationId": "7f8016872ebe19d2ce467c9feab85394",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application\/json": {
+                            "schema": {
+                                "required": [
+                                    "refreshToken"
+                                ],
+                                "properties": {
+                                    "refreshToken": {
+                                        "description": "刷新令牌",
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "刷新成功",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "required": [
+                                        "accessToken",
+                                        "refreshToken"
+                                    ],
+                                    "properties": {
+                                        "accessToken": {
+                                            "description": "新的 Access Token",
+                                            "type": "string"
+                                        },
+                                        "refreshToken": {
+                                            "description": "轮转后的新 Refresh Token",
+                                            "type": "string"
+                                        },
+                                        "expiresIn": {
+                                            "type": "integer",
+                                            "example": 900
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Refresh Token 无效或已过期",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "required": [
+                                        "code",
+                                        "message",
+                                        "data"
+                                    ],
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 40102
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "data": {
+                                            "type": "object",
+                                            "nullable": true
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "\/auth\/logout": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "登出",
+                "description": "撤销当前用户的所有 Refresh Token（Access Token 等自然过期）",
+                "operationId": "e401b18266e30a630a8c26f097388086",
+                "responses": {
+                    "204": {
+                        "description": "登出成功（无 body）"
+                    },
+                    "401": {
+                        "description": "未登录",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "required": [
+                                        "code",
+                                        "message",
+                                        "data"
+                                    ],
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 40101
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "data": {
+                                            "type": "object",
+                                            "nullable": true
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "\/auth\/me": {
+            "get": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "获取当前用户",
+                "description": "返回当前登录用户的信息（需 Bearer Token）",
+                "operationId": "f7ae1fe2dcffa6eafa62de88e6441088",
+                "responses": {
+                    "200": {
+                        "description": "用户信息",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "$ref": "#\/components\/schemas\/User"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "未登录或 token 失效",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "$ref": "#\/components\/schemas\/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "\/health": {
+            "get": {
+                "tags": [
+                    "Health"
+                ],
+                "summary": "服务健康检查",
+                "description": "不需要鉴权，返回服务状态和当前时间",
+                "operationId": "7e6ad97e9fd1bdf92073a7edb79ff0ec",
+                "responses": {
+                    "200": {
+                        "description": "服务正常"
+                    }
+                }
+            }
+        },
+        "\/tool\/check": {
+            "get": {
+                "tags": [
+                    "Tool"
+                ],
+                "summary": "服务健康检查",
+                "description": "不需要鉴权，返回服务状态和当前时间",
+                "operationId": "ac3cbed95499f667d8f2e825c47cf0cd",
+                "responses": {
+                    "200": {
+                        "description": "服务正常"
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "Activity": {
+                "title": "活动",
+                "description": "活动实体；schema 直接定义在 Entity 上（类 playground 的 DTO 注解方式）",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "format": "int64",
+                        "example": 1
+                    },
+                    "title": {
+                        "description": "活动名称（VARCHAR 120）",
+                        "type": "string",
+                        "example": "PHP 8.5 技术分享"
+                    },
+                    "location": {
+                        "description": "地点（VARCHAR 120，可空）",
+                        "type": "string",
+                        "example": "线上直播",
+                        "nullable": true
+                    },
+                    "startTime": {
+                        "description": "开始时间（DATETIME，必填）",
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2026-10-15 19:00:00"
+                    },
+                    "endTime": {
+                        "description": "结束时间（DATETIME，可空）",
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2026-10-15 21:00:00",
+                        "nullable": true
+                    },
+                    "description": {
+                        "description": "活动描述（TEXT，可空）",
+                        "type": "string",
+                        "example": "深入讲解 PHP 8.5 新特性",
+                        "nullable": true
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2026-09-01 09:00:00"
+                    },
+                    "updatedAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2026-09-06 19:00:00"
+                    }
+                },
+                "type": "object"
+            },
+            "Article": {
+                "title": "文章",
+                "description": "文章实体；schema 直接定义在 Entity 上（类 playground 的 DTO 注解方式）",
+                "properties": {
+                    "aaa": {
+                        "description": "分类中文标签",
+                        "type": "string",
+                        "example": "PHP"
+                    },
+                    "id": {
+                        "description": "主键（bigint unsigned，自增）",
+                        "type": "integer",
+                        "format": "int64",
+                        "example": 1
+                    },
+                    "title": {
+                        "description": "标题（VARCHAR 120）",
+                        "type": "string",
+                        "example": "PHP 8.5 新特性"
+                    },
+                    "body": {
+                        "description": "正文（TEXT）",
+                        "type": "string",
+                        "example": "PHP 8.5 引入了..."
+                    },
+                    "category": {
+                        "description": "分类：php \/ java \/ db \/ other（varchar 20，默认 other）",
+                        "type": "string",
+                        "example": "php",
+                        "enum": [
+                            "php",
+                            "java",
+                            "db",
+                            "other"
+                        ]
+                    },
+                    "status": {
+                        "description": "状态：draft \/ published（varchar 20，默认 published）",
+                        "type": "string",
+                        "example": "published",
+                        "enum": [
+                            "draft",
+                            "published"
+                        ]
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2026-09-01 09:00:00"
+                    },
+                    "updatedAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2026-09-06 19:00:00"
+                    }
+                },
+                "type": "object"
+            },
+            "ErrorResponse": {
+                "title": "统一错误响应结构",
+                "description": "API 请求出错或校验失败时的统一返回对象",
+                "properties": {
+                    "code": {
+                        "description": "业务\/HTTP 错误码",
+                        "type": "integer",
+                        "example": 40000
+                    },
+                    "message": {
+                        "description": "错误提示信息",
+                        "type": "string",
+                        "example": "未登录或 Token 已过期"
+                    },
+                    "data": {
+                        "description": "响应数据（通常为 null）",
+                        "example": null,
+                        "nullable": true
+                    },
+                    "errors": {
+                        "description": "具体的字段校验错误明细（422 参数校验错误时返回）",
+                        "type": "object",
+                        "example": {
+                            "title": [
+                                "标题不能为空"
+                            ]
+                        },
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "User": {
+                "title": "用户",
+                "description": "用户实体；schema 直接定义在 Entity 上（password 字段不暴露给 API）",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "format": "int64",
+                        "example": 1
+                    },
+                    "username": {
+                        "description": "用户名（登录名）",
+                        "type": "string",
+                        "example": "admin"
+                    },
+                    "email": {
+                        "description": "邮箱（唯一）",
+                        "type": "string",
+                        "format": "email",
+                        "example": "admin@php-learn.local"
+                    },
+                    "role": {
+                        "description": "角色：user \/ admin",
+                        "type": "string",
+                        "example": "admin",
+                        "enum": [
+                            "admin",
+                            "user"
+                        ]
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2026-09-01 09:00:00"
+                    }
+                },
+                "type": "object"
+            }
+        },
+        "parameters": {
+            "id": {
+                "name": "id",
+                "in": "path",
+                "description": "资源 ID",
+                "required": true,
+                "schema": {
+                    "type": "integer",
+                    "minimum": 1
+                },
+                "example": 1
+            }
+        },
+        "securitySchemes": {
+            "bearerAuth": {
+                "type": "http",
+                "description": "Bearer Token（JWT Access Token），通过登录接口获取",
+                "bearerFormat": "JWT",
+                "scheme": "bearer"
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Health",
+            "description": "Health 相关接口"
+        },
+        {
+            "name": "Auth",
+            "description": "Auth 相关接口"
+        },
+        {
+            "name": "Articles",
+            "description": "Articles 相关接口"
+        },
+        {
+            "name": "Activities",
+            "description": "Activities 相关接口"
+        },
+        {
+            "name": "Tool",
+            "description": "Tool"
+        }
+    ]
+}

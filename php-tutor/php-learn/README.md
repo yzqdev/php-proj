@@ -274,7 +274,7 @@ composer migrate:status     # 查看迁移状态
 
 ### 7. 日志
 
-**文件**：`app/Helpers/Logger.php`（Monolog 封装）
+**文件**：`app/Helpers/MyLogger.php`（Monolog 封装）
 
 - `Logger::info('用户登录', ['userId' => 1])` → PSR-3 结构化日志。
 - `RotatingFileHandler` 按天轮转，`max_files = 30` 保留最近 30 天。
@@ -338,7 +338,7 @@ composer migrate:status     # 查看迁移状态
 6. **`app/Controllers/Api/ArticleController.php` + `app/Entities/ArticleRepository.php`** — 完整 CRUD + 分页流程
 7. **`app/Helpers/JsonResponse.php` + `app/Exceptions/BusinessException.php` + `app/Middleware/ErrorRenderer.php`** — 看"统一响应与异常"
 8. **`app/OpenApi/SpecGenerator.php`** — 看 OpenAPI 怎么自动生成
-9. **对照文档**：`app/Controllers/Api/ApiDocsController.php` → `GET /api/v1/docs`
+9. **对照文档**：`app/Controllers/Api/SwaggerController.php` → `GET /api/v1/docs`
 
 ---
 

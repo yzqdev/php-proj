@@ -24,6 +24,8 @@ declare(strict_types=1);
  *     保证 CLI 与 Web 用同一套连接配置；
  *   - 迁移类目录：app/Migrations（命名空间 App\Migrations）。
  */
+
+namespace App\Console;
 require_once dirname(__DIR__, 2) . '/vendor/autoload.php';
 
 use App\Services\DoctrineServiceProvider;

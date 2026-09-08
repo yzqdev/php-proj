@@ -9,7 +9,7 @@ use App\Exceptions\ResourceNotFoundException;
 use App\Helpers\Config;
 use App\Helpers\Html;
 use App\Helpers\JsonResponse;
-use App\Helpers\Logger;
+use App\Helpers\MyLogger;
 use App\Helpers\RequestBody;
 use App\Middleware\ApiAuthenticate;
 use App\Resources\ActivityResource;
@@ -76,9 +76,9 @@ class ActivityController
             new OA\Response(
                 response: 200,
                 description: '活动分页列表',
-                content: new OA\JsonContent(
-                    ref: '#/components/schemas/ActivityPage',
-                ),
+//                content: new OA\JsonContent(
+//                    ref: '#/components/schemas/ActivityPage',
+//                ),
             ),
         ],
     )]
@@ -132,16 +132,16 @@ class ActivityController
             new OA\Response(
                 response: 200,
                 description: '活动详情',
-                content: new OA\JsonContent(
-                    ref: '#/components/schemas/Activity',
-                ),
+//                content: new OA\JsonContent(
+//                    ref: '#/components/schemas/Activity',
+//                ),
             ),
             new OA\Response(
                 response: 404,
                 description: '活动不存在',
-                content: new OA\JsonContent(
-                    ref: '#/components/schemas/ErrorResponse',
-                ),
+//                content: new OA\JsonContent(
+//                    ref: '#/components/schemas/ErrorResponse',
+//                ),
             ),
         ],
     )]
@@ -176,9 +176,9 @@ class ActivityController
         security: [['bearerAuth' => []]],
         requestBody: new OA\RequestBody(
             required: true,
-            content: new OA\JsonContent(
-                ref: '#/components/schemas/ActivityCreateRequest',
-            ),
+//            content: new OA\JsonContent(
+//                ref: '#/components/schemas/ActivityCreateRequest',
+//            ),
         ),
         tags: ['Activities'],
         responses: [
@@ -224,7 +224,7 @@ class ActivityController
         $this->em->persist($activity);
         $this->em->flush();
 
-        Logger::info('活动创建成功', [
+        MyLogger::info('活动创建成功', [
             'activityId' => $activity->getId(),
             'title'      => $activity->getTitle(),
             'userId'     => (int)(ApiAuthenticate::currentUser()['userId'] ?? 0),
@@ -254,9 +254,9 @@ class ActivityController
         security: [['bearerAuth' => []]],
         requestBody: new OA\RequestBody(
             required: true,
-            content: new OA\JsonContent(
-                ref: '#/components/schemas/ActivityUpdateRequest',
-            ),
+//            content: new OA\JsonContent(
+//                ref: '#/components/schemas/ActivityUpdateRequest',
+//            ),
         ),
         tags: ['Activities'],
         parameters: [
@@ -324,7 +324,7 @@ class ActivityController
 
         $this->em->flush();
 
-        Logger::info('活动更新成功', [
+        MyLogger::info('活动更新成功', [
             'activityId' => $id,
             'fields'     => array_keys(array_filter($body, static fn($k) => in_array($k, ['title','location','start_time','end_time','description'], true), ARRAY_FILTER_USE_KEY)),
             'userId'     => (int)(ApiAuthenticate::currentUser()['userId'] ?? 0),
@@ -390,7 +390,7 @@ class ActivityController
         $this->em->remove($activity);
         $this->em->flush();
 
-        Logger::info('活动 deletion 成功', [
+        MyLogger::info('活动 deletion 成功', [
             'activityId' => $id,
             'userId'     => (int)(ApiAuthenticate::currentUser()['userId'] ?? 0),
         ]);

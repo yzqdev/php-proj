@@ -7,7 +7,7 @@ namespace App\Controllers\Api;
 use App\Entities\User;
 use App\Helpers\Html;
 use App\Helpers\JsonResponse;
-use App\Helpers\Logger;
+use App\Helpers\MyLogger;
 use App\Helpers\RequestBody;
 use App\Middleware\ApiAuthenticate;
 use App\Services\TokenService;
@@ -147,7 +147,7 @@ class AuthController
         }
 
         if (!$valid) {
-            Logger::warning('登录失败', [
+            MyLogger::warning('登录失败', [
                 'login'  => $login,
                 'remote' => $psr7->getServerParams()['REMOTE_ADDR'] ?? '127.0.0.1',
                 'reason' => $user === null ? '用户不存在' : '密码错误',
@@ -159,7 +159,7 @@ class AuthController
 
         $tokens = $this->tokens->issue($user);
 
-        Logger::info('用户登录成功', [
+        MyLogger::info('用户登录成功', [
             'userId'   => $user->getId(),
             'username' => $user->getUsername(),
             'remote'   => $psr7->getServerParams()['REMOTE_ADDR'] ?? '127.0.0.1',
@@ -298,7 +298,7 @@ class AuthController
             $this->tokens->revokeAll($userId);
         }
 
-        Logger::info('用户登出', [
+        MyLogger::info('用户登出', [
             'userId' => $userId,
             'remote' => $psr7->getServerParams()['REMOTE_ADDR'] ?? '127.0.0.1',
         ]);

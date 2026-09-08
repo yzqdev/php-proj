@@ -31,6 +31,7 @@ use Yzqde\Playground\Controller\ImageController;
 use Yzqde\Playground\Controller\LogController;
 use Yzqde\Playground\Controller\OpenApiDocsController;
 use Yzqde\Playground\Controller\PersonController;
+use Yzqde\Playground\Controller\SwaggerController;
 use Yzqde\Playground\Middleware\AccessLogMiddleware;
 use Yzqde\Playground\Service\PersonService;
 use Yzqde\Playground\Middleware\CorsMiddleware;
@@ -89,7 +90,8 @@ $app->delete('/api/persons/{id}', [PersonController::class, 'delete']);
 
 
 // 接口文档:规范由 src/ 下的 OA 注解在运行时生成并缓存到 storage/openapi.json
-$app->get('/openapi.json', [OpenApiDocsController::class, 'spec']);
-$app->get('/docs', [OpenApiDocsController::class, 'ui']);
+
+$app->get('/swagger', [SwaggerController::class, 'index']);
+$app->get('/swagger/json', [SwaggerController::class, 'json']);
 
 $app->run();

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Yzqde\Playground\Controller;
 
+use Monolog\Logger;
 use OpenApi\Attributes as OA;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -23,7 +24,7 @@ use Yzqde\Playground\Service\PersonService;
  */
 final class PersonController
 {
-    public function __construct(private readonly PersonService $persons, private readonly LoggerInterface $logger)
+    public function __construct(private readonly PersonService $persons, private readonly LoggerInterface  $logger)
     {
     }
 

@@ -36,9 +36,9 @@ class HealthController
             new OA\Response(
                 response: 200,
                 description: '服务正常',
-                content: new OA\JsonContent(
-                    ref: '#/components/schemas/HealthInfo',
-                ),
+//                content: new OA\JsonContent(
+//                    ref: '#/components/schemas/HealthInfo',
+//                ),
             ),
         ],
     )]

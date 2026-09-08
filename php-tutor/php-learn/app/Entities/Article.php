@@ -123,7 +123,7 @@ class Article
      * @OA\Property 在 getter 上声明，因为 categoryLabel 不是数据库列，
      * 而是由 Resource 层 / getter 计算的虚拟字段。
      */
-    #[OA\Property(description: '分类中文标签', type: 'string', example: 'PHP')]
+    #[OA\Property(property:"aaa", description: '分类中文标签', type: 'string', example: 'PHP')]
     public function getCategoryLabel(): string
     {
         return match ($this->category) {

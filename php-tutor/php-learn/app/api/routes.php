@@ -25,13 +25,17 @@
 declare(strict_types=1);
 
 use App\Controllers\Api\ActivityController as ApiActivityController;
-use App\Controllers\Api\ApiDocsController;
+
 use App\Controllers\Api\ArticleController as ApiArticleController;
 use App\Controllers\Api\AuthController as ApiAuthController;
 use App\Controllers\Api\HealthController as ApiHealthController;
 use App\Controllers\Api\LogController;
+use App\Controllers\Api\SwaggerController;
+use App\Controllers\Api\ToolController;
 use App\Middleware\ApiAuthenticate;
+use App\Middleware\RequestLogger;
 use Slim\App;
+
 
 /**
  * 注册所有 /api/v1/* 路由
@@ -43,14 +47,13 @@ return function (App $app): void {
     // 健康检查（不需要鉴权）
     // -----------------------------------------------------------------------
     $app->get('/api/v1/health', [ApiHealthController::class, 'check'])
-        ->add(new \App\Middleware\RequestLogger());
+        ->add(new RequestLogger());
 
     // -----------------------------------------------------------------------
     // API 文档（Swagger UI + OpenAPI spec）
     // 不需要鉴权：文档是公开信息
     // -----------------------------------------------------------------------
-    $app->get('/api/v1/docs',      [ApiDocsController::class, 'docs']);
-    $app->get('/api/v1/docs/spec', [ApiDocsController::class, 'spec']);
+
 
     // -----------------------------------------------------------------------
     // 认证（Bearer Token）
@@ -93,4 +96,11 @@ return function (App $app): void {
         ->add(new ApiAuthenticate());
     $app->get('/api/v1/logs/{date}',    [LogController::class, 'show'])
         ->add(new ApiAuthenticate());
+
+
+    $app->get('/api/v1/tool/check',           [ToolController::class, 'check']);
+
+
+    $app->get('/swagger', [SwaggerController::class, 'index']);
+    $app->get('/swagger/json', [SwaggerController::class, 'json']);
 };

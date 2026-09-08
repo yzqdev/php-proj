@@ -9,6 +9,7 @@ use App\Exception\FileUploadException;
 use App\Response\BaseResponse;
 use App\Service\FileService;
 use Monolog\Logger;
+use OpenApi\Attributes as OA;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\UploadedFileInterface;
@@ -47,6 +48,10 @@ final class FileController
      *
      * @return Response JSON 响应，格式：{ code: 0, message: "获取成功", data: [...] }
      */
+    #[OA\Get(path: '/api/files', summary: '获取文件列表', tags: ['文件'])]
+    #[OA\Parameter(name: 'limit', in: 'query', required: false, schema: new OA\Schema(type: 'integer', minimum: 1, maximum: 500, example: 100), description: '返回条数，默认 100，最大 500')]
+    #[OA\Response(response: 200, description: '获取成功', content: new OA\JsonContent(ref: '#/components/schemas/FilesPageResponse'))]
+    #[OA\Response(response: 500, description: '服务器错误', content: new OA\JsonContent(ref: '#/components/schemas/ErrorResponse'))]
     public function index(Request $request, Response $response): Response
     {
         $this->logger->info('获取文件列表');
@@ -66,6 +71,11 @@ final class FileController
      *
      * @return Response JSON 响应，文件不存在返回 404
      */
+    #[OA\Get(path: '/api/files/{id}', summary: '获取文件详情', tags: ['文件'])]
+    #[OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer', minimum: 1, example: 1), description: '文件记录 ID')]
+    #[OA\Response(response: 200, description: '获取成功', content: new OA\JsonContent(ref: '#/components/schemas/FileResponse'))]
+    #[OA\Response(response: 404, description: '文件不存在', content: new OA\JsonContent(ref: '#/components/schemas/ErrorResponse'))]
+    #[OA\Response(response: 500, description: '服务器错误', content: new OA\JsonContent(ref: '#/components/schemas/ErrorResponse'))]
     public function show(Request $request, Response $response, array $args): Response
     {
         $this->logger->info('获取单个文件', ['id' => $args['id']]);
@@ -88,6 +98,21 @@ final class FileController
      *
      * @return Response 成功返回 201 + 文件记录；参数或校验失败返回 422
      */
+    #[OA\Post(path: '/api/files', summary: '上传文件', tags: ['文件'])]
+    #[OA\RequestBody(
+        required: true,
+        content: new OA\MediaType(
+            mediaType: 'multipart/form-data',
+            schema: new OA\Schema(
+                type: 'object',
+                required: ['file'],
+                properties: [new OA\Property(property: 'file', type: 'string', format: 'binary', description: '待上传的文件')],
+            ),
+        ),
+    )]
+    #[OA\Response(response: 201, description: '上传成功', content: new OA\JsonContent(ref: '#/components/schemas/FileResponse'))]
+    #[OA\Response(response: 422, description: '缺少 file 字段或文件校验未通过', content: new OA\JsonContent(ref: '#/components/schemas/ErrorResponse'))]
+    #[OA\Response(response: 500, description: '服务器错误', content: new OA\JsonContent(ref: '#/components/schemas/ErrorResponse'))]
     public function upload(Request $request, Response $response): Response
     {
         $uploads = $request->getUploadedFiles();
@@ -130,6 +155,11 @@ final class FileController
      *
      * @return Response 成功返回 200，文件不存在返回 404
      */
+    #[OA\Delete(path: '/api/files/{id}', summary: '删除文件', tags: ['文件'])]
+    #[OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer', minimum: 1, example: 1), description: '文件记录 ID')]
+    #[OA\Response(response: 200, description: '删除成功', content: new OA\JsonContent(ref: '#/components/schemas/EmptyDataResponse'))]
+    #[OA\Response(response: 404, description: '文件不存在', content: new OA\JsonContent(ref: '#/components/schemas/ErrorResponse'))]
+    #[OA\Response(response: 500, description: '服务器错误', content: new OA\JsonContent(ref: '#/components/schemas/ErrorResponse'))]
     public function delete(Request $request, Response $response, array $args): Response
     {
         $id = (int) $args['id'];
@@ -151,6 +181,16 @@ final class FileController
      *
      * @return Response 二进制响应，带 Content-Disposition attachment 头
      */
+    #[OA\Get(path: '/api/files/{id}/download', summary: '下载文件', tags: ['文件'])]
+    #[OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer', minimum: 1, example: 1), description: '文件记录 ID')]
+    #[OA\Response(
+        response: 200,
+        description: '文件二进制流，Content-Disposition 为 attachment',
+        headers: [new OA\Header(header: 'Content-Disposition', schema: new OA\Schema(type: 'string', example: 'attachment; filename="report.pdf"'))],
+        content: new OA\MediaType(mediaType: 'application/octet-stream'),
+    )]
+    #[OA\Response(response: 404, description: '文件不存在或磁盘文件已丢失', content: new OA\JsonContent(ref: '#/components/schemas/ErrorResponse'))]
+    #[OA\Response(response: 500, description: '文件读取失败', content: new OA\JsonContent(ref: '#/components/schemas/ErrorResponse'))]
     public function download(Request $request, Response $response, array $args): Response
     {
         $id = (int) $args['id'];

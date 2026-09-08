@@ -8,6 +8,7 @@ use App\Response\BaseResponse;
 use App\Service\UserService;
 use Monolog\Logger;
 use PDOException;
+use OpenApi\Attributes as OA;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
@@ -39,6 +40,11 @@ final class UserController
      *
      * @return Response JSON 响应，格式：{ code: 0, message: "获取成功", data: {...} }
      */
+    #[OA\Get(path: '/api/users', summary: '获取用户列表', tags: ['用户'])]
+    #[OA\Parameter(name: 'page', in: 'query', required: false, schema: new OA\Schema(type: 'integer', minimum: 1, example: 1), description: '页码，默认 1')]
+    #[OA\Parameter(name: 'pageSize', in: 'query', required: false, schema: new OA\Schema(type: 'integer', minimum: 1, maximum: 100, example: 20), description: '每页条数，默认 20，最大 100')]
+    #[OA\Response(response: 200, description: '获取成功', content: new OA\JsonContent(ref: '#/components/schemas/UsersPageResponse'))]
+    #[OA\Response(response: 500, description: '服务器错误', content: new OA\JsonContent(ref: '#/components/schemas/ErrorResponse'))]
     public function index(Request $request, Response $response): Response
     {
         $this->logger->info('获取用户列表');
@@ -61,6 +67,11 @@ final class UserController
      *
      * @return Response JSON 响应，用户不存在时返回 404
      */
+    #[OA\Get(path: '/api/users/{id}', summary: '获取单个用户', tags: ['用户'])]
+    #[OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer', minimum: 1, example: 1), description: '用户 ID')]
+    #[OA\Response(response: 200, description: '获取成功', content: new OA\JsonContent(ref: '#/components/schemas/UserResponse'))]
+    #[OA\Response(response: 404, description: '用户不存在', content: new OA\JsonContent(ref: '#/components/schemas/ErrorResponse'))]
+    #[OA\Response(response: 500, description: '服务器错误', content: new OA\JsonContent(ref: '#/components/schemas/ErrorResponse'))]
     public function show(Request $request, Response $response, array $args): Response
     {
         $this->logger->info('获取单个用户', ['id' => $args['id']]);
@@ -83,6 +94,11 @@ final class UserController
      *
      * @return Response 成功返回 201 + 新用户数据，参数缺失返回 422，邮箱重复返回 422
      */
+    #[OA\Post(path: '/api/users', summary: '创建用户', tags: ['用户'])]
+    #[OA\RequestBody(required: true, content: new OA\JsonContent(ref: '#/components/schemas/UserCreateRequest'))]
+    #[OA\Response(response: 201, description: '创建成功', content: new OA\JsonContent(ref: '#/components/schemas/UserResponse'))]
+    #[OA\Response(response: 422, description: '参数缺失、邮箱格式错误或邮箱已注册', content: new OA\JsonContent(ref: '#/components/schemas/ErrorResponse'))]
+    #[OA\Response(response: 500, description: '服务器错误', content: new OA\JsonContent(ref: '#/components/schemas/ErrorResponse'))]
     public function create(Request $request, Response $response): Response
     {
         $data = $this->getJsonBody($request);
@@ -124,6 +140,13 @@ final class UserController
      *
      * @return Response 成功返回更新后数据，参数缺失返回 422，用户不存在返回 404
      */
+    #[OA\Put(path: '/api/users/{id}', summary: '更新用户', tags: ['用户'])]
+    #[OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer', minimum: 1, example: 1), description: '用户 ID')]
+    #[OA\RequestBody(required: true, content: new OA\JsonContent(ref: '#/components/schemas/UserUpdateRequest'))]
+    #[OA\Response(response: 200, description: '更新成功', content: new OA\JsonContent(ref: '#/components/schemas/UserResponse'))]
+    #[OA\Response(response: 404, description: '用户不存在', content: new OA\JsonContent(ref: '#/components/schemas/ErrorResponse'))]
+    #[OA\Response(response: 422, description: '未提供任何字段或邮箱格式错误', content: new OA\JsonContent(ref: '#/components/schemas/ErrorResponse'))]
+    #[OA\Response(response: 500, description: '服务器错误', content: new OA\JsonContent(ref: '#/components/schemas/ErrorResponse'))]
     public function update(Request $request, Response $response, array $args): Response
     {
         $data = $this->getJsonBody($request);
@@ -166,6 +189,11 @@ final class UserController
      *
      * @return Response 成功返回 200，用户不存在返回 404
      */
+    #[OA\Delete(path: '/api/users/{id}', summary: '删除用户', tags: ['用户'])]
+    #[OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer', minimum: 1, example: 1), description: '用户 ID')]
+    #[OA\Response(response: 200, description: '删除成功', content: new OA\JsonContent(ref: '#/components/schemas/EmptyDataResponse'))]
+    #[OA\Response(response: 404, description: '用户不存在', content: new OA\JsonContent(ref: '#/components/schemas/ErrorResponse'))]
+    #[OA\Response(response: 500, description: '服务器错误', content: new OA\JsonContent(ref: '#/components/schemas/ErrorResponse'))]
     public function delete(Request $request, Response $response, array $args): Response
     {
         $this->logger->info('删除用户请求', ['id' => $args['id']]);
@@ -185,6 +213,8 @@ final class UserController
      *
      * @return Response SVG 图片响应
      */
+    #[OA\Get(path: '/pelican', summary: '鹈鹕骑单车动态 SVG', tags: ['其它'])]
+    #[OA\Response(response: 200, description: 'SVG 图片', content: new OA\MediaType(mediaType: 'image/svg+xml'))]
     public function pelican(Request $request, Response $response): Response
     {
         $svg = <<<'SVG'

@@ -5,6 +5,7 @@ declare(strict_types=1);
 use Service\Http\AuthController;
 use Service\Http\CloudDriveController;
 use Service\Http\Docs\DocsController;
+use Service\Http\Docs\SwaggerController;
 use Service\Http\DoctrineController;
 use Service\Http\LegacyModuleController;
 use Service\Http\LogController;
@@ -70,8 +71,8 @@ return function (App $app): void {
 
     // ---------------- 文档 ----------------
 
-    $app->get('/docs', [DocsController::class, 'ui']);
-    $app->get('/docs/openapi.json', [DocsController::class, 'openapiJson']);
+    $app->get('/swagger', [SwaggerController::class, 'index']);
+    $app->get('/swagger/json', [SwaggerController::class, 'json']);
 
     // ---------------- 兜底：旧直连入口 + 未匹配路由 ----------------
     // /?module=php|doctrine|clouddrive 与旧行为逐分支一致；其余路径返回 404 未知模块

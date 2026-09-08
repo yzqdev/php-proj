@@ -1,58 +1,124 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Fox Project
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A simple PHP project using Slim Framework 4 and Swagger PHP.
 
-## About Laravel
-
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
-
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
-
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
-
-## Learning Laravel
-
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
-
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
-
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
-
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+## Installation
 
 ```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+composer install
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+## Running the Project
 
-## Contributing
+```bash
+pwsh serve.ps1            # serves on http://localhost:2977
+# or:
+php -S localhost:2977 -t public/
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+## Response envelope
 
-## Code of Conduct
+Every `/api/*` endpoint returns the same envelope, built by
+`src/Support/BaseResponse.php`:
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+```json
+{ "code": 200, "message": "ok", "data": { ... } }
+```
 
-## Security Vulnerabilities
+- `code` mirrors the HTTP status, so a client switches on one field.
+- Success: `data` is the payload, status 200/201.
+- Error: `data` is `null`, status 400/404 with a readable `message`.
+- DELETE success is `204` with an empty body (no envelope possible).
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+List endpoints nest page fields under `data`:
 
-## License
+```json
+{ "code": 200, "message": "ok",
+  "data": { "list": [ ... ], "total": 120, "limit": 50, "offset": 0, "hasMore": true } }
+```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+`limit` / `offset` / `hasMore` are only present when the endpoint is paginated.
+
+**Not enveloped:** `/swagger` (HTML), `/swagger/json` (must stay a raw OpenAPI
+document), `/api/logs/{date}?raw=1` (a file dump), and `/` + `/hello/{name}`
+(plain-text home endpoints). They are not JSON API payloads.
+
+## API Endpoints
+
+- `GET /` - Home page
+- `GET /hello/{name}` - Say hello to someone
+- `GET /swagger` - Swagger UI (rendered HTML)
+- `GET /swagger/json` - OpenAPI spec (JSON)
+- `GET /api/logs` - List available log days (size, entry count, level breakdown)
+- `GET /api/logs/{date}` - Entries of one day, e.g. `/api/logs/2026-09-08`
+  - `?level=ERROR` filter by level
+  - `?keyword=swagger` substring search on the raw line
+  - `?limit=500&offset=0` pagination (limit max 5000)
+  - `?raw=1` return the untouched file content as `text/plain`
+
+## Project Structure
+
+```
+fox/
+├── public/
+│   ├── index.php          # Entry point
+│   └── .htaccess          # Apache rewrite rules
+├── src/
+│   ├── Controllers/
+│   │   ├── HomeController.php      # Home controller with Swagger attributes
+│   │   ├── UserController.php      # /api/users CRUD
+│   │   ├── LogController.php       # /api/logs day listing + day reader
+│   │   └── SwaggerController.php   # Serves Swagger UI + OpenAPI JSON
+│   ├── Services/
+│   │   ├── Logger.php              # Monolog wrapper, rotates daily as app-YYYY-MM-DD.log
+│   │   ├── LogReader.php           # Discovers, parses, filters and pages those files
+│   │   └── Store.php               # In-memory user store
+│   ├── Routes/
+│   │   └── Web.php                 # Route definitions
+│   ├── Support/
+│   │   └── BaseResponse.php        # Unified JSON envelope for /api/* responses
+│   └── Swagger/
+│       └── ApiInfo.php             # OpenAPI Info annotation
+├── cache/                   # Generated swagger.json (1h TTL)
+├── logs/                    # Rotating log files, one per day
+├── serve.ps1                # Starts the PHP built-in server on :2977
+├── composer.json
+└── README.md
+```
+
+## Testing
+
+### PHP Built-in Server
+
+```bash
+# Start server
+php -S localhost:2977 -t public/
+
+# Test endpoints
+curl http://localhost:2977/
+curl http://localhost:2977/hello/world
+curl http://localhost:2977/swagger       # Swagger UI
+curl http://localhost:2977/swagger/json  # OpenAPI spec
+
+# Logs
+curl http://localhost:2977/api/logs                          # which days exist
+curl http://localhost:2977/api/logs/2026-09-08               # parsed entries
+curl http://localhost:2977/api/logs/2026-09-08?level=ERROR   # by level
+curl http://localhost:2977/api/logs/2026-09-08?keyword=swagger
+curl "http://localhost:2977/api/logs/2026-09-08?limit=20&offset=20"
+curl http://localhost:2977/api/logs/2026-09-08?raw=1         # untouched file
+```
+
+> Swagger UI assets are loaded from `unpkg.com`, so the `/swagger` page needs
+> internet access. The bundle version is pinned in `SwaggerController` —
+> bump `SWAGGER_UI_VERSION` there to upgrade.
+
+> **The `/api/logs` endpoints are unauthenticated and dump the log files as
+> plain JSON over HTTP.** The date path segment is validated against
+> `Y-m-d` and the resolved path is re-checked inside `logs/`, so there is no
+> path traversal, but anyone who can reach the app can read every log line —
+> including request URIs and client IPs. Keep it behind a dev-only host,
+> firewall, or auth layer before exposing it.
+
+> Log filenames and the `datetime` field use the PHP timezone, which is UTC
+> here. Check `date_default_timezone_get()` if the day boundary surprises you.

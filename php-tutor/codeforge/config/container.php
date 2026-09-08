@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 use App\Repository\UserRepository;
 use App\Repository\FileRepository;
-use App\Middleware\CorsMiddleware;
 use App\Entity\User;
 use App\Entity\File;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Monolog\Logger;
+use Monolog\Handler\RotatingFileHandler;
 use Monolog\Handler\StreamHandler;
 use function DI\autowire;
 
@@ -39,7 +39,15 @@ return [
         if (!is_dir($logDir)) {
             mkdir($logDir, 0755, true);
         }
-        $logger->pushHandler(new StreamHandler($logDir . '/app.log', \Monolog\Level::Debug));
+        // 按天轮转：每天生成 app.log-YYYY-MM-DD.log，只保留最近 30 天
+        // 文件名规则为 {filename}-{date}，此处传带 .log 后缀的名字，
+        // 否则生成的文件是 app-YYYY-MM-DD（无后缀），LogController 读不到。
+        $logger->pushHandler(new RotatingFileHandler(
+            filename: $logDir . '/app.log',
+            maxFiles: 30,
+            level: \Monolog\Level::Debug,
+            useLocking: true,
+        ));
         return $logger;
     },
 

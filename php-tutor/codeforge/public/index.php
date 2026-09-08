@@ -2,6 +2,10 @@
 
 declare(strict_types=1);
 
+// 必须在构造 Logger 之前设置：RotatingFileHandler 按当前时区决定当天日志文件名，
+// 不设置时 PHP 默认 UTC，会按 UTC 日期建文件，和服务器本地日期差一天。
+date_default_timezone_set('Asia/Shanghai');
+
 require_once __DIR__ . '/../vendor/autoload.php';
 
 use DI\ContainerBuilder;

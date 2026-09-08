@@ -16,7 +16,7 @@
         "monolog/monolog": "^2.8",
         "php-di/php-di": "^7.0",
         "slim/psr7": "^1.7",
-        "zircote/swagger-php": "^6.7",
+        "zircote/swagger-php": "^6.8.0",
         "slim/slim": "^4.14",
         "symfony/cache": "^8.1",
         "symfony/console": "^7.0"

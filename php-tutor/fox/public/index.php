@@ -1,20 +1,27 @@
 <?php
 
-use Illuminate\Foundation\Application;
-use Illuminate\Http\Request;
+declare(strict_types=1);
 
-define('LARAVEL_START', microtime(true));
+require __DIR__ . '/../vendor/autoload.php';
 
-// Determine if the application is in maintenance mode...
-if (file_exists($maintenance = __DIR__.'/../storage/framework/maintenance.php')) {
-    require $maintenance;
-}
+use Slim\Factory\AppFactory;
+use Yzqde\Fox\Routes\Web;
+use Yzqde\Fox\Services\Logger;
 
-// Register the Composer autoloader...
-require __DIR__.'/../vendor/autoload.php';
+$logger = new Logger('fox');
 
-// Bootstrap Laravel and handle the request...
-/** @var Application $app */
-$app = require_once __DIR__.'/../bootstrap/app.php';
+$app = AppFactory::create();
 
-$app->handleRequest(Request::capture());
+$app->add(function ($request, $handler) use ($logger) {
+    $logger->info('Request', [
+        'method' => $request->getMethod(),
+        'uri' => $request->getUri()->getPath(),
+        'ip' => $request->getServerParams()['REMOTE_ADDR'] ?? 'unknown',
+    ]);
+    return $handler->handle($request);
+});
+
+$webRoutes = new Web($logger);
+$webRoutes->register($app);
+
+$app->run();

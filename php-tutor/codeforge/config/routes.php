@@ -2,9 +2,11 @@
 
 declare(strict_types=1);
 
+use App\Controller\PathController;
 use App\Controller\UserController;
 use App\Controller\LogController;
 use App\Controller\FileController;
+
 use Slim\App;
 
 /** @var App $app */
@@ -18,6 +20,11 @@ $logController = $app->getContainer()->get(LogController::class);
 /** @var FileController $fileController */
 $fileController = $app->getContainer()->get(FileController::class);
 
+
+$swaggerController = $app->getContainer()->get(\App\Controller\SwaggerController::class);
+
+/** @var PathController $pathController */
+$pathController = $app->getContainer()->get(PathController::class);
 // ─── CORS OPTIONS 预检路由（必须在其他路由之前注册）────────────
 // 用 {path:.*} 让通配符跨斜杠，/api/users/1 这类子路径的预检才能命中
 $app->options('/api/{path:.*}', function ($request, $response) {
@@ -44,6 +51,12 @@ $app->get('/api/files/{id}/download', [$fileController, 'download']);
 // ─── 日志 API ──────────────────────────────────────────────
 $app->get('/api/logs', [$logController, 'index']);
 
+// ─── API 文档 ──────────────────────────────────────────────
+$app->get('/swagger', [$swaggerController, 'index']);
+$app->get('/swagger/json', [$swaggerController, 'json']);
+
+
+$app->get('/api/path/getpath', [$pathController, 'getPath']);
 // ─── 特殊路由 ──────────────────────────────────────────────
 // 鹈鹕骑单车动态 SVG
 $app->get('/pelican', [$controller, 'pelican']);

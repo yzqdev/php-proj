@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Middleware;
 
-use App\Helpers\Logger;
+use App\Helpers\MyLogger;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
@@ -27,7 +27,7 @@ final class RequestLogger
         $startAt = microtime(true);
 
         // 请求开始
-        Logger::info('请求开始', [
+        MyLogger::info('请求开始', [
             'method'    => $request->getMethod(),
             'path'      => $request->getUri()->getPath(),
             'remote'    => $request->getServerParams()['REMOTE_ADDR'] ?? '127.0.0.1',
@@ -38,7 +38,7 @@ final class RequestLogger
 
         // 请求结束
         $durationMs = (microtime(true) - $startAt) * 1000;
-        Logger::info('请求结束', [
+        MyLogger::info('请求结束', [
             'method'     => $request->getMethod(),
             'path'       => $request->getUri()->getPath(),
             'status'     => $response->getStatusCode(),

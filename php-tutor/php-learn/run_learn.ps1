@@ -42,8 +42,8 @@ if (-not (Test-Path $publicDir)) {
 
 # 3) 打印启动信息
 $baseUrl = "http://${ListenHost}:${Port}"
-$docsUrl = "${baseUrl}/api/v1/docs"
-$specUrl = "${baseUrl}/api/v1/docs/spec"
+$docsUrl = "${baseUrl}/swagger"
+$specUrl = "${baseUrl}/swagger/doc"
 $healthUrl = "${baseUrl}/api/v1/health"
 
 Write-Host ""

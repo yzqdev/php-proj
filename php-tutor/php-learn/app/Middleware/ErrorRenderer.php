@@ -6,7 +6,7 @@ namespace App\Middleware;
 
 use App\Exceptions\BusinessException;
 use App\Helpers\Config;
-use App\Helpers\Logger;
+use App\Helpers\MyLogger;
 use Slim\Interfaces\ErrorRendererInterface;
 use Slim\Psr7\Response;
 use Throwable;
@@ -32,7 +32,7 @@ final class ErrorRenderer implements ErrorRendererInterface
         $debug = Config::get('app.debug', false);
 
         // 记录异常日志（所有异常都记，包括业务异常）
-        Logger::error($exception::class . ': ' . $exception->getMessage(), [
+        MyLogger::error($exception::class . ': ' . $exception->getMessage(), [
             'file'    => $exception->getFile(),
             'line'    => $exception->getLine(),
             'trace'   => substr((string)$exception->getTraceAsString(), 0, 1200),

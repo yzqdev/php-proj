@@ -1,0 +1,1229 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "简单图床 API",
+        "description": "纯 JSON API,不含任何 HTML 渲染页面。\n\n**认证**:无登录态。非 GET 的 `\/api\/*` 请求必须携带 `X-Requested-With: XMLHttpRequest`\n请求头,否则返回 403;GET 请求无此要求。该头由前端 axios 实例统一注入。\n\n**跨域**:服务端对全部来源放行 CORS(`Access-Control-Allow-Origin: *`),前端可直接跨域调用。\n\n**文件限制**:单文件上限由 `UPLOAD_MAX_SIZE` 决定(默认 10 MB),仅接受\njpg \/ jpeg \/ png \/ gif \/ webp \/ bmp,且经 `finfo` 与 `getimagesize()` 双重内容校验。\n不支持 svg(内联渲染可执行 JS,存在存储型 XSS 风险)。\n\n**日志查看**:`\/api\/logs` 系列只允许本机来源(127.0.0.1 \/ ::1)访问,其他来源返回 403;\n需要在内网或生产环境调试时,把 `.env` 的 `LOG_VIEW_ALLOW_ANY` 置为 1。",
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "http:\/\/localhost:8080",
+            "description": "本地开发(php -S localhost:8080)"
+        }
+    ],
+    "paths": {
+        "\/api\/health": {
+            "get": {
+                "tags": [
+                    "系统"
+                ],
+                "summary": "健康检查",
+                "operationId": "healthCheck",
+                "responses": {
+                    "200": {
+                        "description": "服务正常",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "required": [
+                                        "success",
+                                        "data"
+                                    ],
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "required": [
+                                                "app",
+                                                "time"
+                                            ],
+                                            "properties": {
+                                                "app": {
+                                                    "type": "string",
+                                                    "example": "image-host"
+                                                },
+                                                "time": {
+                                                    "type": "string",
+                                                    "format": "date-time",
+                                                    "example": "2026-09-08T04:31:29+00:00"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "\/api\/images": {
+            "get": {
+                "tags": [
+                    "图片"
+                ],
+                "summary": "图片列表",
+                "description": "按上传时间倒序,仅返回白名单内的图片格式(下载接口仍可访问其他类型文件)",
+                "operationId": "listImages",
+                "responses": {
+                    "200": {
+                        "description": "图片列表",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "required": [
+                                        "success",
+                                        "data"
+                                    ],
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "description": "图片列表,按上传时间倒序",
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#\/components\/schemas\/Image"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "图片"
+                ],
+                "summary": "上传图片",
+                "description": "单文件上传。扩展名白名单 jpg\/jpeg\/png\/gif\/webp\/bmp,并做 finfo 与 getimagesize() 双重内容校验",
+                "operationId": "uploadImage",
+                "parameters": [
+                    {
+                        "name": "X-Requested-With",
+                        "in": "header",
+                        "description": "CSRF 安全头,后端要求固定值 XMLHttpRequest;前端 axios 实例与文档页自动注入",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "XMLHttpRequest",
+                            "enum": [
+                                "XMLHttpRequest"
+                            ]
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart\/form-data": {
+                            "schema": {
+                                "required": [
+                                    "file"
+                                ],
+                                "properties": {
+                                    "file": {
+                                        "description": "图片文件,单文件上限由 UPLOAD_MAX_SIZE 决定(默认 10 MB)",
+                                        "type": "string",
+                                        "format": "binary"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "上传成功",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "required": [
+                                        "success",
+                                        "message",
+                                        "data"
+                                    ],
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "上传成功:a.png"
+                                        },
+                                        "data": {
+                                            "$ref": "#\/components\/schemas\/Image"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "参数或文件非法(未收到文件、扩展名不在白名单、内容非有效图片、超过大小限制)。当前实现统一返回 500 而非语义上的 400\/413,见项目已知问题",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "$ref": "#\/components\/schemas\/ApiEnvelope"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "缺少 X-Requested-With 安全头",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "$ref": "#\/components\/schemas\/ApiEnvelope"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "\/api\/images\/{name}": {
+            "delete": {
+                "tags": [
+                    "图片"
+                ],
+                "summary": "删除图片",
+                "description": "同时删除旁车元数据文件;仅允许删除白名单内的图片格式",
+                "operationId": "deleteImage",
+                "parameters": [
+                    {
+                        "name": "X-Requested-With",
+                        "in": "header",
+                        "description": "CSRF 安全头,后端要求固定值 XMLHttpRequest;前端 axios 实例与文档页自动注入",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "XMLHttpRequest",
+                            "enum": [
+                                "XMLHttpRequest"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "name",
+                        "in": "path",
+                        "description": "存储文件名",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "5803ef05b9b3fba37f60a78cb180a273.png"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "删除成功",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "required": [
+                                        "success",
+                                        "message"
+                                    ],
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "已删除"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "文件不存在。当前实现统一返回 500 而非语义上的 404,见项目已知问题",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "$ref": "#\/components\/schemas\/ApiEnvelope"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "缺少 X-Requested-With 安全头",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "$ref": "#\/components\/schemas\/ApiEnvelope"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "\/i\/{name}": {
+            "get": {
+                "tags": [
+                    "图片"
+                ],
+                "summary": "图片外链",
+                "description": "按真实 MIME inline 输出,可直接放进 <img> 标签或 Markdown;内容不可变,带一年 immutable 缓存",
+                "operationId": "serveImage",
+                "parameters": [
+                    {
+                        "name": "name",
+                        "in": "path",
+                        "description": "存储文件名",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "5803ef05b9b3fba37f60a78cb180a273.png"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "图片二进制流(image\/jpeg、image\/png、image\/gif、image\/webp、image\/bmp 之一)",
+                        "headers": {
+                            "Cache-Control": {
+                                "description": "public, max-age=31536000, immutable",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "X-Content-Type-Options": {
+                                "schema": {
+                                    "type": "string",
+                                    "example": "nosniff"
+                                }
+                            }
+                        },
+                        "content": {
+                            "image\/*": {
+                                "schema": {
+                                    "type": "string",
+                                    "format": "binary"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "文件不存在。当前实现统一返回 500 而非语义上的 404,见项目已知问题",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "$ref": "#\/components\/schemas\/ApiEnvelope"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "\/download\/{name}": {
+            "get": {
+                "tags": [
+                    "图片"
+                ],
+                "summary": "下载文件",
+                "description": "附件方式下载,不限制文件类型(存储目录内任意文件均可),缓存策略为 no-store",
+                "operationId": "downloadImage",
+                "parameters": [
+                    {
+                        "name": "name",
+                        "in": "path",
+                        "description": "存储文件名",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "5803ef05b9b3fba37f60a78cb180a273.png"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "文件二进制流,按真实扩展名给出 Content-Type",
+                        "headers": {
+                            "Content-Disposition": {
+                                "description": "attachment,文件名经 RFC 5987 编码以支持非 ASCII 字符",
+                                "schema": {
+                                    "type": "string",
+                                    "example": "attachment; filename=\"a.png\"; filename*=UTF-8''a.png"
+                                }
+                            },
+                            "Cache-Control": {
+                                "schema": {
+                                    "type": "string",
+                                    "example": "no-store"
+                                }
+                            }
+                        },
+                        "content": {
+                            "application\/octet-stream": {
+                                "schema": {
+                                    "type": "string",
+                                    "format": "binary"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "文件不存在。当前实现统一返回 500 而非语义上的 404,见项目已知问题",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "$ref": "#\/components\/schemas\/ApiEnvelope"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "\/api\/logs": {
+            "get": {
+                "tags": [
+                    "日志"
+                ],
+                "summary": "日志文件列表",
+                "description": "按天分文件,Monolog 按日期写入 storage\/logs\/ 下的 app-YYYY-MM-DD.log 与 error-YYYY-MM-DD.log;按修改时间倒序返回",
+                "operationId": "listLogFiles",
+                "responses": {
+                    "200": {
+                        "description": "日志文件列表",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "required": [
+                                        "success",
+                                        "data"
+                                    ],
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "description": "日志文件列表,按修改时间倒序",
+                                            "type": "array",
+                                            "items": {
+                                                "required": [
+                                                    "name",
+                                                    "channel",
+                                                    "date",
+                                                    "size",
+                                                    "mtime"
+                                                ],
+                                                "properties": {
+                                                    "name": {
+                                                        "type": "string",
+                                                        "example": "app-2026-09-07.log"
+                                                    },
+                                                    "channel": {
+                                                        "type": "string",
+                                                        "example": "app",
+                                                        "enum": [
+                                                            "app",
+                                                            "error"
+                                                        ]
+                                                    },
+                                                    "date": {
+                                                        "type": "string",
+                                                        "format": "date",
+                                                        "example": "2026-09-07"
+                                                    },
+                                                    "size": {
+                                                        "description": "字节数",
+                                                        "type": "integer",
+                                                        "format": "int64",
+                                                        "example": 17086
+                                                    },
+                                                    "mtime": {
+                                                        "description": "最后写入时间,Unix 秒",
+                                                        "type": "integer",
+                                                        "format": "int64",
+                                                        "example": 1757200208
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "非本机来源访问被拒绝",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "$ref": "#\/components\/schemas\/ApiEnvelope"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "\/api\/logs\/{name}": {
+            "get": {
+                "tags": [
+                    "日志"
+                ],
+                "summary": "查看日志末尾",
+                "description": "从文件末尾回读并解析出时间戳、级别、消息与上下文,按最新在前返回;仅回读固定窗口字节,大文件也不会整份载入",
+                "operationId": "tailLogFile",
+                "parameters": [
+                    {
+                        "name": "name",
+                        "in": "path",
+                        "description": "日志文件名,形如 app-2026-09-07.log",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "app-2026-09-07.log"
+                        }
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "description": "最多返回多少条,默认 200,上限 1000",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64",
+                            "example": 200,
+                            "maximum": 1000,
+                            "minimum": 1
+                        }
+                    },
+                    {
+                        "name": "level",
+                        "in": "query",
+                        "description": "只返回该级别的记录,不传则返回全部",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "ERROR",
+                            "enum": [
+                                "DEBUG",
+                                "INFO",
+                                "NOTICE",
+                                "WARNING",
+                                "ERROR",
+                                "CRITICAL",
+                                "ALERT",
+                                "EMERGENCY"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "日志记录,最新在最前",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "required": [
+                                        "success",
+                                        "data"
+                                    ],
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "required": [
+                                                "file",
+                                                "total",
+                                                "limit",
+                                                "lines"
+                                            ],
+                                            "properties": {
+                                                "file": {
+                                                    "type": "string",
+                                                    "example": "app-2026-09-07.log"
+                                                },
+                                                "total": {
+                                                    "description": "回读窗口内的记录总数(不含本次返回条数限制)",
+                                                    "type": "integer",
+                                                    "format": "int64",
+                                                    "example": 122
+                                                },
+                                                "limit": {
+                                                    "type": "integer",
+                                                    "format": "int64",
+                                                    "example": 200
+                                                },
+                                                "level": {
+                                                    "type": "string",
+                                                    "example": "ERROR",
+                                                    "nullable": true
+                                                },
+                                                "lines": {
+                                                    "description": "日志记录,最新在最前",
+                                                    "type": "array",
+                                                    "items": {
+                                                        "required": [
+                                                            "level",
+                                                            "message"
+                                                        ],
+                                                        "properties": {
+                                                            "ts": {
+                                                                "description": "ISO 8601 时间戳",
+                                                                "type": "string",
+                                                                "example": "2026-09-07T22:08:08.335037+00:00",
+                                                                "nullable": true
+                                                            },
+                                                            "channel": {
+                                                                "type": "string",
+                                                                "example": "app",
+                                                                "nullable": true
+                                                            },
+                                                            "level": {
+                                                                "type": "string",
+                                                                "example": "INFO"
+                                                            },
+                                                            "message": {
+                                                                "type": "string",
+                                                                "example": "图片已删除"
+                                                            },
+                                                            "context": {
+                                                                "description": "日志上下文;含 exception、file、trace 等字段,不可视为可信内容",
+                                                                "type": "object",
+                                                                "nullable": true
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "日志文件不存在或文件名不合法。当前实现统一返回 500 而非语义上的 404,见项目已知问题",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "$ref": "#\/components\/schemas\/ApiEnvelope"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "非本机来源访问被拒绝",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "$ref": "#\/components\/schemas\/ApiEnvelope"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "\/api\/personTool": {
+            "get": {
+                "tags": [
+                    "PersonTools"
+                ],
+                "summary": "人员及文件工具集",
+                "description": "提供文件的上传、读取、下载、删除及列表查看等综合操作工具",
+                "operationId": "personTool",
+                "parameters": [
+                    {
+                        "name": "action",
+                        "in": "query",
+                        "description": "操作类型：list (列表), read (读取内容), download (下载), delete (删除)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "default": "list",
+                            "enum": [
+                                "list",
+                                "read",
+                                "download",
+                                "delete"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "filename",
+                        "in": "query",
+                        "description": "文件名（action 为 read、download、delete 时必填）",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "操作成功",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 200
+                                        },
+                                        "msg": {
+                                            "type": "string",
+                                            "example": "ok"
+                                        },
+                                        "data": {
+                                            "oneOf": [
+                                                {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "properties": {
+                                                            "name": {
+                                                                "type": "string",
+                                                                "example": "avatar_123.jpg"
+                                                            },
+                                                            "size": {
+                                                                "type": "integer",
+                                                                "example": 102400
+                                                            },
+                                                            "updated_at": {
+                                                                "type": "string",
+                                                                "example": "2026-09-07 10:00:00"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                {
+                                                    "properties": {
+                                                        "filename": {
+                                                            "type": "string",
+                                                            "example": "note.txt"
+                                                        },
+                                                        "content": {
+                                                            "type": "string",
+                                                            "example": "文件文本内容..."
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                {
+                                                    "type": "string",
+                                                    "example": "文件删除成功"
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            },
+                            "application\/octet-stream": {
+                                "schema": {
+                                    "description": "文件二进制流",
+                                    "type": "string",
+                                    "format": "binary"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "请求参数错误（如缺少文件名）"
+                    },
+                    "404": {
+                        "description": "指定文件不存在"
+                    },
+                    "500": {
+                        "description": "服务器内部错误（如操作文件失败）"
+                    }
+                }
+            }
+        },
+        "\/api\/persons": {
+            "get": {
+                "tags": [
+                    "人员"
+                ],
+                "summary": "人员列表",
+                "description": "返回所有人员，按 ID 倒序",
+                "operationId": "listPersons",
+                "responses": {
+                    "200": {
+                        "description": "人员列表",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "required": [
+                                        "success",
+                                        "data"
+                                    ],
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "description": "人员列表",
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#\/components\/schemas\/Person"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "人员"
+                ],
+                "summary": "新增人员",
+                "operationId": "createPerson",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application\/json": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "email"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "description": "姓名",
+                                        "type": "string",
+                                        "example": "张三"
+                                    },
+                                    "email": {
+                                        "description": "邮箱",
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "zhangsan@example.com"
+                                    },
+                                    "phone": {
+                                        "description": "手机号",
+                                        "type": "string",
+                                        "example": "13800138000",
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "创建成功",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "required": [
+                                        "success",
+                                        "data"
+                                    ],
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "创建成功"
+                                        },
+                                        "data": {
+                                            "$ref": "#\/components\/schemas\/Person"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "参数校验失败",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "$ref": "#\/components\/schemas\/ApiEnvelope"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "\/api\/persons\/{id}": {
+            "get": {
+                "tags": [
+                    "人员"
+                ],
+                "summary": "人员详情",
+                "description": "按 ID 查询单个人员",
+                "operationId": "getPerson",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "人员 ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "人员详情",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "required": [
+                                        "success",
+                                        "data"
+                                    ],
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "$ref": "#\/components\/schemas\/Person"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "人员不存在",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "$ref": "#\/components\/schemas\/ApiEnvelope"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "人员"
+                ],
+                "summary": "更新人员",
+                "operationId": "updatePerson",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "人员 ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64",
+                            "example": 1
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application\/json": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "email"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "description": "姓名",
+                                        "type": "string",
+                                        "example": "张三"
+                                    },
+                                    "email": {
+                                        "description": "邮箱",
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "zhangsan@example.com"
+                                    },
+                                    "phone": {
+                                        "description": "手机号",
+                                        "type": "string",
+                                        "example": "13800138000",
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "更新成功",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "required": [
+                                        "success",
+                                        "data"
+                                    ],
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "更新成功"
+                                        },
+                                        "data": {
+                                            "$ref": "#\/components\/schemas\/Person"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "人员不存在",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "$ref": "#\/components\/schemas\/ApiEnvelope"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "参数校验失败",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "$ref": "#\/components\/schemas\/ApiEnvelope"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "人员"
+                ],
+                "summary": "删除人员",
+                "operationId": "deletePerson",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "人员 ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "删除成功",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "required": [
+                                        "success",
+                                        "message"
+                                    ],
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "删除成功"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "人员不存在",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "$ref": "#\/components\/schemas\/ApiEnvelope"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "ApiEnvelope": {
+                "title": "统一响应包络",
+                "description": "所有 JSON 接口的响应结构（由 ApiResponse 类生成）",
+                "properties": {
+                    "success": {
+                        "description": "请求是否成功",
+                        "type": "boolean"
+                    },
+                    "message": {
+                        "description": "提示信息,成功与失败都可能携带",
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "data": {
+                        "description": "业务数据,具体结构见各端点定义",
+                        "nullable": true
+                    },
+                    "code": {
+                        "description": "业务错误码,仅失败响应携带（前端用于细粒度分支判断）",
+                        "type": "integer",
+                        "format": "int64",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "Image": {
+                "title": "图片",
+                "description": "已入库图片的视图;url 为站内相对外链,拼接域名后即为可直接引用的图片地址",
+                "properties": {
+                    "name": {
+                        "description": "随机存储名,32 位十六进制加扩展名,不可猜测也不可复用",
+                        "type": "string",
+                        "example": "5803ef05b9b3fba37f60a78cb180a273.png"
+                    },
+                    "original": {
+                        "description": "上传时的原始文件名,仅保存在旁车元数据中",
+                        "type": "string",
+                        "example": "屏幕截图(10).png"
+                    },
+                    "size": {
+                        "description": "文件字节数",
+                        "type": "integer",
+                        "format": "int64",
+                        "example": 3766382
+                    },
+                    "time": {
+                        "description": "上传时间,Unix 秒",
+                        "type": "integer",
+                        "format": "int64",
+                        "example": 1788809509
+                    },
+                    "url": {
+                        "description": "站内相对外链,拼接域名后即为可直接引用的图片地址",
+                        "type": "string",
+                        "example": "\/i\/5803ef05b9b3fba37f60a78cb180a273.png"
+                    }
+                },
+                "type": "object"
+            },
+            "Person": {
+                "title": "人员",
+                "description": "人员信息视图",
+                "properties": {
+                    "id": {
+                        "description": "唯一标识",
+                        "type": "integer",
+                        "format": "int64",
+                        "example": 1
+                    },
+                    "name": {
+                        "description": "姓名",
+                        "type": "string",
+                        "example": "张三"
+                    },
+                    "email": {
+                        "description": "邮箱",
+                        "type": "string",
+                        "format": "email",
+                        "example": "zhangsan@example.com"
+                    },
+                    "phone": {
+                        "description": "手机号",
+                        "type": "string",
+                        "example": "13800138000",
+                        "nullable": true
+                    },
+                    "createdAt": {
+                        "description": "创建时间",
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2026-09-08T08:00:00+00:00"
+                    }
+                },
+                "type": "object"
+            }
+        },
+        "securitySchemes": {
+            "XRequestedWith": {
+                "type": "apiKey",
+                "description": "非 GET 的 \/api\/* 必须携带此头,后端要求固定值 XMLHttpRequest",
+                "name": "X-Requested-With",
+                "in": "header"
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "系统",
+            "description": "健康检查等运行时信息"
+        },
+        {
+            "name": "图片",
+            "description": "图片的上传、列表、访问与删除"
+        },
+        {
+            "name": "日志",
+            "description": "按天的 Monolog 日志文件查看,仅本机来源可访问"
+        },
+        {
+            "name": "人员",
+            "description": "人员信息的增删改查"
+        },
+        {
+            "name": "PersonTools",
+            "description": "PersonTools"
+        }
+    ]
+}

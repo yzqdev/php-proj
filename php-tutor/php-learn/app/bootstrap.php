@@ -25,12 +25,17 @@ declare(strict_types=1);
 require_once dirname(__DIR__) . '/vendor/autoload.php';
 
 use App\Helpers\Config;
-use App\Helpers\Logger;
+
+use App\Helpers\MyLogger;
 use App\Middleware\Cors;
 use App\Services\DoctrineServiceProvider;
+use App\Services\Jwt;
 use App\Services\TokenService;
 use DI\ContainerBuilder;
 use Doctrine\ORM\EntityManager;
+use Monolog\Handler\RotatingFileHandler;
+use Monolog\Handler\StreamHandler;
+use Monolog\Logger;
 use Slim\Factory\AppFactory;
 use Slim\Interfaces\ErrorRendererInterface;
 
@@ -57,15 +62,33 @@ $containerBuilder->addDefinitions([
     },
 
     // JWT 服务（构造器需要 secret/issuer/audience，无法自动装配，必须显式工厂）
-    \App\Services\Jwt::class => function (\Psr\Container\ContainerInterface $c): \App\Services\Jwt {
-        return \App\Services\Jwt::make();
+    Jwt::class => function (\Psr\Container\ContainerInterface $c): Jwt {
+        return Jwt::make();
+    },
+    Logger::class => function (): Logger {
+        $logger = new Logger('app');
+        $logger->pushHandler(new StreamHandler('php://stderr', Logger::DEBUG));
+        $logDir = __DIR__ . '/../var/logs';
+        if (!is_dir($logDir)) {
+            mkdir($logDir, 0755, true);
+        }
+        // 按天轮转：每天生成 app.log-YYYY-MM-DD.log，只保留最近 30 天
+        // 文件名规则为 {filename}-{date}，此处传带 .log 后缀的名字，
+        // 否则生成的文件是 app-YYYY-MM-DD（无后缀），LogController 读不到。
+        $logger->pushHandler(new RotatingFileHandler(
+            filename: $logDir . '/app.log',
+            maxFiles: 30,
+            level: Logger::DEBUG,
+            useLocking: true,
+        ));
+        return $logger;
     },
 
     // TokenService（依赖 EntityManager + Jwt，两者已注册）
     TokenService::class => function (\Psr\Container\ContainerInterface $c): TokenService {
         return new TokenService(
             $c->get(EntityManager::class),
-            $c->get(\App\Services\Jwt::class),
+            $c->get(Jwt::class),
         );
     },
 ]);
@@ -93,7 +116,7 @@ set_exception_handler(function (\Throwable $e): void {
     $debug = Config::get('app.debug', false);
 
     // 记录异常日志
-    Logger::error($e::class . ': ' . $e->getMessage(), [
+    MyLogger::error($e::class . ': ' . $e->getMessage(), [
         'file'    => $e->getFile(),
         'line'    => $e->getLine(),
         'trace'   => substr((string)$e->getTraceAsString(), 0, 1200),

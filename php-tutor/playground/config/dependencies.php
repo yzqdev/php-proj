@@ -13,12 +13,12 @@ use Doctrine\DBAL\DriverManager;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 use Psr\Log\LoggerInterface;
-use Yzqde\Playground\Controller\OpenApiDocsController;
+
 use Yzqde\Playground\Middleware\AccessLogMiddleware;
 use Yzqde\Playground\Middleware\LogAccessGuard;
 use Yzqde\Playground\Service\ImageService;
 use Yzqde\Playground\Service\LogService;
-use Yzqde\Playground\Service\OpenApiSpecService;
+
 use Yzqde\Playground\Service\PersonService;
 use Yzqde\Playground\Settings;
 
@@ -39,7 +39,7 @@ return [
     }),
 
     // 双通道日志:app-* 记录应用日志(级别随 APP_DEBUG 区分开发/生产),error-* 只记错误且不再冒泡
-    LoggerInterface::class => DI\factory(function (Settings $settings): LoggerInterface {
+    LoggerInterface ::class => DI\factory(function (Settings $settings): LoggerInterface {
         $logDir = __DIR__ . '/../storage/logs';
         if (!is_dir($logDir) && !mkdir($logDir, 0775, true)) {
             throw new RuntimeException('日志目录不可用:' . $logDir);
@@ -63,20 +63,9 @@ return [
 
     // 路径必须在工厂内用 __DIR__ 现算:文件级局部变量在闭包惰性执行时已销毁
     // 缓存与锁文件均落在 storage/ 下,已被 gitignore(派生产物,不入版本库)
-    OpenApiSpecService::class => DI\factory(function (Settings $settings, LoggerInterface $logger): OpenApiSpecService {
-        $baseDir = dirname(__DIR__);
-        return new OpenApiSpecService(
-            $logger,
-            $settings->debug,
-            $baseDir . '/src',
-            $baseDir . '/storage/openapi.json',
-            $baseDir . '/storage/openapi.lock',
-        );
-    }),
 
-    OpenApiDocsController::class => DI\factory(function (OpenApiSpecService $spec): OpenApiDocsController {
-        return new OpenApiDocsController($spec, dirname(__DIR__) . '/public/docs.html');
-    }),
+
+
 
     // 日志查看:只读扫描 LoggerInterface 上面那两个 StreamHandler 写入的目录
     LogService::class => DI\factory(

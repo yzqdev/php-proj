@@ -9,7 +9,7 @@ use App\Exceptions\ResourceNotFoundException;
 use App\Helpers\Config;
 use App\Helpers\Html;
 use App\Helpers\JsonResponse;
-use App\Helpers\Logger;
+use App\Helpers\MyLogger;
 use App\Helpers\RequestBody;
 use App\Middleware\ApiAuthenticate;
 use App\Resources\ArticleResource;
@@ -89,9 +89,9 @@ class ArticleController
             new OA\Response(
                 response: 200,
                 description: '分页列表',
-                content: new OA\JsonContent(
-                    ref: '#/components/schemas/ArticlePage',
-                ),
+//                content: new OA\JsonContent(
+//                    ref: '#/components/schemas/ArticlePage',
+//                ),
             ),
         ],
     )]
@@ -200,9 +200,9 @@ class ArticleController
         security: [['bearerAuth' => []]],
         requestBody: new OA\RequestBody(
             required: true,
-            content: new OA\JsonContent(
-                ref: '#/components/schemas/ArticleCreateRequest',
-            ),
+//            content: new OA\JsonContent(
+//                ref: '#/components/schemas/ArticleCreateRequest',
+//            ),
         ),
         tags: ['Articles'],
         responses: [
@@ -247,7 +247,7 @@ class ArticleController
         $this->em->persist($article);
         $this->em->flush();
 
-        Logger::info('文章创建成功', [
+        MyLogger::info('文章创建成功', [
             'articleId' => $article->getId(),
             'title'     => $article->getTitle(),
             'userId'    => (int)(ApiAuthenticate::currentUser()['userId'] ?? 0),
@@ -277,9 +277,9 @@ class ArticleController
         security: [['bearerAuth' => []]],
         requestBody: new OA\RequestBody(
             required: true,
-            content: new OA\JsonContent(
-                ref: '#/components/schemas/ArticleUpdateRequest',
-            ),
+//            content: new OA\JsonContent(
+//                ref: '#/components/schemas/ArticleUpdateRequest',
+//            ),
         ),
         tags: ['Articles'],
         parameters: [
@@ -343,7 +343,7 @@ class ArticleController
 
         $this->em->flush();
 
-        Logger::info('文章更新成功', [
+        MyLogger::info('文章更新成功', [
             'articleId' => $id,
             'fields'    => array_keys(array_filter($body, static fn($k) => in_array($k, ['title','body','category','status'], true), ARRAY_FILTER_USE_KEY)),
             'userId'    => (int)(ApiAuthenticate::currentUser()['userId'] ?? 0),
@@ -409,7 +409,7 @@ class ArticleController
         $this->em->remove($article);
         $this->em->flush();
 
-        Logger::info('文章删除成功', [
+        MyLogger::info('文章删除成功', [
             'articleId' => $id,
             'userId'    => (int)(ApiAuthenticate::currentUser()['userId'] ?? 0),
         ]);

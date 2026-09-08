@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Yzqde\Playground\Middleware;
 
+use Monolog\Logger;
 use Psr\Log\LoggerInterface;
 use Slim\Interfaces\ErrorRendererInterface;
 use Throwable;
@@ -17,7 +18,7 @@ use Yzqde\Playground\Exception\ApiException;
  */
 final class JsonErrorRenderer implements ErrorRendererInterface
 {
-    public function __construct(private readonly LoggerInterface $logger)
+    public function __construct(private readonly Logger  $logger)
     {
     }
 

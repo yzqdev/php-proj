@@ -1,0 +1,541 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "xAI Grok API Integration",
+        "description": "### xAI (Grok) API 服务规范\n支持文本生成、Chat Completion 以及标准 OpenAI 兼容结构。",
+        "contact": {
+            "name": "API Support",
+            "url": "https:\/\/x.ai",
+            "email": "support@x.ai"
+        },
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "https:\/\/api.x.ai\/v1",
+            "description": "xAI Official Production Server"
+        },
+        {
+            "url": "http:\/\/localhost:8080\/v1",
+            "description": "Local Mock \/ Development Server"
+        }
+    ],
+    "paths": {
+        "\/": {
+            "get": {
+                "tags": [
+                    "Home"
+                ],
+                "summary": "Home page",
+                "operationId": "94f101d1a17e54271ac13024c97da470",
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "\/hello\/{name}": {
+            "get": {
+                "tags": [
+                    "Home"
+                ],
+                "summary": "Say hello to someone",
+                "operationId": "a5eae23a6ecebadfb64db7fa33f0186f",
+                "parameters": [
+                    {
+                        "name": "name",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "\/api\/logs": {
+            "get": {
+                "tags": [
+                    "Logs"
+                ],
+                "summary": "List available log days",
+                "description": "One entry per rotated log file, newest first, with size, entry count and a level breakdown.",
+                "operationId": "ba969bed376c7f1f83b57b923ede103d",
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "$ref": "#\/components\/schemas\/ApiResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "\/api\/logs\/{date}": {
+            "get": {
+                "tags": [
+                    "Logs"
+                ],
+                "summary": "Get the log entries of a day",
+                "description": "Parses the rotated log file for that date. Pass raw=1 to get the untouched file content as text.",
+                "operationId": "c40494270c77fe35ea243aa121720a42",
+                "parameters": [
+                    {
+                        "name": "date",
+                        "in": "path",
+                        "description": "Day in Y-m-d format",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "2026-09-08"
+                        }
+                    },
+                    {
+                        "name": "level",
+                        "in": "query",
+                        "description": "Only entries of this level",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "DEBUG",
+                                "INFO",
+                                "NOTICE",
+                                "WARNING",
+                                "ERROR",
+                                "CRITICAL",
+                                "ALERT",
+                                "EMERGENCY"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "keyword",
+                        "in": "query",
+                        "description": "Only entries whose raw line contains this text",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "default": 500,
+                            "maximum": 5000,
+                            "minimum": 1
+                        }
+                    },
+                    {
+                        "name": "offset",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "default": 0,
+                            "minimum": 0
+                        }
+                    },
+                    {
+                        "name": "raw",
+                        "in": "query",
+                        "description": "1 = return the raw file content as text\/plain",
+                        "schema": {
+                            "type": "integer",
+                            "default": 0
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success - Returns JSON enveloped list or raw plain text based on raw query param",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "$ref": "#\/components\/schemas\/ApiResponse"
+                                }
+                            },
+                            "text\/plain": {
+                                "schema": {
+                                    "description": "Raw log content as text\/plain",
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid date, level, limit or offset",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "$ref": "#\/components\/schemas\/ApiResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "No log file for that date",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "$ref": "#\/components\/schemas\/ApiResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "\/api\/users": {
+            "get": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "Get all users",
+                "operationId": "5ad5dd594089f787c28e11309cac33cf",
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "$ref": "#\/components\/schemas\/ApiResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "Create a new user",
+                "operationId": "586d514e74cdd76a39d59ab595fcd870",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application\/json": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "email"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "email": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "$ref": "#\/components\/schemas\/ApiResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "$ref": "#\/components\/schemas\/ApiResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "\/api\/users\/{id}": {
+            "get": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "Get user by ID",
+                "operationId": "ce7f5f57259dec6c27632d2a9842887a",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "$ref": "#\/components\/schemas\/ApiResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "$ref": "#\/components\/schemas\/ApiResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "Update a user",
+                "operationId": "b260b4db80dcf1a8bfbe0dde6a2c49c8",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application\/json": {
+                            "schema": {
+                                "properties": {
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "email": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "$ref": "#\/components\/schemas\/ApiResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "$ref": "#\/components\/schemas\/ApiResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "Delete a user",
+                "operationId": "098e204c2faec47b8259cbe9bf1236bf",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Deleted"
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "$ref": "#\/components\/schemas\/ApiResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "LogEntry": {
+                "properties": {
+                    "datetime": {
+                        "type": "string",
+                        "example": "2026-09-08 18:15:17",
+                        "nullable": true
+                    },
+                    "level": {
+                        "type": "string",
+                        "example": "INFO",
+                        "nullable": true
+                    },
+                    "message": {
+                        "type": "string",
+                        "example": "Request",
+                        "nullable": true
+                    },
+                    "context": {
+                        "nullable": true
+                    },
+                    "extra": {
+                        "nullable": true
+                    },
+                    "raw": {
+                        "description": "The untouched log line",
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "LogDay": {
+                "properties": {
+                    "date": {
+                        "type": "string",
+                        "example": "2026-09-08"
+                    },
+                    "file": {
+                        "type": "string",
+                        "example": "app-2026-09-08.log"
+                    },
+                    "size": {
+                        "type": "integer"
+                    },
+                    "entries": {
+                        "type": "integer"
+                    },
+                    "first": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "last": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "levels": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "integer"
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "User": {
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "email": {
+                        "type": "string"
+                    },
+                    "created_at": {
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "ApiResponse": {
+                "description": "Envelope used by every \/api\/* endpoint",
+                "properties": {
+                    "code": {
+                        "description": "Mirrors the HTTP status; 2xx means success",
+                        "type": "integer",
+                        "example": 200
+                    },
+                    "message": {
+                        "type": "string",
+                        "example": "ok"
+                    },
+                    "data": {
+                        "description": "Endpoint payload, or an error-free list envelope",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            }
+        },
+        "securitySchemes": {
+            "bearerAuth": {
+                "type": "http",
+                "description": "输入你的 xAI API Key (格式：Bearer xai-xxx)",
+                "name": "Authorization",
+                "in": "header",
+                "bearerFormat": "JWT",
+                "scheme": "bearer"
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Home",
+            "description": "Home"
+        },
+        {
+            "name": "Logs",
+            "description": "Logs"
+        },
+        {
+            "name": "User",
+            "description": "User"
+        }
+    ]
+}

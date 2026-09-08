@@ -4,7 +4,8 @@
 /.idea/
 /.phpunit.cache/
 /composer.lock
-/var/uploads/
+/var/
+/gui-test-screenshots/
 *.log
 /web/node_modules/
 /web/dist/
