@@ -1,0 +1,194 @@
+# ============================================================
+# php-learn 生产环境 Nginx 配置（Step 6 最终态：纯 SPA）
+# ============================================================
+#
+# Step 6 后：
+#   - SSR 页面（views/、Session 中间件、旧路由）已下线
+#   - 后端只保留 /api/v1/* JSON API（Bearer Token）
+#   - 前端 SPA 直接挂根路径，Vue Router history 模式 base 为 '/'
+#   - 所有前端路由由 SPA 内路由接管
+#
+# 提供两种部署方案（选一种）：
+#   - 方案 A：前后端分域名（推荐，与用户"生产环境跨域"目标一致）
+#   - 方案 B：前后端同域名 + Nginx 分流
+#
+# 对应 Java：类似 Spring Cloud Gateway 的路由分流
+# ============================================================
+
+
+# ============================================================
+# 方案 A：前后端分域名（推荐）
+# ============================================================
+#
+# 拓扑：
+#   - 前端域名：php-learn.example.com → 只服务 SPA
+#   - 后端域名：api.php-learn.example.com → 只服务 /api/v1/*
+#
+# 好处：
+#   - 前后端故障互不影响
+#   - 前端域名可挂 CDN
+#   - 后端域名可单独做 WAF / rate-limit
+#   - CORS 已在后端配置好
+#
+# 坏处：两个域名要分别配 SSL 证书
+
+
+# ------------------------------------------------------------
+# 前端 Nginx 配置（php-learn.example.com）
+# ------------------------------------------------------------
+server {
+    listen 443 ssl http2;
+    server_name php-learn.example.com;
+
+    ssl_certificate     /etc/letsencrypt/live/php-learn.example.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/php-learn.example.com/privkey.pem;
+    ssl_protocols       TLSv1.2 TLSv1.3;
+
+    # 安全响应头
+    add_header X-Content-Type-Options nosniff always;
+    add_header X-Frame-Options SAMEORIGIN always;
+    add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+
+    # 前端静态资源（Vite 构建产物）
+    root /var/www/php-learn/client/dist;
+    index index.html;
+
+    # 静态资源长缓存（文件名带 hash）
+    location /assets/ {
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+        try_files $uri =404;
+    }
+
+    # SPA 路由兜底：所有未匹配路径都返回 index.html
+    # Vue Router 接管后续渲染
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+
+    # 隐藏敏感文件
+    location ~ /\. {
+        deny all;
+        access_log off;
+        log_not_found off;
+    }
+
+    location ~* \.(env|gitignore|git|sql|log)$ {
+        deny all;
+    }
+}
+
+
+# ------------------------------------------------------------
+# 后端 Nginx 配置（api.php-learn.example.com）
+# ------------------------------------------------------------
+server {
+    listen 443 ssl http2;
+    server_name api.php-learn.example.com;
+
+    ssl_certificate     /etc/letsencrypt/live/api.php-learn.example.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/api.php-learn.example.com/privkey.pem;
+    ssl_protocols       TLSv1.2 TLSv1.3;
+
+    add_header X-Content-Type-Options nosniff always;
+    add_header X-Frame-Options SAMEORIGIN always;
+
+    # 上传限制
+    client_max_body_size 10M;
+
+    # API：所有 /api/v1/* 都转发到 PHP
+    location /api/v1/ {
+        fastcgi_pass unix:/var/run/php/php-fpm.sock;
+        include fastcgi_params;
+        fastcgi_param SCRIPT_FILENAME /var/www/php-learn/public/index.php;
+        fastcgi_read_timeout 60s;
+    }
+
+    # 上传文件
+    location /uploads/ {
+        alias /var/www/php-learn/storage/uploads/;
+        expires 30d;
+        add_header Cache-Control "public, immutable";
+        try_files $uri =404;
+    }
+
+    # 其他请求一律 404
+    location / {
+        return 404;
+    }
+
+    location ~ /\. {
+        deny all;
+        access_log off;
+    }
+
+    location ~* \.(env|gitignore|git|sql|log)$ {
+        deny all;
+    }
+}
+
+
+# ============================================================
+# 方案 B：前后端同域名 + Nginx 分流（简化部署）
+# ============================================================
+#
+# 拓扑：单一域名，按 URL 前缀分流
+#   - /api/v1/*  → PHP API
+#   - /uploads/* → 上传文件
+#   - 其他       → SPA index.html
+
+server {
+    listen 443 ssl http2;
+    server_name php-learn.example.com;
+
+    ssl_certificate     /etc/letsencrypt/live/php-learn.example.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/php-learn.example.com/privkey.pem;
+
+    add_header X-Content-Type-Options nosniff always;
+    add_header X-Frame-Options SAMEORIGIN always;
+    add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+
+    client_max_body_size 10M;
+
+    # 前端静态资源根
+    root /var/www/php-learn/client/dist;
+    index index.html;
+
+    # API：/api/v1/*
+    location /api/v1/ {
+        fastcgi_pass unix:/var/run/php/php-fpm.sock;
+        include fastcgi_params;
+        fastcgi_param SCRIPT_FILENAME /var/www/php-learn/public/index.php;
+        fastcgi_read_timeout 60s;
+    }
+
+    # 上传文件
+    location /uploads/ {
+        alias /var/www/php-learn/storage/uploads/;
+        expires 30d;
+        add_header Cache-Control "public, immutable";
+        try_files $uri =404;
+    }
+
+    # 前端静态资源长缓存
+    location /assets/ {
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+        try_files $uri =404;
+    }
+
+    # SPA 路由兜底
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+
+    # 隐藏敏感文件
+    location ~ /\. {
+        deny all;
+        access_log off;
+    }
+
+    location ~* \.(env|gitignore|git|sql|log)$ {
+        deny all;
+    }
+}

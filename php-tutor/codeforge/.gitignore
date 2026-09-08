@@ -1,0 +1,13 @@
+/vendor/
+/.env
+/storage/logs/*.log
+/.idea/
+/.phpunit.cache/
+/composer.lock
+/var/uploads/
+*.log
+/web/node_modules/
+/web/dist/
+/web/.env.local
+/storage/
+.mimocode

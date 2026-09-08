@@ -1,0 +1,7 @@
+# Apache 重写：文件/目录不存在时回退到统一入口（public/index.php）
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^ index.php [QSA,L]
+</IfModule>

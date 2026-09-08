@@ -1,0 +1,33 @@
+{
+    "name": "yzqde/codeforge",
+    "type": "project",
+    "require": {
+        "php": "^8.2",
+        "doctrine/orm": "^2.16",
+        "doctrine/dbal": "^3.8",
+        "doctrine/persistence": "^3.1",
+        "slim/slim": "^4.15",
+        "slim/psr7": "^1.8",
+        "php-di/php-di": "^7.1",
+        "monolog/monolog": "^3.11",
+        "ext-json": "*",
+        "fakerphp/faker": "^1.24",
+        "ext-pdo": "*",
+        "symfony/cache": "^8.1"
+    },
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "App\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "yzqdev",
+            "email": "yzqdev@outlook.com"
+        }
+    ],
+    "require-dev": {
+        "phpstan/phpstan": "^2.2"
+    }
+}

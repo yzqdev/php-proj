@@ -1,0 +1,39 @@
+### Example user template template
+### Example user template
+
+# IntelliJ project files
+.idea
+*.iml
+out
+gen
+### CakePHP template
+# CakePHP 3
+cloud_file
+/vendor/*
+/config/app.php
+
+/tmp/cache/models/*
+!/tmp/cache/models/empty
+/tmp/cache/persistent/*
+!/tmp/cache/persistent/empty
+/tmp/cache/views/*
+!/tmp/cache/views/empty
+/tmp/sessions/*
+!/tmp/sessions/empty
+/tmp/tests/*
+!/tmp/tests/empty
+
+/logs/*
+!/logs/empty
+
+# CakePHP 2
+
+/app/tmp/*
+/app/Config/core.php
+/app/Config/database.php
+/vendors/*
+
+
+# 认证凭证与网盘运行时数据（storage/users.json 密码哈希、share_temp 明文提取密码、
+# zip_temp 临时包、cloud_file 网盘文件、pwd.config.txt 明文管理密码），整体禁止入库
+/storage/

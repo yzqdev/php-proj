@@ -1,0 +1,47 @@
+{
+    "name": "php-tutor/app-mini",
+    "description": "A multi-user blog REST API built on Slim 4 + PSR standards.",
+    "type": "project",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Tutor",
+            "email": "tutor@example.com"
+        }
+    ],
+
+    "require": {
+        "slim/slim": "^4.12",
+        "slim/psr7": "^1.6",
+        "php-di/php-di": "^7",
+        "php-di/slim-bridge": "^3",
+        "illuminate/database": "^11",
+        "lcobucci/jwt": "^5.5",
+        "lcobucci/clock": "^3",
+        "respect/validation": "^2.3",
+        "tuupola/cors-middleware": "^1.4",
+        "monolog/monolog": "^3",
+        "vlucas/phpdotenv": "^5.5",
+        "zircote/swagger-php": "^4.10"
+    },
+    "require-dev": {
+        "fakerphp/faker": "^1.23",
+        "phpunit/phpunit": "^10"
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "app/",
+            "App\\Database\\Seeders\\": "database/seeders/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "migrate": "php scripts/migrate.php",
+        "seed": "php scripts/seed.php",
+        "dev": "php -S localhost:8080 -t public"
+    }
+}

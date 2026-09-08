@@ -1,0 +1,128 @@
+/**
+ * ============================================================
+ * 全局样式
+ * ============================================================
+ *
+ * 双引擎：Element Plus（组件库）+ TailwindCSS v4（工具类）
+ *   - Element Plus：el-button / el-table / el-form 等组件样式
+ *   - TailwindCSS v4：@import "tailwindcss" 引入全套工具类
+ *   - 自定义设计 token 用 @theme 定义（primary / danger / success / surface 等）
+ *
+ * 对应 Java：类似 application.yml 里的 spring.thymeleaf 前缀配置
+ */
+
+@import "tailwindcss";
+
+@theme {
+  /* 主色 */
+  --color-primary-50: #eff6ff;
+  --color-primary-100: #dbeafe;
+  --color-primary-500: #3b82f6;
+  --color-primary-600: #2563eb;
+  --color-primary-700: #1d4ed8;
+  --color-primary: var(--color-primary-500);
+
+  /* 危险色 */
+  --color-danger-50: #fef2f2;
+  --color-danger-500: #ef4444;
+  --color-danger-600: #dc2626;
+  --color-danger: var(--color-danger-500);
+
+  /* 成功色 */
+  --color-success-50: #f0fdf4;
+  --color-success-500: #22c55e;
+  --color-success: var(--color-success-500);
+
+  /* 警告色 */
+  --color-warning-50: #fffbeb;
+  --color-warning-500: #f59e0b;
+  --color-warning: var(--color-warning-500);
+
+  /* 中性色（背景与边框） */
+  --color-surface-50: #f9fafb;
+  --color-surface-100: #f3f4f6;
+  --color-surface-200: #e5e7eb;
+  --color-surface-300: #d1d5db;
+  --color-surface-700: #374151;
+  --color-surface-800: #1f2937;
+  --color-surface-900: #111827;
+}
+
+/* ============================================================
+ * 基础重置
+ * ============================================================ */
+
+html, body {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+               "Microsoft YaHei", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  color: var(--el-text-color-primary);
+  background-color: var(--el-bg-color-page);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ============================================================
+ * 滚动条样式（Webkit）
+ * ============================================================ */
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--el-fill-color-lighter);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--el-fill-color-darker);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--el-text-color-secondary);
+}
+
+/* ============================================================
+ * 表单元素默认字体继承
+ * ============================================================ */
+
+input, button, textarea, select {
+  font-family: inherit;
+}
+
+/* ============================================================
+ * 通用过渡（替代 Tailwind transition-*）
+ * ============================================================ */
+
+* {
+  box-sizing: border-box;
+}
+
+/* 通用淡入淡出 */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 150ms ease-out;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+/* 弹窗缩放过渡（替代自定义 dialog-fade） */
+.scale-enter-active,
+.scale-leave-active {
+  transition: transform 150ms ease-out, opacity 150ms ease-out;
+}
+
+.scale-enter-from,
+.scale-leave-to {
+  transform: scale(0.95);
+  opacity: 0;
+}

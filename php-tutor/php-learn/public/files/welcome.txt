@@ -1,0 +1,4 @@
+欢迎访问 php-learn 项目
+这是一个 PHP 8.x 无框架学习项目
+你可以修改本文件的内容，然后访问 /learn/files 查看效果
+fopen → fgets → feof → fclose 是最基础的文件读写流程

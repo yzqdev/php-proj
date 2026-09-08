@@ -1,0 +1,25 @@
+{
+    "name": "yzqde/thunder",
+    "version": "1.0.0",
+    "description": "Thunder - 文件操作 CLI 工具（基于 symfony/console）",
+    "type": "library",
+    "bin": ["bin/thunder"],
+    "autoload": {
+        "psr-4": {
+            "Yzqde\\Thunder\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "yzqdev",
+            "email": "yzqdev@outlook.com"
+        }
+    ],
+    "require": {
+        "php": ">=8.2",
+        "symfony/console": "^7.0 || ^8.0"
+    },
+    "config": {
+        "sort-packages": true
+    }
+}

@@ -1,0 +1,30 @@
+# 依赖
+node_modules/
+
+# 构建产物
+dist/
+dist-ssr/
+
+# 环境配置（只提交 .env.example）
+.env
+.env.local
+.env.development.local
+.env.production.local
+
+# 编辑器
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# 日志
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# macOS
+.DS_Store

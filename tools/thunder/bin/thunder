@@ -1,0 +1,46 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types=1);
+
+/**
+ * thunder — 文件操作 CLI 工具入口
+ *
+ * 用法：php bin/thunder <command> [options] [args]
+ * 或全局安装后直接：thunder <command>
+ */
+
+use Symfony\Component\Console\Application;
+use Yzqde\Thunder\Command\CatCommand;
+use Yzqde\Thunder\Command\CpCommand;
+use Yzqde\Thunder\Command\LsCommand;
+use Yzqde\Thunder\Command\MkdirCommand;
+use Yzqde\Thunder\Command\MvCommand;
+use Yzqde\Thunder\Command\RmCommand;
+use Yzqde\Thunder\Command\TouchCommand;
+use Yzqde\Thunder\Command\TreeCommand;
+use Yzqde\Thunder\Command\WriteCommand;
+
+// 未装 vendor 时给出友好提示，而不是裸的 fatal error
+if (!file_exists(__DIR__ . '/../vendor/autoload.php')) {
+    fwrite(STDERR, "缺少依赖，请先在项目根目录执行: composer install\n");
+
+    exit(1);
+}
+
+require __DIR__ . '/../vendor/autoload.php';
+
+$application = new Application('thunder', '1.0.0');
+$application->addCommands([
+    new LsCommand(),
+    new TreeCommand(),
+    new CatCommand(),
+    new MkdirCommand(),
+    new TouchCommand(),
+    new WriteCommand(),
+    new CpCommand(),
+    new MvCommand(),
+    new RmCommand(),
+]);
+
+$application->run();

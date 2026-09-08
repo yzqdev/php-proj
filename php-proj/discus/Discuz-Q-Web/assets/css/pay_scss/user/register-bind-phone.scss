@@ -1,0 +1,83 @@
+.register {
+  width: 100%;
+  // 头部
+  .register-header {
+    height: 120px;
+    font-size: 28px;
+    color: #f4f4f4;
+    font-weight: bold;
+    line-height: 120px;
+    text-align: center;
+    letter-spacing: 3px;
+    background: url('~assets/pay_imgs/login_logo.png') no-repeat center;
+    background-size: 100% 100%;
+  }
+  // 内容
+  .register-content {
+    display: flex;
+    flex-direction: column;
+    margin-top: 20px;
+    form{
+      margin: 0 auto;
+      width: 440px;
+    }
+    .bindtext {
+      font-size: 16px;
+      color: #6d6d6d;
+      line-height: 24px;
+      padding-bottom: 10px;
+    }
+    .input-box{
+      position: relative;
+      height: 50px;
+      margin-bottom: 20px;
+      ::v-deep .el-input {
+        width: 440px;
+        height: 50px;
+        .el-input__inner{
+          height: 50px !important;
+          padding-left: 100px !important;
+        }
+      }
+      .title {
+        position: absolute;
+        top: 0;
+        left: 10px;
+        width: 90px;
+        height: 50px;
+        line-height: 50px;
+        text-align: left;
+        font-size: 16px;
+        color: #606266;
+        z-index: 10;
+      }
+      &.rep {
+        .passerror {
+          position: absolute;
+          bottom: -22px;
+          left: 100px;
+          color: $color-background-hover-red2;
+        }
+      }
+    }
+    .r-button {
+      width: 100%;
+      height: 50px;
+      margin-top: 10px;
+      font-size: 20px;
+      background: $color-red-pay !important;
+      border-radius: 25px !important;
+      transition: all 0.2s ease-out;
+      &:hover {
+        box-shadow: 0 2px 4px 0 $color-background-hover-red1;
+      }
+    }
+    .tologin {
+      font-size: 14px;
+      margin-top: 10px;
+      a {
+        color: $color-background-hover-red2;
+      }
+    }
+  }
+}

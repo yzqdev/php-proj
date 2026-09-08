@@ -1,0 +1,6 @@
+@import 'tailwindcss';
+
+/* Element Plus 主色微调交给默认值;这里只放全局基础样式 */
+body {
+  @apply bg-gray-50 text-gray-800 antialiased;
+}

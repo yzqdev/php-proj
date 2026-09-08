@@ -1,0 +1,31 @@
+{
+  "name": "yzqde/playground",
+  "type": "project",
+  "autoload": {
+    "psr-4": {
+      "Yzqde\\Playground\\": "src/",
+    "Yzqde\\Playground\\Database\\": "database/"
+    }
+  },
+  "authors": [
+    {
+      "name": "yzqdev",
+      "email": "yzqdev@outlook.com"
+    }
+  ],
+  "require": {
+    "vlucas/phpdotenv": "^5.7",
+    "slim/slim": "^4.15",
+    "monolog/monolog": "^2.8",
+    "php-di/php-di": "^7.0",
+    "slim/psr7": "^1.8",
+    "zircote/swagger-php": "^6.7",
+    "ext-fileinfo": "*",
+    "doctrine/dbal": "^4.4"
+  },"config": {
+  "process-timeout": 0
+},
+  "scripts": {
+    "start": "php -S localhost:8080 -t public public/index.php"
+  }
+}

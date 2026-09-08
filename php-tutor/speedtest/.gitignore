@@ -1,0 +1,21 @@
+# Composer
+vendor/
+composer.lock
+
+# 日志文件（保留目录）
+logs/*.log
+logs/.gitkeep
+
+# 可选 API Key
+test/ipinfo_apikey.txt
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db

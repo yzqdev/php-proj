@@ -1,0 +1,7 @@
+[production]
+bootstrap = public/index.php
+[stylesheets]
+error.css = css/error.css
+[handlers]
+404 = SlimHandlers\NotFoundHandler
+500 = SlimHandlers\ErrorHandler

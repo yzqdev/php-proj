@@ -1,0 +1,80 @@
+.global {
+  width: 300px;
+  margin-left: 15px;
+  background: transparent;
+
+  .recommend {
+    border-radius: 3px;
+    margin-top: 15px;
+    background: $color-white;
+    padding: 0 20px 24px;
+    min-height: 100px;
+    box-shadow: 0 3px 3px rgba(0, 0, 0, 0.03);
+    .title {
+      font-size: 20px;
+      color: #333;
+      padding: 24px 0;
+      border-bottom: 1px solid rgba(220,220,220,0.46);
+    }
+    .no-data {
+      color: #6D6D6D;
+    }
+    // 推荐内容详情
+    .container-post {
+      position: relative;
+      margin-top: 10px;
+      padding-bottom: 10px;
+      font-size: 14px;
+      border-bottom: 1px solid rgba(220,220,220,0.46);
+      overflow: hidden;
+      cursor: pointer;
+        &:hover {
+        background: $color-background-hover;
+      }
+      .content-item-tips{
+        float: left;
+        clear: both;
+        display: flex;
+        align-items: center;
+        height: 35px;
+        .item-img{
+          width: 55px;
+          height:24px;
+          margin-right: 8px;
+          @media screen and (max-width: 1005px) {
+            width: 50px;
+            margin-right: 2px;
+          }
+        }
+        .item-tip{
+          font-size: 16px;
+          font-weight: bold;
+          color: #600111;
+          margin-right: 3px;
+          @media screen and (max-width: 1005px) {
+            font-size: 14px;
+          }
+        }
+      }
+      .content{
+        height:70px;
+        line-height:35px;
+        color: #000;
+        word-break: break-all;
+        word-wrap: break-word;
+      }
+      .read-count{
+        position: absolute;
+        right: 0;
+        bottom: 5px;
+        color: $font-color-grey;
+        letter-spacing: 1px;
+      }
+    }
+  }
+}
+@media screen and (max-width: 1005px) {
+  .global {
+    width: 220px;
+  }
+}

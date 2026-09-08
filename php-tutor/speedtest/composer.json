@@ -1,0 +1,27 @@
+{
+    "name": "speedtest/speedtest",
+    "description": "纯 PHP 网络测速工具 — 基于 Monolog 日志系统",
+    "type": "project",
+    "license": "GPL-3.0-or-later",
+    "keywords": ["speedtest", "network", "bandwidth", "ping", "jitter", "php"],
+    "require": {
+        "php": ">=8.0",
+        "monolog/monolog": "^2.9",
+        "ext-json": "*"
+    },
+    "autoload": {
+        "classmap": ["lib/"]
+    },
+    "config": {
+        "sort-packages": true,
+        "preferred-install": "dist"
+    },
+    "scripts": {
+        "serve": "php -S localhost:8080",
+        "lint": "php -r \"echo '=== Lint ===' . PHP_EOL; $files = array_merge(glob('test/*.php'), glob('lib/*.php'), ['index.php']); foreach ($files as $f) { exec('php -l ' . escapeshellarg($f)); }\""
+    },
+    "scripts-descriptions": {
+        "serve": "启动 PHP 内置开发服务器（端口 8080）",
+        "lint": "语法检查全部 PHP 文件"
+    }
+}

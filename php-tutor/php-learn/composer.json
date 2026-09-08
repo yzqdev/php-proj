@@ -1,0 +1,51 @@
+{
+    "name": "php-learn/php-learn",
+    "description": "面向 Java/Spring Boot 开发者的 PHP 8.x 学习项目（Slim 4 + php-di + Monolog + PSR-15 + Doctrine ORM）",
+    "type": "project",
+    "license": "MIT",
+    "require": {
+        "php": ">=8.2",
+        "ext-json": "*",
+        "ext-pdo": "*",
+        "ext-pdo_mysql": "*",
+        "doctrine/collections": "^2.0",
+        "doctrine/dbal": "^4.0",
+        "doctrine/migrations": "^3.0",
+        "doctrine/orm": "^3.0",
+        "doctrine/persistence": "^3.0",
+        "monolog/monolog": "^2.8",
+        "php-di/php-di": "^7.0",
+        "slim/psr7": "^1.7",
+        "zircote/swagger-php": "^6.7",
+        "slim/slim": "^4.14",
+        "symfony/cache": "^8.1",
+        "symfony/console": "^7.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^10.5"
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "app/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "sort-packages": true
+    },
+    "scripts": {
+        "serve": "php -S localhost:8000 -t public",
+        "lint": "php -l public/index.php",
+        "doctrine": "php app/Console/DoctrineConsole.php",
+        "schema:create": "php app/Console/DoctrineConsole.php schema:create",
+        "schema:validate": "php app/Console/DoctrineConsole.php orm:validate-schema",
+        "migrate:status": "php app/Console/DoctrineConsole.php migrations:status",
+        "migrate": "php app/Console/DoctrineConsole.php migrations:migrate",
+        "db:drop": "php app/Console/DoctrineConsole.php db:drop"
+    }
+}

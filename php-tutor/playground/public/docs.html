@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>简单图床 API 文档</title>
+<link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist@5.32.15/swagger-ui.css">
+<style>
+    body { margin: 0; background: #fafafa; font-family: "Segoe UI", "Microsoft YaHei", system-ui, sans-serif; }
+    .toolbar {
+        display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap;
+        padding: 12px 24px; background: #fff; border-bottom: 1px solid #e0e0e0;
+    }
+    .toolbar h1 { margin: 0; font-size: 17px; font-weight: 600; }
+    .toolbar .links { font-size: 13px; color: #555; }
+    .toolbar a { color: #2b6cb0; text-decoration: none; }
+    .toolbar a:hover { text-decoration: underline; }
+    #offline { display: none; padding: 24px; font-size: 14px; color: #b00020; }
+</style>
+</head>
+<body>
+
+<div class="toolbar">
+    <h1>简单图床 API</h1>
+    <span class="links">
+        <a href="/openapi.json">规范 JSON</a> ·
+        <a href="/openapi.json?refresh=1">忽略缓存重新生成</a> ·
+        <a href="https://spec.openapis.org/oas/v3.0.3">OpenAPI 3.0.3</a>
+    </span>
+</div>
+
+<div id="offline">
+    Swagger UI 资源加载失败。本页依赖 <code>unpkg.com</code> 上的 swagger-ui-dist,
+    请检查外网访问;离线环境可自行下载资源后改用本地路径。
+</div>
+
+<div id="swagger-ui"></div>
+
+<script src="https://unpkg.com/swagger-ui-dist@5.32.15/swagger-ui-bundle.js"></script>
+<script src="https://unpkg.com/swagger-ui-dist@5.32.15/swagger-ui-standalone-preset.js"></script>
+<script>
+if (typeof SwaggerUIBundle === 'undefined') {
+    document.getElementById('swagger-ui').style.display = 'none';
+    document.getElementById('offline').style.display = 'block';
+} else {
+    // 只取路径部分,兼容 request.url 为绝对 URL 的情况
+    var stripOrigin = function (url) {
+        var absolute = url.indexOf('://');
+        return absolute === -1 ? url : url.slice(url.indexOf('/', absolute + 3));
+    };
+
+    var ui = SwaggerUIBundle({
+        url: '/openapi.json',
+        dom_id: '#swagger-ui',
+        deepLinking: true,
+        tryItOutEnabled: true,
+        presets: [SwaggerUIBundle.presets.apis, SwaggerUIStandalonePreset],
+        plugins: [SwaggerUIBundle.plugins.DownloadUrl],
+        layout: 'StandaloneLayout',
+        // 不向 swagger.io 上报校验,离线也不弹横幅
+        validatorUrl: null,
+
+        // 后端 CsrfMiddleware 要求非 GET 的 /api/* 携带该头,统一在此注入
+        requestInterceptor: function (request) {
+            if ((request.method || 'get').toLowerCase() !== 'get' && stripOrigin(request.url).indexOf('/api/') === 0) {
+                request.headers['X-Requested-With'] = 'XMLHttpRequest';
+            }
+            return request;
+        },
+    });
+    window.ui = ui;
+}
+</script>
+</body>
+</html>

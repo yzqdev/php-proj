@@ -1,0 +1,49 @@
+{
+    "name": "yzqde/douyin-spider",
+    "type": "project",
+    "require": {
+        "ext-json": "*",
+        "ext-pdo": "*",
+        "ext-pdo_mysql": "*",
+        "doctrine/collections": "^2.0",
+        "doctrine/dbal": "^4.4",
+        "doctrine/migrations": "^3.0",
+        "doctrine/orm": "^3.5",
+        "doctrine/persistence": "^3.0",
+        "firebase/php-jwt": "^6.0",
+        "monolog/monolog": "^2.8",
+        "php-di/php-di": "^7.0",
+        "slim/csrf": "^1.0",
+        "slim/psr7": "^1.7",
+        "slim/slim": "^4.14",
+        "symfony/cache": "^7.0",
+        "symfony/console": "^7.0",
+        "vlucas/phpdotenv": "^5.6",
+        "symfony/var-exporter": "^7.0"
+    },
+    "require-dev": {
+        "phpstan/phpstan": "^2.0",
+        "phpunit/phpunit": "^10.0"
+    },
+    "license": "MIT",
+    "autoload": {
+        "files": [
+            "src/Support/Json.php",
+            "routes/api.php"
+        ],
+        "psr-4": {
+            "Yzqde\\DouyinSpider\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Yzqde\\Tests\\DouyinSpider\\": "tests/"
+        }
+    },
+    "authors": [
+        {
+            "name": "yzqdev",
+            "email": "yzqdev@outlook.com"
+        }
+    ]
+}

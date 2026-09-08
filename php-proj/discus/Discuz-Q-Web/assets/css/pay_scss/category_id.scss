@@ -1,0 +1,113 @@
+.app-cont {
+  box-shadow: none;
+}
+.container{
+  display: flex;
+  background: #F4F5F6;
+  width: 100%;
+  .cont-left{
+    order:1;
+    width:247px;
+    flex: 0 0 247px;
+    .category{
+      margin-bottom: 0;
+    }
+    .background-color{
+      @include background();
+    }
+    @media screen and ( max-width: 1005px ) {
+      width:200px;
+      flex: 0 0 200px;
+    }
+  }
+  .cont-center{
+    order:2;
+    flex:auto;
+    margin:0 30px;
+    @media screen and ( max-width: 1005px ) {
+      min-width:450px;
+    }
+    .cont-center-head{
+      padding: 0 25px;
+      margin-bottom: 10px;
+      background: $color-white;
+      border-radius: 5px;
+      box-shadow: 0 3px 3px rgba(0, 0, 0, 0.03);
+      .list-top-item{
+        padding-top: 14px;
+        padding-bottom: 14px;
+        display: flex;
+        align-items: center;
+        .top-label{
+          color: #999;
+          margin-left: 10px;
+          margin-right: 20px;
+        }
+        .top-title{
+          flex: 1;
+          color: $color-black;
+          max-width: 425px;
+          overflow: hidden;
+          display: -webkit-box;
+          -webkit-box-orient: vertical;
+          -webkit-line-clamp: 1;
+          font-size: 14px !important;
+          max-height: 21px;
+          ::v-deep p {
+            font-size: 14px !important;
+          }
+          ::v-deep img {
+            height: 19px;
+          }
+          @media screen and ( max-width: 1005px ) {
+            ::v-deep img {
+              height: 18px;
+            }
+          }
+        }
+        &:hover{
+          .top-title{
+            color:$color-blue-base;
+          }
+        }
+        &:last-child{
+          padding-bottom: 29px;
+          border-bottom: 1px solid #f4f4f4;
+        }
+      }
+      .new-post{
+        padding: 20px 25px 30px;
+        .new-post-cont{
+          text-align:center;
+          line-height: 45px;
+          color: #f3bc4d;
+          background: #fefaf2;
+          .refresh{
+            color: #f3bc4d;
+            cursor: pointer;
+            &:hover{
+              color: $color-blue-base;
+            }
+          }
+        }
+
+      }
+    }
+  }
+  .cont-right{
+    order:3;
+    width:283px;
+    flex: 0 0 283px;
+    @media screen and ( max-width: 1005px ) {
+      width:220px;
+      flex: 0 0 220px;
+    }
+    .background-color{
+      @include background();
+      margin-bottom: 3px;
+    }
+  }
+}
+.empty-icon {
+  margin-right: 6px;
+}

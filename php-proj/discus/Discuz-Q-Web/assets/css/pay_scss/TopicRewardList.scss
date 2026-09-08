@@ -1,0 +1,59 @@
+.global {
+  margin-top: 40px;
+  background: #fefbf5;
+  > .group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    > .title {
+      margin-top: 20px;
+      color: #c5c6cb;
+      font-size: 14px;
+    }
+
+    > .person-list {
+      margin: 10px auto;
+      min-height: 35px;
+      width: 400px;
+
+      > .first-show {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+
+        > .container-avatar {
+          margin-right: 3px;
+          margin-bottom: 5px;
+
+          &:last-child {
+            margin-right: 0;
+          }
+        }
+      }
+    }
+
+    > .rotate {
+      transform: rotate(180deg);
+      transition: .5s;
+    }
+
+    > button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 223px;
+      height: 54px;
+      margin-top: 16px;
+      margin-bottom: 16px;
+      border-radius: 27px;
+      background: #1878f3;
+
+      > span {
+        color: #fff;
+      }
+    }
+  }
+}

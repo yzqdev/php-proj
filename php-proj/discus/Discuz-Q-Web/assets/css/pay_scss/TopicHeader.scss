@@ -1,0 +1,84 @@
+.el-dropdown-menu__item:hover {
+  background: #ffffff;
+  color: $color-blue-base;
+}
+.title {
+  height: 72px;
+  display: flex;
+  justify-content: space-between;
+  padding-bottom: 30px;
+  border-bottom: 1px solid #f4f4f4;
+
+  .be-ask-user {
+    color: $color-blue-base;
+    cursor: pointer;
+  }
+  .container-management {
+    display: flex;
+    align-items: center;
+    .tag {
+      height: 24px;
+      padding: 4px 12px;
+      margin-right: 20px;
+      font-size: 12px;
+      color: #1878f3;
+      line-height: 14px;
+      letter-spacing: 1px;
+      border-radius: 12px;
+      background: #f8f8f8;
+      border: 1px solid #f8f8f8;
+      transition: all .3s;
+      cursor: pointer;
+      &:hover {
+        color: #fff;
+        background: $color-blue-base;
+        border: 1px solid $color-blue-base;
+      }
+    }
+    .report {
+      display: flex;
+      align-items: center;
+      margin-right: 20px;
+      font-size: 14px;
+      color: $font-color-grey;
+      height: 16px;
+      cursor: pointer;
+      > span {
+        margin-left: 5px;
+      }
+      .warning {
+        height: 16px;
+      }
+    }
+    .dropdown {
+      height: 20px;
+      .management {
+        display: flex;
+        align-items: center;
+        margin-right: 20px;
+        font-size: 12px;
+        cursor: pointer;
+        color: $font-color-grey;
+        > span {
+          margin-left: 5px;
+        }
+
+        &:focus {
+          border: none;
+          outline: none;
+        }
+
+        &.on-drop {
+          color: $color-blue-base;
+          > .icon-setting {
+            fill: $color-blue-base;
+          }
+        }
+      }
+    }
+  }
+  .essence-img{
+    width: 40px;
+    height: 40px;
+  }
+}
