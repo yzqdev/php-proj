@@ -47,8 +47,8 @@ class UserController
 
     #[OA\Get(
         path: '/api/users/{id}',
-        tags: ['User'],
         summary: 'Get user by ID',
+        tags: ['User'],
         parameters: [
             new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))
         ],
@@ -73,7 +73,6 @@ class UserController
 
     #[OA\Post(
         path: '/api/users',
-        tags: ['User'],
         summary: 'Create a new user',
         requestBody: new OA\RequestBody(
             required: true,
@@ -85,6 +84,7 @@ class UserController
                 ]
             )
         ),
+        tags: ['User'],
         responses: [
             new OA\Response(response: '201', description: 'Created', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponse')),
             new OA\Response(response: '400', description: 'Bad request', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponse'))

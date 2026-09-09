@@ -2,20 +2,20 @@
 
 declare(strict_types=1);
 
-use Service\Http\AuthController;
-use Service\Http\CloudDriveController;
-use Service\Http\Docs\DocsController;
-use Service\Http\Docs\SwaggerController;
-use Service\Http\DoctrineController;
-use Service\Http\LegacyModuleController;
-use Service\Http\LogController;
-use Service\Http\PhpDemoController;
-use Service\Middleware\ApiAuthMiddleware;
-use Service\Middleware\CloudDriveAuthMiddleware;
-use Service\Middleware\CorsMiddleware;
-use Service\Middleware\RequestLoggerMiddleware;
-use Service\Middleware\RateLimitMiddleware;
-use Service\Middleware\SessionMiddleware;
+use App\Controller\AuthController;
+use App\Controller\CloudDriveController;
+use App\Controller\Docs\DocsController;
+use App\Controller\Docs\SwaggerController;
+use App\Controller\DoctrineController;
+use App\Controller\LegacyModuleController;
+use App\Controller\LogController;
+use App\Controller\PhpDemoController;
+use App\Middleware\ApiAuthMiddleware;
+use App\Middleware\CloudDriveAuthMiddleware;
+use App\Middleware\CorsMiddleware;
+use App\Middleware\RequestLoggerMiddleware;
+use App\Middleware\RateLimitMiddleware;
+use App\Middleware\SessionMiddleware;
 use Slim\App;
 use Slim\Routing\RouteCollectorProxy;
 

@@ -17,8 +17,11 @@ class HomeController
 
     #[OA\Get(
         path: '/',
-        tags: ['Home'],
+
         summary: 'Home page',
+
+        tags: ['Home'],
+
         responses: [
             new OA\Response(response: '200', description: 'Success', content: new OA\JsonContent(type: 'string'))
         ]
@@ -32,8 +35,8 @@ class HomeController
 
     #[OA\Get(
         path: '/hello/{name}',
-        tags: ['Home'],
         summary: 'Say hello to someone',
+        tags: ['Home'],
         parameters: [
             new OA\Parameter(name: 'name', in: 'path', required: true, schema: new OA\Schema(type: 'string'))
         ],

@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace Service;
+namespace App\Service;
 
+use App\Exception\ApiException;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Tools\SchemaTool;
 use Entity\Product;
 use Entity\User;
 use Faker\Factory as FakerFactory;
-use Faker\Generator;
 use Predis\ClientInterface;
 use Predis\PredisException;
 use Throwable;

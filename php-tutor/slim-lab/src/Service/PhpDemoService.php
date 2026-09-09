@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Service;
+namespace App\Service;
 
 /**
  * 原 api/php-demo.php 的全部 action 业务逻辑，原样搬迁（演示代码一字未改）。

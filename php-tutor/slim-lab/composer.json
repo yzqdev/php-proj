@@ -17,9 +17,7 @@
     },
     "autoload": {
         "psr-4": {
-            "App\\": "app/",
-            "Entity\\": "src/Entity/",
-            "Service\\": "src/Service/"
+            "App\\": "src/"
         }
     },
     "authors": [
@@ -27,5 +25,8 @@
             "name": "yzqdev",
             "email": "yzqdev@outlook.com"
         }
-    ]
+    ],
+    "require-dev": {
+        "phpstan/phpstan": "^2.2"
+    }
 }

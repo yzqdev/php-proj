@@ -2,7 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Service;
+namespace App\Service;
+
+use App\Exception\ApiException;
 
 /**
  * 原 api/clouddrive.php 的全部 action 业务逻辑与工具函数，原样搬迁。

@@ -1,0 +1,466 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "slim-lab API",
+        "description": "原生 PHP 项目迁移至 Slim 4 后的接口文档。统一响应信封：`{\"code\": 0, \"message\": \"success\", \"data\": ...}`，`code` 非 0 时等于 HTTP 状态码（400 参数\/业务错误、401 未登录、405 方法不允许、404 未知模块\/未知操作、500 服务器错误）。鉴权有两种：平台接口（\/api\/auth、\/api\/logs）用 Bearer Token；clouddrive 模块基于 PHP Session（Cookie: PHPSESSID）。",
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "\/",
+            "description": "当前部署（相对地址）"
+        }
+    ],
+    "components": {
+        "schemas": {
+            "ApiEnvelope": {
+                "required": [
+                    "code",
+                    "message",
+                    "data"
+                ],
+                "properties": {
+                    "code": {
+                        "description": "0=成功；其余等�?HTTP 状态码",
+                        "type": "integer",
+                        "example": 0
+                    },
+                    "message": {
+                        "type": "string",
+                        "example": "success"
+                    },
+                    "data": {
+                        "description": "业务数据，业务错误时�?null",
+                        "example": null,
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "DirListData": {
+                "required": [
+                    "list",
+                    "dirs",
+                    "current_folder"
+                ],
+                "properties": {
+                    "list": {
+                        "description": "OpenAPI 组件：list_dir 的 data 结构。",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#\/components\/schemas\/FileEntry"
+                        }
+                    },
+                    "dirs": {
+                        "description": "全部子目录相对路径",
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "example": [
+                            "photos",
+                            "docs\/work"
+                        ]
+                    },
+                    "current_folder": {
+                        "type": "string",
+                        "example": "docs"
+                    }
+                },
+                "type": "object"
+            },
+            "DoctrineStatsData": {
+                "required": [
+                    "userCount",
+                    "productCount"
+                ],
+                "properties": {
+                    "userCount": {
+                        "description": "OpenAPI 组件：doctrine stats 接口�?data 结构�?",
+                        "type": "integer",
+                        "example": 2
+                    },
+                    "productCount": {
+                        "type": "integer",
+                        "example": 3
+                    }
+                },
+                "type": "object"
+            },
+            "FileEntry": {
+                "required": [
+                    "name",
+                    "is_dir",
+                    "size",
+                    "size_text",
+                    "mtime",
+                    "ext"
+                ],
+                "properties": {
+                    "name": {
+                        "description": "OpenAPI 组件：文件条目（list_dir 用）�?",
+                        "type": "string",
+                        "example": "speedtest-master.zip"
+                    },
+                    "is_dir": {
+                        "type": "boolean",
+                        "example": false
+                    },
+                    "size": {
+                        "type": "integer",
+                        "example": 2150945
+                    },
+                    "size_text": {
+                        "type": "string",
+                        "example": "2.05 MB"
+                    },
+                    "mtime": {
+                        "type": "string",
+                        "example": "2026-09-06 10:00"
+                    },
+                    "ext": {
+                        "type": "string",
+                        "example": "zip"
+                    }
+                },
+                "type": "object"
+            },
+            "LogData": {
+                "required": [
+                    "date",
+                    "total",
+                    "offset",
+                    "limit",
+                    "truncated",
+                    "lines"
+                ],
+                "properties": {
+                    "date": {
+                        "description": "查询的日期",
+                        "type": "string",
+                        "format": "date",
+                        "example": "2026-09-08"
+                    },
+                    "total": {
+                        "description": "当日日志总行数",
+                        "type": "integer",
+                        "example": 1234
+                    },
+                    "offset": {
+                        "description": "本页起始行号",
+                        "type": "integer",
+                        "example": 0
+                    },
+                    "limit": {
+                        "description": "本页最大行数（服务端上限 2000）",
+                        "type": "integer",
+                        "example": 500
+                    },
+                    "truncated": {
+                        "description": "是否还有未返回的行",
+                        "type": "boolean",
+                        "example": false
+                    },
+                    "lines": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#\/components\/schemas\/LogLine"
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "LogDay": {
+                "required": [
+                    "date",
+                    "bytes"
+                ],
+                "properties": {
+                    "date": {
+                        "description": "日志日期",
+                        "type": "string",
+                        "format": "date",
+                        "example": "2026-09-08"
+                    },
+                    "bytes": {
+                        "description": "当日日志文件大小（字节）",
+                        "type": "integer",
+                        "format": "int64",
+                        "example": 125840
+                    }
+                },
+                "type": "object"
+            },
+            "LogLine": {
+                "required": [
+                    "no",
+                    "message",
+                    "raw"
+                ],
+                "properties": {
+                    "no": {
+                        "description": "当日文件内的行号（从 0 开始）",
+                        "type": "integer",
+                        "example": 1234
+                    },
+                    "timestamp": {
+                        "description": "记录时间 Y-m-d H:i:s",
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2026-09-08 08:31:02",
+                        "nullable": true
+                    },
+                    "channel": {
+                        "description": "日志通道",
+                        "type": "string",
+                        "example": "app",
+                        "nullable": true
+                    },
+                    "level": {
+                        "description": "日志级别",
+                        "type": "string",
+                        "enum": [
+                            "DEBUG",
+                            "INFO",
+                            "NOTICE",
+                            "WARNING",
+                            "ERROR",
+                            "CRITICAL",
+                            "ALERT",
+                            "EMERGENCY"
+                        ],
+                        "example": "INFO",
+                        "nullable": true
+                    },
+                    "message": {
+                        "description": "日志正文（不含尾部 context JSON）",
+                        "type": "string",
+                        "example": "GET \/api\/logs 200"
+                    },
+                    "context": {
+                        "description": "Monolog context（请求 ID、耗时、IP、异常等），无上下文时为 null",
+                        "type": "object",
+                        "example": null,
+                        "nullable": true,
+                        "additionalProperties": true
+                    },
+                    "raw": {
+                        "description": "原始日志行，便于排查解析失败的记录",
+                        "type": "string",
+                        "example": "[2026-09-08 08:31:02] app.INFO: GET \/api\/logs 200 {\"rid\":\"1a2b3c4d\"}"
+                    }
+                },
+                "type": "object"
+            },
+            "LoginData": {
+                "required": [
+                    "login"
+                ],
+                "properties": {
+                    "login": {
+                        "description": "OpenAPI 组件：clouddrive login\/logout\/check �?data 结构�?",
+                        "type": "boolean",
+                        "example": true
+                    }
+                },
+                "type": "object"
+            },
+            "MessageData": {
+                "required": [
+                    "message"
+                ],
+                "properties": {
+                    "message": {
+                        "description": "演示结果文本（可含换行）",
+                        "type": "string",
+                        "example": "Repository::findAll()\n所有用�? 张三, 李四"
+                    }
+                },
+                "type": "object"
+            },
+            "SearchEntry": {
+                "required": [
+                    "full_rel",
+                    "name",
+                    "parent_dir",
+                    "is_dir",
+                    "size",
+                    "mtime",
+                    "ext"
+                ],
+                "properties": {
+                    "full_rel": {
+                        "description": "OpenAPI 组件：global_search 结果条目�?",
+                        "type": "string",
+                        "example": "docs\/report.pdf"
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "report.pdf"
+                    },
+                    "parent_dir": {
+                        "type": "string",
+                        "example": "docs"
+                    },
+                    "is_dir": {
+                        "type": "boolean",
+                        "example": false
+                    },
+                    "size": {
+                        "type": "integer",
+                        "example": 1024
+                    },
+                    "mtime": {
+                        "type": "string",
+                        "example": "2026-09-06 10:00"
+                    },
+                    "ext": {
+                        "type": "string",
+                        "example": "pdf"
+                    }
+                },
+                "type": "object"
+            },
+            "SearchListData": {
+                "required": [
+                    "list"
+                ],
+                "properties": {
+                    "list": {
+                        "description": "OpenAPI 组件：global_search �?data 结构�?",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#\/components\/schemas\/SearchEntry"
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "ShareCreateData": {
+                "required": [
+                    "url",
+                    "pwd",
+                    "token"
+                ],
+                "properties": {
+                    "url": {
+                        "description": "OpenAPI 组件：create_share �?data 结构�?",
+                        "type": "string",
+                        "example": "http:\/\/localhost:5200\/?share=9f86d081884c7d659a2feaa0c55ad015"
+                    },
+                    "pwd": {
+                        "type": "string",
+                        "example": "abc123"
+                    },
+                    "token": {
+                        "type": "string",
+                        "example": "9f86d081884c7d659a2feaa0c55ad015"
+                    }
+                },
+                "type": "object"
+            },
+            "ShareEntry": {
+                "required": [
+                    "token",
+                    "url",
+                    "name",
+                    "parent_path",
+                    "is_dir",
+                    "pwd",
+                    "expire",
+                    "create_time",
+                    "is_expire",
+                    "expire_text"
+                ],
+                "properties": {
+                    "token": {
+                        "description": "OpenAPI 组件：分享条目（get_share_list 用）�?",
+                        "type": "string",
+                        "example": "9f86d081884c7d659a2feaa0c55ad015"
+                    },
+                    "url": {
+                        "type": "string",
+                        "example": "http:\/\/localhost:5200\/?share=9f86d081884c7d659a2feaa0c55ad015"
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "report.pdf"
+                    },
+                    "parent_path": {
+                        "type": "string",
+                        "example": "docs"
+                    },
+                    "is_dir": {
+                        "type": "boolean",
+                        "example": false
+                    },
+                    "pwd": {
+                        "type": "string",
+                        "example": "abc123"
+                    },
+                    "expire": {
+                        "description": "过期时间戳，0=永久",
+                        "type": "integer",
+                        "example": 0
+                    },
+                    "create_time": {
+                        "type": "integer",
+                        "example": 1757110000
+                    },
+                    "is_expire": {
+                        "type": "boolean",
+                        "example": false
+                    },
+                    "expire_text": {
+                        "type": "string",
+                        "example": "永久有效"
+                    }
+                },
+                "type": "object"
+            },
+            "ShareListData": {
+                "required": [
+                    "list"
+                ],
+                "properties": {
+                    "list": {
+                        "description": "OpenAPI 组件：get_share_list �?data 结构�?",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#\/components\/schemas\/ShareEntry"
+                        }
+                    }
+                },
+                "type": "object"
+            }
+        },
+        "responses": {
+            "BadRequest": {
+                "description": "业务\/参数错误（code=400�?,\r\n    content: new OA\\JsonContent(ref: "
+            },
+            "Unauthorized": {
+                "description": "未登录（code=401�?,\r\n    content: new OA\\JsonContent(ref: "
+            },
+            "MethodNotAllowed": {
+                "description": "方法不允许（code=405�?,\r\n    content: new OA\\JsonContent(ref: "
+            },
+            "ServerError": {
+                "description": "服务器内部错误（code=500�?,\r\n    content: new OA\\JsonContent(ref: "
+            }
+        },
+        "securitySchemes": {
+            "SessionCookie": {
+                "type": "apiKey",
+                "description": "clouddrive 受保护接口依赖登录会话；请先调用 POST \/api\/clouddrive?action=login。",
+                "name": "PHPSESSID",
+                "in": "cookie"
+            },
+            "BearerAuth": {
+                "type": "http",
+                "description": "平台接口依赖 Bearer Token；请先调用 POST \/api\/auth\/login，用返回的 token 作为 `Authorization: Bearer <token>`。令牌存于 Redis，退出登录后失效。",
+                "bearerFormat": "opaque",
+                "scheme": "bearer"
+            }
+        }
+    }
+}

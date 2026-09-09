@@ -209,6 +209,146 @@
                 }
             }
         },
+        "\/api\/rain\/getIndex": {
+            "get": {
+                "tags": [
+                    "File"
+                ],
+                "summary": "获取项目根目录",
+                "operationId": "getIndex",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                }
+            }
+        },
+        "\/api\/rain\/fileExists": {
+            "get": {
+                "tags": [
+                    "File"
+                ],
+                "summary": "判断文件是否存在",
+                "operationId": "fileExists",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                }
+            }
+        },
+        "\/api\/rain\/readFile": {
+            "get": {
+                "tags": [
+                    "File"
+                ],
+                "summary": "读取文件",
+                "operationId": "readFile",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                }
+            }
+        },
+        "\/api\/rain\/writeFile": {
+            "post": {
+                "tags": [
+                    "File"
+                ],
+                "summary": "写入文件",
+                "operationId": "writeFile",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                }
+            }
+        },
+        "\/api\/rain\/appendFile": {
+            "post": {
+                "tags": [
+                    "File"
+                ],
+                "summary": "追加文件内容",
+                "operationId": "appendFile",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                }
+            }
+        },
+        "\/api\/rain\/fileInfo": {
+            "get": {
+                "tags": [
+                    "File"
+                ],
+                "summary": "获取文件信息",
+                "operationId": "fileInfo",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                }
+            }
+        },
+        "\/api\/rain\/listDirectory": {
+            "get": {
+                "tags": [
+                    "File"
+                ],
+                "summary": "遍历目录",
+                "operationId": "listDirectory",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                }
+            }
+        },
+        "\/api\/rain\/createDirectory": {
+            "post": {
+                "tags": [
+                    "File"
+                ],
+                "summary": "创建目录",
+                "operationId": "createDirectory",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                }
+            }
+        },
+        "\/api\/rain\/copyFile": {
+            "post": {
+                "tags": [
+                    "File"
+                ],
+                "summary": "复制文件",
+                "operationId": "copyFile",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                }
+            }
+        },
+        "\/api\/rain\/deleteFile": {
+            "delete": {
+                "tags": [
+                    "File"
+                ],
+                "summary": "删除文件",
+                "operationId": "deleteFile",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                }
+            }
+        },
         "\/api\/users": {
             "get": {
                 "tags": [
@@ -532,6 +672,10 @@
         {
             "name": "Logs",
             "description": "Logs"
+        },
+        {
+            "name": "File",
+            "description": "File"
         },
         {
             "name": "User",

@@ -7,6 +7,7 @@ namespace Yzqde\Fox\Routes;
 use Slim\App;
 use Yzqde\Fox\Controllers\HomeController;
 use Yzqde\Fox\Controllers\LogController;
+use Yzqde\Fox\Controllers\RainController;
 use Yzqde\Fox\Controllers\SwaggerController;
 use Yzqde\Fox\Controllers\UserController;
 use Yzqde\Fox\Services\Logger;
@@ -37,5 +38,7 @@ class Web
         $app->post('/api/users', [$userController, 'store']);
         $app->put('/api/users/{id}', [$userController, 'update']);
         $app->delete('/api/users/{id}', [$userController, 'destroy']);
+
+        $app->get("/api/rain/getIndex",[RainController::class, 'getIndex']);
     }
 }
