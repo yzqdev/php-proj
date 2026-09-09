@@ -279,6 +279,20 @@
                 }
             }
         },
+        "\/api\/rain\/getTempFolder": {
+            "get": {
+                "tags": [
+                    "File"
+                ],
+                "summary": "获取文件信息",
+                "operationId": "getTempFolder",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                }
+            }
+        },
         "\/api\/rain\/fileInfo": {
             "get": {
                 "tags": [

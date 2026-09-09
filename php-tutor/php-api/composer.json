@@ -24,7 +24,8 @@
         "tuupola/cors-middleware": "^1.4",
         "monolog/monolog": "^3",
         "vlucas/phpdotenv": "^5.5",
-        "illuminate/pagination": "^11"
+        "illuminate/pagination": "^11",
+        "zircote/swagger-php": "^6.8.0"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
@@ -39,5 +40,7 @@
     "scripts": {
         "migrate": "php scripts/migrate.php",
         "seed": "php scripts/seed.php"
-    }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
 }

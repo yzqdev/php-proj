@@ -2,26 +2,24 @@
 
 declare(strict_types=1);
 
-namespace Yzqde\Fox\Controllers;
+namespace App\Controllers;
 
 use OpenApi\Generator;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
-use Yzqde\Fox\Services\Logger;
 
 class SwaggerController
 {
-    // Pinned so a floating `@5` tag can never silently swap the bundle and break the page again.
     private const SWAGGER_UI_VERSION = '5.32.15';
-    private const CDN = 'https://registry.npmmirror.com/swagger-ui-dist/5.32.15/files';
+    private const CDN = 'https://cdn.jsdelivr.net/npm/swagger-ui-dist@' . self::SWAGGER_UI_VERSION;
     private const CACHE_TTL = 3600;
 
     private string $cacheDir;
     private string $cacheFile;
 
-    public function __construct(private Logger $logger)
+    public function __construct()
     {
-        $this->cacheDir = __DIR__ . '/../../cache';
+        $this->cacheDir = dirname(__DIR__, 2) . '/cache';
         $this->cacheFile = $this->cacheDir . '/swagger.json';
 
         if (!is_dir($this->cacheDir)) {
@@ -29,19 +27,16 @@ class SwaggerController
         }
     }
 
-    public function index(Request $request, Response $response, $args): Response
+    public function index(Request $request, Response $response): Response
     {
-        $this->logger->info('Swagger docs accessed');
         $json = $this->encodeSpec($this->spec(), $this->requestBaseUrl($request), htmlSafe: true);
 
         $html = <<<HTML
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>Fox API Documentation</title>
-    <link href="https://static1.smartbear.co/swagger/media/assets/swagger_fav.png" type="image/png" rel="shortcut icon">
-<link href="https://static1.smartbear.co/swagger/media/assets/swagger_fav.png" type="image/png" rel="icon">
+    <title>PHP API Documentation</title>
     <link rel="stylesheet" href="{$this->cdn('/swagger-ui.css')}">
 </head>
 <body>
@@ -59,10 +54,10 @@ class SwaggerController
 HTML;
 
         $response->getBody()->write($html);
-        return $response->withHeader('Content-Type', 'text/html');
+        return $response->withHeader('Content-Type', 'text/html; charset=utf-8');
     }
 
-    public function json(Request $request, Response $response, $args): Response
+    public function json(Request $request, Response $response): Response
     {
         $json = $this->encodeSpec($this->spec(), $this->requestBaseUrl($request));
         $response->getBody()->write($json);
@@ -79,8 +74,6 @@ HTML;
         try {
             $openapi = $this->scanSpec();
         } catch (\Throwable $e) {
-            // A broken spec should not take the docs page down; fall back to the stale cache.
-            $this->logger->error('Swagger spec scan failed', ['error' => $e->getMessage()]);
             $stale = $this->cachedSpec(PHP_INT_MAX);
             if ($stale !== null) {
                 return $stale;
@@ -124,16 +117,13 @@ HTML;
 
     private function scanSpec(): object
     {
-        // zircote/swagger-php still calls SplObjectStorage::contains() and ::attach(),
-        // both deprecated in PHP 8.5. Left alone those notices get rendered straight into
-        // the document we are trying to serve, so swallow only that class of notice here.
         set_error_handler(
             static fn (int $severity): bool => ($severity & (E_DEPRECATED | E_USER_DEPRECATED)) !== 0,
             E_DEPRECATED | E_USER_DEPRECATED
         );
 
         try {
-            return  (new \OpenApi\Generator())->generate([__DIR__ . '/../']);
+            return (new Generator())->generate([dirname(__DIR__, 2) . '/app']);
         } finally {
             restore_error_handler();
         }
@@ -147,7 +137,6 @@ HTML;
 
         $flags = JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES;
         if ($htmlSafe) {
-            // Blocks a "</script>" in any description from truncating the inline spec.
             $flags |= JSON_HEX_TAG | JSON_HEX_AMP;
         }
 

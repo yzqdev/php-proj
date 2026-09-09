@@ -7,12 +7,13 @@ namespace Yzqde\Fox\Services;
 use Monolog\Logger as MonologLogger;
 use Monolog\Handler\RotatingFileHandler;
 use Monolog\Formatter\LineFormatter;
+use Yzqde\Fox\Util\FileConst;
 
 class Logger
 {
     private MonologLogger $logger;
 
-    public function __construct(string $name = 'app', string $logDir = __DIR__ . '/../../logs')
+    public function __construct(string $name = 'app', string $logDir =FileConst::LOG_DIR)
     {
         if (!is_dir($logDir)) {
             mkdir($logDir, 0755, true);

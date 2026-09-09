@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Yzqde\Fox\Services;
 
 use DateTime;
+use Yzqde\Fox\Util\FileCache;
 
 /**
  * Reads the rotated Monolog files written by {@see Logger}.
@@ -24,11 +25,13 @@ class LogReader
 
     private string $logDir;
     private string $prefix;
+    private FileCache $cache;
 
-    public function __construct(string $logDir = __DIR__ . '/../../logs', string $prefix = 'app')
+    public function __construct(string $logDir = __DIR__ . '/../../logs', string $prefix = 'app', ?FileCache $cache = null)
     {
         $this->logDir = rtrim($logDir, '/\\');
         $this->prefix = $prefix;
+        $this->cache = $cache ?? new FileCache();
     }
 
     public function isValidDate(string $date): bool
@@ -50,6 +53,13 @@ class LogReader
             return [];
         }
 
+        $cacheKey = 'log:days:' . date('Y-m-d-H');
+        $cached = $this->cache->get($cacheKey);
+
+        if ($cached !== null) {
+            return $cached;
+        }
+
         $days = [];
         foreach (scandir($this->logDir) ?: [] as $name) {
             if (!preg_match('/^' . preg_quote($this->prefix, '/') . '-(\d{4}-\d{2}-\d{2})\.log$/', $name, $m)) {
@@ -65,6 +75,8 @@ class LogReader
         }
 
         krsort($days);
+
+        $this->cache->set($cacheKey, $days, 300); // 缓存 5 分钟
 
         return $days;
     }

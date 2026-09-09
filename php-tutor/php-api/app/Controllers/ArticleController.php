@@ -3,8 +3,10 @@ declare(strict_types=1);
 
 namespace App\Controllers;
 
+use App\Models\Article;
 use App\Services\ArticleService;
 use App\Support\Response;
+use OpenApi\Attributes as OA;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -24,7 +26,6 @@ final class ArticleController
 
     public function __invoke(ServerRequestInterface $request): ResponseInterface
     {
-        // Route args are injected as request attributes by the PHP-DI bridge.
         $id = isset($request->getAttribute('routingArgs', [])['id'])
             ? (int) $request->getAttribute('routingArgs')['id']
             : (int) $request->getAttribute('id', 0);
@@ -38,6 +39,20 @@ final class ArticleController
         };
     }
 
+    #[OA\Get(
+        path: '/api/v1/articles',
+        tags: ['Articles'],
+        summary: '获取文章列表（分页）',
+        parameters: [
+            new OA\Parameter(name: 'page', in: 'query', schema: new OA\Schema(type: 'integer', default: 1)),
+            new OA\Parameter(name: 'per_page', in: 'query', schema: new OA\Schema(type: 'integer', default: 15)),
+        ],
+        responses: [
+            new OA\Response(response: '200', description: '成功返回文章列表',
+                content: new OA\JsonContent(ref: '#/components/schemas/ArticleList')
+            ),
+        ]
+    )]
     private function list(ServerRequestInterface $request): ResponseInterface
     {
         $params = $request->getQueryParams();
@@ -59,11 +74,48 @@ final class ArticleController
         ]);
     }
 
+    #[OA\Get(
+        path: '/api/v1/articles/{id}',
+        tags: ['Articles'],
+        summary: '获取单篇文章',
+        parameters: [
+            new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
+        ],
+        responses: [
+            new OA\Response(response: '200', description: '成功返回文章详情',
+                content: new OA\JsonContent(ref: '#/components/schemas/Article')
+            ),
+            new OA\Response(response: '404', description: '文章不存在'),
+        ]
+    )]
     private function show(int $id): ResponseInterface
     {
         return Response::success($this->serialize($this->articles->get($id)));
     }
 
+    #[OA\Post(
+        path: '/api/v1/articles',
+        tags: ['Articles'],
+        summary: '创建文章（需要 JWT）',
+        security: [['bearerAuth' => []]],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                required: ['title', 'body'],
+                properties: [
+                    new OA\Property(property: 'title', type: 'string', example: '文章标题'),
+                    new OA\Property(property: 'body', type: 'string', example: '文章内容'),
+                ]
+            )
+        ),
+        responses: [
+            new OA\Response(response: '201', description: '创建成功',
+                content: new OA\JsonContent(ref: '#/components/schemas/Article')
+            ),
+            new OA\Response(response: '422', description: '验证失败'),
+            new OA\Response(response: '401', description: '未认证'),
+        ]
+    )]
     private function create(ServerRequestInterface $request): ResponseInterface
     {
         $userId = (int) $request->getAttribute('user_id', 0);
@@ -74,6 +126,31 @@ final class ArticleController
         return Response::success($this->serialize($article), 201);
     }
 
+    #[OA\Put(
+        path: '/api/v1/articles/{id}',
+        tags: ['Articles'],
+        summary: '更新文章（需要 JWT）',
+        security: [['bearerAuth' => []]],
+        parameters: [
+            new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
+        ],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                properties: [
+                    new OA\Property(property: 'title', type: 'string', example: '新标题'),
+                    new OA\Property(property: 'body', type: 'string', example: '新内容'),
+                ]
+            )
+        ),
+        responses: [
+            new OA\Response(response: '200', description: '更新成功',
+                content: new OA\JsonContent(ref: '#/components/schemas/Article')
+            ),
+            new OA\Response(response: '404', description: '文章不存在'),
+            new OA\Response(response: '401', description: '未认证'),
+        ]
+    )]
     private function update(ServerRequestInterface $request, int $id): ResponseInterface
     {
         $userId = (int) $request->getAttribute('user_id', 0);
@@ -82,6 +159,20 @@ final class ArticleController
         return Response::success($this->serialize($this->articles->update($userId, $id, $input)));
     }
 
+    #[OA\Delete(
+        path: '/api/v1/articles/{id}',
+        tags: ['Articles'],
+        summary: '删除文章（需要 JWT）',
+        security: [['bearerAuth' => []]],
+        parameters: [
+            new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
+        ],
+        responses: [
+            new OA\Response(response: '200', description: '删除成功'),
+            new OA\Response(response: '404', description: '文章不存在'),
+            new OA\Response(response: '401', description: '未认证'),
+        ]
+    )]
     private function delete(ServerRequestInterface $request, int $id): ResponseInterface
     {
         $userId = (int) $request->getAttribute('user_id', 0);

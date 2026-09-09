@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Yzqde\Fox\Routes;
 
+use Doctrine\ORM\EntityManager;
 use Slim\App;
 use Yzqde\Fox\Controllers\HomeController;
 use Yzqde\Fox\Controllers\LogController;
@@ -14,8 +15,10 @@ use Yzqde\Fox\Services\Logger;
 
 class Web
 {
-    public function __construct(private Logger $logger)
-    {
+    public function __construct(
+        private Logger $logger,
+        private EntityManager $em,
+    ) {
     }
 
     public function register(App $app): void
@@ -23,7 +26,8 @@ class Web
         $homeController = new HomeController($this->logger);
         $swaggerController = new SwaggerController($this->logger);
         $logController = new LogController($this->logger);
-        $userController = new UserController($this->logger);
+        $userController = new UserController($this->logger, $this->em);
+        $rainController = new RainController($this->logger);
 
         $app->get('/', [$homeController, 'index']);
         $app->get('/hello/{name}', [$homeController, 'hello']);
@@ -39,6 +43,17 @@ class Web
         $app->put('/api/users/{id}', [$userController, 'update']);
         $app->delete('/api/users/{id}', [$userController, 'destroy']);
 
-        $app->get("/api/rain/getIndex",[RainController::class, 'getIndex']);
+        // Rain / File operations
+        $app->get('/api/rain/getIndex', [$rainController, 'getIndex']);
+        $app->get('/api/rain/fileExists', [$rainController, 'fileExists']);
+        $app->get('/api/rain/readFile', [$rainController, 'readFile']);
+        $app->post('/api/rain/writeFile', [$rainController, 'writeFile']);
+        $app->post('/api/rain/appendFile', [$rainController, 'appendFile']);
+        $app->get('/api/rain/fileInfo', [$rainController, 'fileInfo']);
+        $app->get('/api/rain/getTempFolder', [$rainController, 'getTempFolder']);
+        $app->get('/api/rain/listDirectory', [$rainController, 'listDirectory']);
+        $app->post('/api/rain/createDirectory', [$rainController, 'createDirectory']);
+        $app->post('/api/rain/copyFile', [$rainController, 'copyFile']);
+        $app->delete('/api/rain/deleteFile', [$rainController, 'deleteFile']);
     }
 }

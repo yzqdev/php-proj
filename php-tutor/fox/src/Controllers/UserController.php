@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace Yzqde\Fox\Controllers;
 
+use Doctrine\ORM\EntityManager;
 use OpenApi\Attributes as OA;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
+use Yzqde\Fox\Entity\User;
 use Yzqde\Fox\Services\Logger;
-use Yzqde\Fox\Services\Store;
 use Yzqde\Fox\Support\BaseResponse;
+use Yzqde\Fox\Util\Cache;
 
 #[OA\Schema(
     schema: 'User',
@@ -22,27 +24,29 @@ use Yzqde\Fox\Support\BaseResponse;
 )]
 class UserController
 {
-    private Store $store;
-
-    public function __construct(private Logger $logger)
-    {
-        $this->store = new Store();
+    public function __construct(
+        private Logger $logger,
+        private EntityManager $em,
+    ) {
     }
 
     #[OA\Get(
         path: '/api/users',
-        tags: ['User'],
         summary: 'Get all users',
+        tags: ['User'],
         responses: [
             new OA\Response(response: '200', description: 'Success', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponse'))
         ]
     )]
+    #[Cache(ttl: 120)]
     public function index(Request $request, Response $response): Response
     {
         $this->logger->info('List users');
-        $users = $this->store->all();
+        $users = $this->em->getRepository(User::class)->findAll();
 
-        return BaseResponse::list($response, $users, count($users));
+        $list = array_map(fn(User $u) => $u->toArray(), $users);
+
+        return BaseResponse::list($response, $list, count($list));
     }
 
     #[OA\Get(
@@ -60,7 +64,7 @@ class UserController
     public function show(Request $request, Response $response, array $args): Response
     {
         $id = (int) $args['id'];
-        $user = $this->store->find($id);
+        $user = $this->em->find(User::class, $id);
 
         if (!$user) {
             return BaseResponse::error($response, 'User not found', BaseResponse::NOT_FOUND);
@@ -68,7 +72,7 @@ class UserController
 
         $this->logger->info('Get user', ['id' => $id]);
 
-        return BaseResponse::success($response, $user);
+        return BaseResponse::success($response, $user->toArray());
     }
 
     #[OA\Post(
@@ -98,23 +102,18 @@ class UserController
             return BaseResponse::error($response, 'Name and email are required');
         }
 
-        $user = $this->store->create([
-            'name' => $data['name'],
-            'email' => $data['email'],
-        ]);
+        $user = new User($data['name'], $data['email']);
+        $this->em->persist($user);
+        $this->em->flush();
 
-        $this->logger->info('User created', ['id' => $user['id']]);
+        $this->logger->info('User created', ['id' => $user->getId()]);
 
-        return BaseResponse::success($response, $user, 'User created', BaseResponse::CREATED);
+        return BaseResponse::success($response, $user->toArray(), 'User created', BaseResponse::CREATED);
     }
 
     #[OA\Put(
         path: '/api/users/{id}',
-        tags: ['User'],
         summary: 'Update a user',
-        parameters: [
-            new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))
-        ],
         requestBody: new OA\RequestBody(
             content: new OA\JsonContent(
                 properties: [
@@ -123,6 +122,10 @@ class UserController
                 ]
             )
         ),
+        tags: ['User'],
+        parameters: [
+            new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))
+        ],
         responses: [
             new OA\Response(response: '200', description: 'Success', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponse')),
             new OA\Response(response: '404', description: 'Not found', content: new OA\JsonContent(ref: '#/components/schemas/ApiResponse'))
@@ -131,22 +134,32 @@ class UserController
     public function update(Request $request, Response $response, array $args): Response
     {
         $id = (int) $args['id'];
-        $data = json_decode((string) $request->getBody(), true);
-        $user = $this->store->update($id, $data);
+        $user = $this->em->find(User::class, $id);
 
         if (!$user) {
             return BaseResponse::error($response, 'User not found', BaseResponse::NOT_FOUND);
         }
 
+        $data = json_decode((string) $request->getBody(), true);
+
+        if (!empty($data['name'])) {
+            $user->setName($data['name']);
+        }
+        if (!empty($data['email'])) {
+            $user->setEmail($data['email']);
+        }
+
+        $this->em->flush();
+
         $this->logger->info('User updated', ['id' => $id]);
 
-        return BaseResponse::success($response, $user);
+        return BaseResponse::success($response, $user->toArray());
     }
 
     #[OA\Delete(
         path: '/api/users/{id}',
-        tags: ['User'],
         summary: 'Delete a user',
+        tags: ['User'],
         parameters: [
             new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))
         ],
@@ -158,10 +171,14 @@ class UserController
     public function destroy(Request $request, Response $response, array $args): Response
     {
         $id = (int) $args['id'];
+        $user = $this->em->find(User::class, $id);
 
-        if (!$this->store->delete($id)) {
+        if (!$user) {
             return BaseResponse::error($response, 'User not found', BaseResponse::NOT_FOUND);
         }
+
+        $this->em->remove($user);
+        $this->em->flush();
 
         $this->logger->info('User deleted', ['id' => $id]);
 

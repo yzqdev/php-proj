@@ -14,9 +14,9 @@ use Yzqde\Fox\Support\BaseResponse;
 #[OA\Schema(
     schema: 'LogEntry',
     properties: [
-        new OA\Property(property: 'datetime', type: 'string', nullable: true, example: '2026-09-08 18:15:17'),
-        new OA\Property(property: 'level', type: 'string', nullable: true, example: 'INFO'),
-        new OA\Property(property: 'message', type: 'string', nullable: true, example: 'Request'),
+        new OA\Property(property: 'datetime', type: 'string', example: '2026-09-08 18:15:17', nullable: true),
+        new OA\Property(property: 'level', type: 'string', example: 'INFO', nullable: true),
+        new OA\Property(property: 'message', type: 'string', example: 'Request', nullable: true),
         new OA\Property(property: 'context', nullable: true),
         new OA\Property(property: 'extra', nullable: true),
         new OA\Property(property: 'raw', type: 'string', description: 'The untouched log line'),
@@ -70,11 +70,11 @@ class LogController
         tags: ['Logs'],
         parameters: [
             new OA\Parameter(name: 'date', description: 'Day in Y-m-d format', in: 'path', required: true, schema: new OA\Schema(type: 'string', example: '2026-09-08')),
-            new OA\Parameter(name: 'level', in: 'query', description: 'Only entries of this level', schema: new OA\Schema(type: 'string', enum: LogReader::LEVELS)),
-            new OA\Parameter(name: 'keyword', in: 'query', description: 'Only entries whose raw line contains this text', schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'level', description: 'Only entries of this level', in: 'query', schema: new OA\Schema(type: 'string', enum: LogReader::LEVELS)),
+            new OA\Parameter(name: 'keyword', description: 'Only entries whose raw line contains this text', in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'limit', in: 'query', schema: new OA\Schema(type: 'integer', default: 500, minimum: 1, maximum: 5000)),
             new OA\Parameter(name: 'offset', in: 'query', schema: new OA\Schema(type: 'integer', default: 0, minimum: 0)),
-            new OA\Parameter(name: 'raw', in: 'query', description: '1 = return the raw file content as text/plain', schema: new OA\Schema(type: 'integer', default: 0)),
+            new OA\Parameter(name: 'raw', description: '1 = return the raw file content as text/plain', in: 'query', schema: new OA\Schema(type: 'integer', default: 0)),
         ],
         responses: [
             new OA\Response(

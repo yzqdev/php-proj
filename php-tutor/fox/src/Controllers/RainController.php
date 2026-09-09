@@ -65,7 +65,7 @@ final class RainController
         return BaseResponse::success(
             $response,
             new FileExistsVo(
-                path: $path,
+                path: realpath($path),
                 exists: file_exists($path),
                 isFile: is_file($path),
                 isDirectory: is_dir($path),
@@ -125,7 +125,7 @@ final class RainController
         Request $request,
         Response $response
     ): Response {
-        $path = dirname(__DIR__, 2) . '/runtime/test.txt';
+        $path = dirname(__DIR__, 2) . '/logs/runtime/test.txt';
 
         if (!is_dir(dirname($path))) {
             mkdir(dirname($path), 0777, true);
@@ -180,6 +180,24 @@ final class RainController
     }
 
 
+    #[OA\Get(
+        path: "/api/rain/getTempFolder",
+        operationId: "getTempFolder",
+        summary: "获取文件信息",
+        tags: ["File"],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: "Success"
+            )
+        ]
+    )]
+    public function getTempFolder(   Request $request,
+                                     Response $response)
+    {
+         $tmp=sys_get_temp_dir();
+         return BaseResponse::success($response, $tmp);
+    }
     #[OA\Get(
         path: "/api/rain/fileInfo",
         operationId: "fileInfo",
@@ -312,7 +330,7 @@ final class RainController
         Response $response
     ): Response {
         $source = dirname(__DIR__, 2) . '/composer.json';
-        $target = dirname(__DIR__, 2) . '/runtime/composer-copy.json';
+        $target = dirname(__DIR__, 2) . '/logs/runtime/composer-copy.json';
 
         if (!is_dir(dirname($target))) {
             mkdir(dirname($target), 0777, true);

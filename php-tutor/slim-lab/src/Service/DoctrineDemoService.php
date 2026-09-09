@@ -5,12 +5,10 @@ declare(strict_types=1);
 namespace App\Service;
 
 use App\Exception\ApiException;
-use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Tools\SchemaTool;
 use App\Entity\Product;
 use App\Entity\User;
-use Faker\Factory as FakerFactory;
 use Predis\ClientInterface;
 use Predis\PredisException;
 use Throwable;
@@ -55,26 +53,19 @@ final class DoctrineDemoService
     {
         $em = $this->em;
 
-        // Faker 随机生成中文姓名 + 唯一登录名(username) + 唯一邮箱：演示用户可直接登录。
-        // unique() 保证单次请求内互不相同；同时设置统一演示密码 demo123。
-        $faker = FakerFactory::create('zh_CN');
-        $user1 = new User($faker->name(), $faker->unique()->safeEmail(), $faker->unique()->userName());
-        $user2 = new User($faker->name(), $faker->unique()->safeEmail(), $faker->unique()->userName());
-        $user1->setPassword(password_hash('demo123', PASSWORD_BCRYPT));
-        $user2->setPassword(password_hash('demo123', PASSWORD_BCRYPT));
+        // 固定创建前端登录页演示账号，密码统一为 secret123
+        $user1 = new User('张三', 'zhangsan@example.com', 'demo_user');
+        $user2 = new User('李四', 'lisi@example.com', 'e2e_user');
+        $user1->setPassword(password_hash('secret123', PASSWORD_BCRYPT));
+        $user2->setPassword(password_hash('secret123', PASSWORD_BCRYPT));
 
         $em->persist($user1);
         $em->persist($user2);
+        $em->flush();
 
-        // 兜底：极小概率跨请求撞邮箱，仍转业务异常（400 友好提示）
-        try {
-            $em->flush();
-        } catch (UniqueConstraintViolationException $e) {
-            throw new ApiException('用户邮箱随机冲突，请重试一次或先执行 init 重置数据', 400);
-        }
         $this->redis->del(self::STATS_CACHE_KEY);
 
-        return ['message' => "创建成功\n用户1: {$user1->getName()} <{$user1->getEmail()}> ID: {$user1->getId()}  登录名: {$user1->getUsername()}\n用户2: {$user2->getName()} <{$user2->getEmail()}> ID: {$user2->getId()}  登录名: {$user2->getUsername()}\n（演示账号均可用 登录名/邮箱 + 密码 demo123 登录）"];
+        return ['message' => "创建成功\n用户1: {$user1->getName()} <{$user1->getEmail()}> ID: {$user1->getId()}  登录名: {$user1->getUsername()}\n用户2: {$user2->getName()} <{$user2->getEmail()}> ID: {$user2->getId()}  登录名: {$user2->getUsername()}\n（演示账号均可用 登录名/邮箱 + 密码 secret123 登录）"];
     }
 
     /**

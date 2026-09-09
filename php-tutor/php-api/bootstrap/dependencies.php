@@ -56,4 +56,9 @@ return [
 
     ArticleService::class => DI\autowire(),
     CommentService::class => DI\autowire(),
+
+    // ------------------------------------------------------------------
+    // Swagger
+    // ------------------------------------------------------------------
+    \App\Controllers\SwaggerController::class => DI\autowire(),
 ];

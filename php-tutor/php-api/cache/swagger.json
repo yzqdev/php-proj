@@ -1,0 +1,767 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "PHP Tutor API",
+        "description": "多用户博客系统的 REST API，支持文章、评论和 JWT 认证。\n\n## 认证方式\n\n使用 Bearer Token 认证，在请求头中携带 `Authorization: Bearer <token>`。\n\n## 响应格式\n\n所有 API 响应遵循统一的 JSON 格式：\n```json\n{\n  \"data\": { ... },\n  \"request_id\": \"xxx\"\n}\n```",
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "http:\/\/localhost:8080",
+            "description": "本地开发服务器"
+        }
+    ],
+    "paths": {
+        "\/api\/v1\/articles": {
+            "get": {
+                "tags": [
+                    "Articles"
+                ],
+                "summary": "获取文章列表（分页）",
+                "description": "Single-action controller dispatching by HTTP method:\n  GET    \/api\/v1\/articles        list\n  GET    \/api\/v1\/articles\/{id}   show\n  POST   \/api\/v1\/articles        create   (JWT)\n  PUT    \/api\/v1\/articles\/{id}   update   (JWT)\n  DELETE \/api\/v1\/articles\/{id}   delete   (JWT)",
+                "operationId": "4e4dc6921a27d2c3f0fcee859d4b9aed",
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "default": 1
+                        }
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "default": 15
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功返回文章列表",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "$ref": "#\/components\/schemas\/ArticleList"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Articles"
+                ],
+                "summary": "创建文章（需要 JWT）",
+                "operationId": "0dc6c54a91162830caa7ae181dd62086",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application\/json": {
+                            "schema": {
+                                "required": [
+                                    "title",
+                                    "body"
+                                ],
+                                "properties": {
+                                    "title": {
+                                        "type": "string",
+                                        "example": "文章标题"
+                                    },
+                                    "body": {
+                                        "type": "string",
+                                        "example": "文章内容"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "创建成功",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "$ref": "#\/components\/schemas\/Article"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "验证失败"
+                    },
+                    "401": {
+                        "description": "未认证"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "\/api\/v1\/articles\/{id}": {
+            "get": {
+                "tags": [
+                    "Articles"
+                ],
+                "summary": "获取单篇文章",
+                "operationId": "557c939f82de5c0e22f1c57e6e2d55c7",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功返回文章详情",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "$ref": "#\/components\/schemas\/Article"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "文章不存在"
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Articles"
+                ],
+                "summary": "更新文章（需要 JWT）",
+                "operationId": "e60d2e7b9016be10f05a1aae8a55a3b0",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application\/json": {
+                            "schema": {
+                                "properties": {
+                                    "title": {
+                                        "type": "string",
+                                        "example": "新标题"
+                                    },
+                                    "body": {
+                                        "type": "string",
+                                        "example": "新内容"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "更新成功",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "$ref": "#\/components\/schemas\/Article"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "文章不存在"
+                    },
+                    "401": {
+                        "description": "未认证"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Articles"
+                ],
+                "summary": "删除文章（需要 JWT）",
+                "operationId": "4ff25c15a0a4e752e82c3682e8c6aaab",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "删除成功"
+                    },
+                    "404": {
+                        "description": "文章不存在"
+                    },
+                    "401": {
+                        "description": "未认证"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "\/api\/v1\/auth\/login": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "用户登录",
+                "description": "POST \/api\/v1\/auth\/login",
+                "operationId": "d84fceab9bc0144ea15c4c97885ac602",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application\/json": {
+                            "schema": {
+                                "required": [
+                                    "username",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "username": {
+                                        "type": "string",
+                                        "example": "johndoe"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "example": "password123"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "登录成功，返回用户信息和 JWT Token",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "$ref": "#\/components\/schemas\/TokenResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "用户名或密码错误"
+                    },
+                    "422": {
+                        "description": "验证失败"
+                    }
+                }
+            }
+        },
+        "\/api\/v1\/auth\/me": {
+            "get": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "获取当前用户信息",
+                "description": "GET \/api\/v1\/auth\/me — 当前认证用户信息",
+                "operationId": "40a67d524835ccd6e3a77994cea63b13",
+                "responses": {
+                    "200": {
+                        "description": "成功返回当前用户信息",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "$ref": "#\/components\/schemas\/User"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "未认证"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "\/api\/v1\/auth\/refresh": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "刷新 Token",
+                "description": "POST \/api\/v1\/auth\/refresh",
+                "operationId": "73bb9015c5f0d0a56bcdc1e28976a8f1",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application\/json": {
+                            "schema": {
+                                "required": [
+                                    "refresh_token"
+                                ],
+                                "properties": {
+                                    "refresh_token": {
+                                        "type": "string",
+                                        "example": "eyJ0eXAiOiJKV1QiLCJhbGc..."
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "刷新成功，返回新的 Token 对",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "$ref": "#\/components\/schemas\/TokenResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Refresh Token 无效或已过期"
+                    }
+                }
+            }
+        },
+        "\/api\/v1\/auth\/register": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "用户注册",
+                "description": "POST \/api\/v1\/auth\/register",
+                "operationId": "349c74d32138c34796d7f58a6fb32c8d",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application\/json": {
+                            "schema": {
+                                "required": [
+                                    "username",
+                                    "email",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "username": {
+                                        "type": "string",
+                                        "example": "johndoe"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "example": "john@example.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "example": "password123"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "注册成功，返回用户信息和 JWT Token",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "$ref": "#\/components\/schemas\/TokenResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "验证失败"
+                    }
+                }
+            }
+        },
+        "\/api\/v1\/articles\/{id}\/comments": {
+            "get": {
+                "tags": [
+                    "Comments"
+                ],
+                "summary": "获取文章评论列表（分页）",
+                "description": "Single-action controller dispatching by HTTP method:\n  GET    \/api\/v1\/articles\/{id}\/comments  list for article\n  POST   \/api\/v1\/articles\/{id}\/comments  create (JWT)\n  DELETE \/api\/v1\/comments\/{id}           delete (JWT)",
+                "operationId": "51f3ce5c57845b97e5d57b01dfa56d07",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "default": 1
+                        }
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "default": 15
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功返回评论列表",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "$ref": "#\/components\/schemas\/CommentList"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Comments"
+                ],
+                "summary": "发表评论（需要 JWT）",
+                "operationId": "28146074496cbd218dee62a65ae61fbd",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application\/json": {
+                            "schema": {
+                                "required": [
+                                    "content"
+                                ],
+                                "properties": {
+                                    "content": {
+                                        "type": "string",
+                                        "example": "这是一条评论"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "评论成功",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "$ref": "#\/components\/schemas\/Comment"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "验证失败"
+                    },
+                    "401": {
+                        "description": "未认证"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "\/api\/v1\/comments\/{id}": {
+            "delete": {
+                "tags": [
+                    "Comments"
+                ],
+                "summary": "删除评论（需要 JWT）",
+                "operationId": "35652c0bef6cb196d094aac5616d51b4",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "删除成功"
+                    },
+                    "401": {
+                        "description": "未认证"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "User": {
+                "description": "用户信息",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "username": {
+                        "type": "string",
+                        "example": "johndoe"
+                    },
+                    "email": {
+                        "type": "string",
+                        "example": "john@example.com"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "example": "2024-01-01 00:00:00"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "example": "2024-01-01 00:00:00"
+                    }
+                },
+                "type": "object"
+            },
+            "TokenResponse": {
+                "description": "登录\/注册\/刷新返回的 Token 响应",
+                "properties": {
+                    "user": {
+                        "$ref": "#\/components\/schemas\/User"
+                    },
+                    "access_token": {
+                        "type": "string",
+                        "example": "eyJ0eXAiOiJKV1QiLCJhbGc..."
+                    },
+                    "refresh_token": {
+                        "type": "string",
+                        "example": "eyJ0eXAiOiJKV1QiLCJhbGc..."
+                    }
+                },
+                "type": "object"
+            },
+            "Article": {
+                "description": "文章信息",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "title": {
+                        "type": "string",
+                        "example": "文章标题"
+                    },
+                    "body": {
+                        "type": "string",
+                        "example": "文章内容"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "example": "2024-01-01 00:00:00"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "example": "2024-01-01 00:00:00"
+                    },
+                    "author": {
+                        "properties": {
+                            "id": {
+                                "type": "integer",
+                                "example": 1
+                            },
+                            "username": {
+                                "type": "string",
+                                "example": "johndoe"
+                            }
+                        },
+                        "type": "object"
+                    }
+                },
+                "type": "object"
+            },
+            "ArticleList": {
+                "description": "文章列表响应",
+                "properties": {
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#\/components\/schemas\/Article"
+                        }
+                    },
+                    "pagination": {
+                        "properties": {
+                            "current_page": {
+                                "type": "integer",
+                                "example": 1
+                            },
+                            "per_page": {
+                                "type": "integer",
+                                "example": 15
+                            },
+                            "total": {
+                                "type": "integer",
+                                "example": 100
+                            },
+                            "last_page": {
+                                "type": "integer",
+                                "example": 7
+                            }
+                        },
+                        "type": "object"
+                    }
+                },
+                "type": "object"
+            },
+            "Comment": {
+                "description": "评论信息",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "article_id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "content": {
+                        "type": "string",
+                        "example": "这是一条评论"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "example": "2024-01-01 00:00:00"
+                    },
+                    "author": {
+                        "properties": {
+                            "id": {
+                                "type": "integer",
+                                "example": 1
+                            },
+                            "username": {
+                                "type": "string",
+                                "example": "johndoe"
+                            }
+                        },
+                        "type": "object"
+                    }
+                },
+                "type": "object"
+            },
+            "CommentList": {
+                "description": "评论列表响应",
+                "properties": {
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#\/components\/schemas\/Comment"
+                        }
+                    },
+                    "pagination": {
+                        "properties": {
+                            "current_page": {
+                                "type": "integer",
+                                "example": 1
+                            },
+                            "per_page": {
+                                "type": "integer",
+                                "example": 15
+                            },
+                            "total": {
+                                "type": "integer",
+                                "example": 50
+                            },
+                            "last_page": {
+                                "type": "integer",
+                                "example": 4
+                            }
+                        },
+                        "type": "object"
+                    }
+                },
+                "type": "object"
+            }
+        },
+        "securitySchemes": {
+            "bearerAuth": {
+                "type": "http",
+                "description": "输入 JWT Token（格式：Bearer <token>）",
+                "name": "Authorization",
+                "in": "header",
+                "bearerFormat": "JWT",
+                "scheme": "bearer"
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Articles",
+            "description": "Articles"
+        },
+        {
+            "name": "Auth",
+            "description": "Auth"
+        },
+        {
+            "name": "Comments",
+            "description": "Comments"
+        }
+    ]
+}
