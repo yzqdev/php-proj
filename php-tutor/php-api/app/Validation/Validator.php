@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace App\Validation;
 
 use Respect\Validation\Exceptions\NestedValidationException;
-use Respect\Validation\Validator as V;
+use Respect\Validation\Validatable;
 
 /**
  * Wraps Respect\Validation and converts NestedValidationException into a
@@ -15,7 +15,7 @@ final class Validator
     /**
      * Validate input against a rule map: [field => [Validator, '中文名']].
      *
-     * @param array<string, array{0: V, 1: string}> $rules
+     * @param array<string, array{0: Validatable, 1: string}> $rules
      *
      * @return array<string, mixed> The validated input.
      *

@@ -1,186 +1,190 @@
 # AGENTS.md
 
-本文件为 AI 编码代理提供项目上下文与规范，修改代码前请先阅读并遵守。
+本文件用于为 AI 编码代理提供项目上下文和开发规范。
 
-## 项目概述
+修改代码前请先阅读本文件，并优先遵循项目现有的架构、代码风格和技术选型。
 
-- **项目性质**：面向 Java / Spring Boot 开发者的 PHP 8.x 学习项目
-- **技术栈**：PHP 8.5、Composer、MySQL 8.4、Slim 4、php-di、Monolog、Doctrine ORM、PSR-15
-- **业务范围**：文章管理（CRUD + 分页）、活动管理（JSON API）、Bearer Token 认证（JWT + Refresh Token）
-- **API 前缀**：全部走 `/api/v1/*`；Swagger UI 在 `/api/v1/docs`
-- **数据访问**：**全部走 Doctrine ORM**（不再有手写 PDO / BaseModel / QueryBuilder）
-- **注释约定**：关键代码配中文注释，并标注 Java 生态对照概念（Composer ↔ Maven、doctrine/dbal ↔ JDBC、php-di ↔ Spring IoC 等）
+## 1. 项目原则
 
-## 环境信息（Windows 11 + PowerShell）
+* 优先理解现有代码，再进行修改。
+* 尽量保持现有架构和设计，不要为了“更优雅”而进行无关重构。
+* 修改范围应尽量小，只解决当前需求。
+* 优先复用项目已有的类、服务、工具和依赖，避免重复实现。
+* 不要擅自引入新的 Composer 依赖；确有必要时先说明原因。
+* 不修改 `vendor/`、PHP 全局配置或其他不属于项目本身的文件。
+* 不要为了通过检查而删除、绕过或隐藏真实错误。
 
-| 组件 | 说明 |
-| --- | --- |
-| PHP 8.5 | `F:\programs\php-8.5.10-nts-Win32-vs17-x64\php.exe`（不在 PATH，用绝对路径或加到环境变量） |
-| Composer | 全局可用，已配置阿里云镜像 |
-| MySQL | 127.0.0.1:3306，用户 `root`，密码 `123456` |
+## 2. PHP 规范
 
-> ⚠️ PHP 8.5 本机**未加载 `mbstring` 扩展**（`php -m` 中无 mbstring）。
-> 处理中文长度时用 `App\Helpers\Html::charLen()`（内部用 `preg_match_all('/./us')`）；
-> **不要直接调 `mb_strlen` / `mb_substr`**。
+* 使用项目实际支持的 PHP 版本，不使用超出版本范围的语法或 API。
+* PHP 文件使用：
 
-## 常用命令
-
-```powershell
-# 用绝对路径调用 PHP（本环境 PATH 里没有 php）
-$php = 'F:\programs\php-8.5.10-nts-Win32-vs17-x64\php.exe'
-
-& $php -l <文件>                              # 语法检查
-& $php -m                                     # 查看已加载扩展
-& $php -S localhost:8000 -t public            # 启动开发服务器（端口可改）
-.\run_learn.ps1                               # 等价启动脚本（6850 端口）
-
-composer install                              # 安装依赖
-composer dump-autoload --optimize             # 改完命名空间后刷新自动加载
-composer schema:create                        # 按 Entity 属性注解建表
-composer migrate                              # 执行 Doctrine migrations
-composer migrate:status                       # 查看迁移状态
-composer db:drop                              # 删库（危险，仅本地）
-
-mysql -uroot -p < docs\sql\schema.sql         # 初始化数据库
-mysql -uroot -p < docs\sql\alter_add_refresh_tokens.sql
+```php
+declare(strict_types=1);
 ```
 
-## 项目结构
+* 遵循 PSR-4 自动加载和项目现有命名空间结构。
+* 遵循 PSR-12 或项目已有的代码风格。
+* 优先使用现代 PHP 特性，例如：
 
-```
-php-learn/
-├── public/                    Web 入口（唯一对外暴露的目录）
-│   ├── index.php              唯一入口（Front Controller → Slim run）
-│   ├── assets/                静态资源（app.css / app.js）
-│   ├── files/                 文件 IO 演示用文件
-│   └── vendor/swagger-ui/     Swagger UI 静态资源（本地，不依赖 CDN）
-├── app/                       业务代码
-│   ├── bootstrap.php          应用引导（错误处理、php-di 容器、Doctrine、Slim、中间件）
-│   ├── api/routes.php         API v1 路由表（唯一的路由表）
-│   ├── Controllers/Api/       Article / Activity / Auth / Health / ApiDocs
-│   ├── Middleware/            Cors / RequestLogger / ApiAuthenticate / ErrorRenderer
-│   ├── Entities/              Doctrine ORM 全部实体 + 仓储
-│   │   ├── User.php           #[ORM\Entity] + 一对多 refreshTokens
-│   │   ├── UserRepository.php
-│   │   ├── Article.php        #[ORM\Entity] + 生命周期回调
-│   │   ├── ArticleRepository.php      paginate + countFiltered
-│   │   ├── Activity.php       #[ORM\Entity] + DateTimeImmutable 时间字段
-│   │   ├── ActivityRepository.php     paginate(upcoming) + countFiltered
-│   │   ├── RefreshToken.php   #[ORM\Entity] 存 Refresh Token
-│   │   └── RefreshTokenRepository.php findValid / revoke / revokeAll
-│   ├── Services/              Jwt / TokenService / DoctrineServiceProvider
-│   ├── Exceptions/            BusinessException / ResourceNotFoundException
-│   ├── Resources/             ArticleResource / ActivityResource（Entity → API）
-│   ├── Helpers/               Config / Request / RequestBody / JsonResponse / Logger / Html
-│   ├── OpenApi/               Schemas / SpecGenerator（OpenAPI 3.0 生成器）
-│   ├── Console/               DoctrineConsole.php（schema/migrate CLI 入口）
-│   └── Migrations/            Doctrine 迁移类目录
-├── config/
-│   ├── config.example.php     模板（可提交）
-│   └── config.php             真实配置（.gitignore 忽略）
-├── client/                    Vue 3 + Vite 前端 SPA
-├── docs/sql/
-│   ├── schema.sql             建库建表 + 种子数据
-│   └── alter_add_refresh_tokens.sql  Refresh Token 表增量脚本
-├── storage/                   运行时目录（不提交）
-├── logs/                      Monolog 日志（按天轮转）
-├── tests/
-│   └── doctrine_smoke.php     Doctrine ORM 集成冒烟
-├── composer.json              PSR-4 自动加载配置
-├── run_learn.ps1              启动脚本
-├── AGENTS.md                  本文件
-└── README.md                  项目文档（结构、知识点、学习顺序）
-```
+  * 类型声明
+  * 构造器属性提升
+  * `readonly`
+  * 枚举
+  * `match`
+  * Attributes
+  * 命名参数
+* 避免不必要的全局变量、静态状态和重复代码。
+* 不保留 `var_dump()`、`print_r()`、临时调试代码等开发痕迹。
+* 不使用项目未启用的 PHP 扩展；如果某个扩展不是项目环境的可靠依赖，应优先寻找不依赖该扩展的实现。
 
-## 代码规范
+## 3. 架构与依赖
 
-- 所有 PHP 文件开头声明 `declare(strict_types=1);`
-- 使用 PHP 8.x 现代特性：属性类型声明、构造器属性提升、`readonly`、`match`、命名参数、属性注解
-- 遵循 PSR-4 自动加载（命名空间 `App\` 对应 `app/` 目录）与 PSR-12 风格
-- **禁止残留 `var_dump` / `print_r` 调试代码**
-- 注释用中文，说明业务意图与用到的 PHP 特性，并适当与 Java 概念类比
-- **控制器不直接 `echo` / `exit`**，统一返回 `JsonResponse::ok()` / `JsonResponse::error()` / `JsonResponse::validation()` / `JsonResponse::noContent()`
-- 业务异常用 `throw new BusinessException(...)` 或 `throw new ResourceNotFoundException(...)`，由 `ErrorRenderer` 统一映射为 JSON
-- 控制器通过构造器注入 `EntityManager`（php-di 自动装配）
+根据项目实际使用的架构进行修改，不强制要求某一种框架。
 
-## 数据库规范（全部走 Doctrine）
+常见组件可以包括：
 
-- **禁止再手写 SQL / 直调 PDO**——所有数据访问通过 Doctrine EntityManager + Repository
-- Entity 用 `#[ORM\Entity]` 属性注解，不用 docblock 注解
-- 时间字段用 `datetime_immutable`（`\DateTimeInterface`），不用 `datetime`
-- `created_at` / `updated_at` 通过 `#[ORM\PrePersist]` / `#[ORM\PreUpdate]` 生命周期回调补齐（DB 不会用列 DEFAULT 覆盖）
-- 集合/关联用 `#[ORM\OneToMany]` + `cascade: ['persist', 'remove']` + `orphanRemoval: true`
-- 仓储方法命名：`count()` 会冲突（`EntityRepository::count(array $criteria)` 已存在），用 `countFiltered()` / `countAll()` 等
-- 表结构变更必须同步更新 `docs/sql/schema.sql` + 对应 Entity 属性注解
-- 数据库连接配置**只维护一份**（`config/db`），DoctrineServiceProvider 从这里读
-- 表规范：自增主键 `id`，包含 `created_at`、`updated_at` 字段
-- 字符集 `utf8mb4`，排序规则 `utf8mb4_0900_ai_ci`（MySQL 8 默认）
+* Composer：依赖管理与自动加载
+* DI 容器：依赖注入
+* ORM / DBAL / PDO：数据访问
+* PSR-3：日志
+* PSR-7 / PSR-15：HTTP 请求与中间件
+* Symfony / Laravel / Slim 等框架
+* CLI、Worker、定时任务等非 Web 程序
 
-## 路由与中间件
+原则：
 
-- 路由表集中在 `app/api/routes.php`，用 Slim 的 `$app->get()` / `post()` / `put()` / `delete()` 注册
-- URL 占位符用 `{id}` 形式，Slim 内部转正则命名捕获组
-- 所有 API 路由统一前缀 `/api/v1/*`（版本号在路径里）
-- 中间件是 PSR-15 `MiddlewareInterface` 实现（`__invoke($request, $handler)`）：
-  ```php
-  $app->post('/api/v1/articles', [ApiArticleController::class, 'store'])
-       ->add(new ApiAuthenticate());   // 需登录
-  ```
-- Slim 自动通过 php-di 容器实例化控制器（`[Class::class, 'method']` 数组形式的 action）
-- 控制器需要注入依赖时，只需在构造器写类型提示，`bootstrap.php` 里的容器会自动装配
-- 全局中间件在 `app/bootstrap.php` 里 `$app->add(...)`：CORS + RequestLogger
-- 错误渲染由 `ErrorRenderer`（`Slim\Interfaces\ErrorRendererInterface`）统一处理
+* 业务代码与基础设施代码尽量分离。
+* 优先使用依赖注入，而不是在业务代码中到处创建依赖。
+* 不要把数据库、HTTP、文件系统等基础设施逻辑随意散落到业务代码中。
+* 遵循项目已有的 Service、Repository、Controller、Command 等分层方式。
+* 如果项目没有明确分层，不要为了套用某种架构而大规模改造。
 
-## 安全要求
+## 4. 数据访问
 
-- 密码存储用 `password_hash($pw, PASSWORD_BCRYPT)`，比对用 `password_verify()`
-- 登录失败统一返回"账号或密码错误"（模糊化，防账号枚举），并跑一次 dummy bcrypt 防时序攻击
-- JWT 校验：`hash_equals()` 常量时间比对签名；`Jwt::verify()` 显式校验 `alg === 'HS256'`，拒绝 `none` / RS256
-- Refresh Token 每次 refresh **轮转**：旧令牌立即失效
-- Access Token 用 JWT 无状态签名（15 分钟），Refresh Token 存表可撤销（7 天）
-- 敏感配置（DB 密码、JWT 密钥）优先从环境变量读取（`DB_PASSWORD` / `JWT_SECRET`），不提交到 Git
-- 输出到 HTML 前用 `App\Helpers\Html::e()`（= `htmlspecialchars(ENT_QUOTES)`）转义，防 XSS
-- CORS 用白名单严格匹配 Origin，禁止 `*` 配合 credentials
+数据访问方式以项目现有技术栈为准。
 
-## 变更要求
+例如项目使用：
 
-- 每次改动后运行 `php -l` 语法检查；涉及页面改动时启动服务器实际验证
-- 保持改动最小化，不做需求之外的"顺手重构"
-- 新增 Composer 依赖前先说明理由，优先选择官方维护、下载量高的包
-- 不修改 `vendor/` 目录与 `php.ini` 等全局环境配置
-- **禁止使用 `mb_*` 系列函数**（本机 PHP 8.5 未加载 mbstring），用 `Html::charLen()` 替代
-- 修改响应格式 / 异常映射前，同步更新 `app/OpenApi/Schemas.php`（避免 spec 漂移）
-- 新增 Entity 后必须同步：Repository + Resource（如需要） + `Schemas.php`（如 API 暴露）
+* Doctrine ORM → 优先使用 Entity / Repository / EntityManager
+* Laravel Eloquent → 使用 Model / Query Builder
+* PDO → 使用项目现有的 PDO 封装
+* DBAL → 使用项目已有的 DBAL 抽象
 
-## 验证清单（改动路由/模型/中间件后必跑）
+不要在同一个项目中无理由混用多种数据访问方式。
 
-```powershell
-# 1. 语法检查全部 PHP 文件
-Get-ChildItem -Recurse -Include *.php -Exclude '*vendor*' | ForEach-Object {
-  & 'F:\programs\php-8.5.10-nts-Win32-vs17-x64\php.exe' -l $_.FullName 2>&1
-}
+数据库相关修改应同时考虑：
 
-# 2. Composer
-composer install
-composer dump-autoload --optimize
+* Entity / Model
+* Repository
+* Migration
+* Schema
+* Seed 数据
+* API / DTO / Resource
 
-# 3. 启动服务器
-& 'F:\programs\php-8.5.10-nts-Win32-vs17-x64\php.exe' -S localhost:8000 -t public
+具体同步范围根据项目实际结构决定。
 
-# 4. 冒烟测试（预期状态码）
-#    GET  /api/v1/health            → 200  健康检查
-#    GET  /api/v1/docs              → 200  Swagger UI
-#    GET  /api/v1/docs/spec         → 200  OpenAPI JSON
-#    GET  /api/v1/articles          → 200  文章列表（分页）
-#    GET  /api/v1/articles/{id}     → 200 / 404
-#    GET  /api/v1/activities        → 200
-#    POST /api/v1/auth/login        → 200  登录成功（签发双令牌）
-#    POST /api/v1/auth/refresh      → 200  轮转 Refresh Token
-#    POST /api/v1/auth/logout       → 204  登出
-#    GET  /api/v1/auth/me           → 200（需 token）/ 401
-#    POST /api/v1/articles 无 token → 401
-#    POST /api/v1/articles 带 token → 201
-#    PUT  /api/v1/articles/{id}     → 200（带 token）
-#    DELETE /api/v1/articles/{id}   → 204（带 token）
-#    GET  /nope                     → 404
+## 5. Web / API 项目
+
+如果项目包含 HTTP 服务：
+
+* 遵循项目现有的路由、中间件和控制器结构。
+* 不在业务代码中直接输出 HTTP 响应，除非项目本身就是这么设计的。
+* 错误处理应统一，不要到处重复处理异常。
+* API 响应格式保持一致。
+* 用户输入必须进行必要的验证。
+* 输出到 HTML 时进行适当转义。
+* 不信任客户端传入的数据。
+* CORS、认证、授权等安全策略遵循项目现有实现。
+
+如果项目不是 Web 项目，则忽略本节。
+
+## 6. CLI / Worker / 脚本项目
+
+PHP 项目不一定是 Web 应用。
+
+如果项目是 CLI、Worker、定时任务或脚本：
+
+* 遵循项目现有的命令入口和生命周期。
+* 正确处理退出码。
+* 日志和错误信息应适合命令行环境。
+* 长时间运行的 Worker 注意资源释放、异常恢复和内存占用。
+* 不要强行引入 HTTP、Controller、Middleware 等 Web 层概念。
+
+## 7. 安全
+
+涉及安全相关代码时：
+
+* 密码必须使用安全的密码哈希算法保存，例如 `password_hash()`。
+* 不在源码中硬编码密码、Token、API Key、私钥等敏感信息。
+* 敏感配置优先使用环境变量或项目已有的配置系统。
+* 防止 SQL 注入、XSS、CSRF、路径穿越等常见安全问题。
+* 不要记录密码、Token、Cookie 等敏感信息到日志。
+* 权限检查必须在服务端完成，不能只依赖前端限制。
+* 修改认证、授权、加密等代码时，应特别谨慎，避免降低现有安全性。
+
+## 8. 注释
+
+注释主要说明：
+
+* 为什么这么做
+* 复杂业务逻辑
+* 容易误解的实现
+* 特殊兼容性处理
+* 第三方库或 PHP 特性的使用原因
+
+不要为显而易见的代码添加大量注释。
+
+如果项目是用于学习 PHP，可以适当补充与 Java / Spring 等生态的概念对照；普通生产项目则以项目实际需求为准。
+
+## 9. 修改代码时
+
+执行修改前：
+
+1. 阅读相关代码和调用链。
+2. 确认项目使用的 PHP 版本和 Composer 依赖。
+3. 确认现有架构和代码风格。
+4. 找到最合适的修改位置。
+5. 尽量不要修改无关文件。
+
+执行修改后：
+
+1. 检查 PHP 语法。
+2. 运行项目已有的测试。
+3. 如果有静态分析工具，运行对应检查。
+4. 如果修改了 Web 功能，进行必要的 HTTP/API 验证。
+5. 如果修改了数据库，检查 Migration / Schema 是否同步。
+6. 如果修改了 Composer 配置，检查自动加载和依赖是否正常。
+7. 删除临时调试代码。
+
+优先使用项目已经提供的测试、Lint、静态分析和构建命令，不要自行创造一套完全不同的验证流程。
+
+## 10. AI Agent 行为规范
+
+AI Agent 修改项目时：
+
+* 不要假设项目一定使用 Laravel、Symfony、Slim、Doctrine 或其他特定框架。
+* 不要把 Java / Spring 的设计模式强行套到 PHP 项目中。
+* 不要因为某种实现“更标准”就破坏项目现有设计。
+* 不要未经要求进行大规模重构。
+* 不要删除看似无用但尚未确认的代码。
+* 不要修改与当前需求无关的功能。
+* 遇到不确定的设计时，优先从项目现有代码和 Composer 配置中寻找答案。
+* 如果现有实现与本规范冲突，以项目明确的现有设计和用户当前需求为准。
+* 如果需求存在明显风险、破坏性操作或架构冲突，应先说明，再执行。
+
+## 11. 项目特定规则
+
+以下内容由具体项目自行补充：
+
+```text
+PHP 版本：
+框架：
+数据库：
+主要依赖：
+项目入口：
+测试命令：
+Lint / 静态分析命令：
+构建命令：
+其他特殊要求：
 ```

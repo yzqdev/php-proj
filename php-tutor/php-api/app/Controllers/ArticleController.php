@@ -41,8 +41,8 @@ final class ArticleController
 
     #[OA\Get(
         path: '/api/v1/articles',
-        tags: ['Articles'],
         summary: '获取文章列表（分页）',
+        tags: ['Articles'],
         parameters: [
             new OA\Parameter(name: 'page', in: 'query', schema: new OA\Schema(type: 'integer', default: 1)),
             new OA\Parameter(name: 'per_page', in: 'query', schema: new OA\Schema(type: 'integer', default: 15)),

@@ -4,22 +4,13 @@ declare(strict_types=1);
 
 namespace App\Helpers;
 
+use JsonException;
 use Psr\Http\Message\ServerRequestInterface;
 
 /**
- * ============================================================
- * 请求体助手（PSR-7 版）
- * ============================================================
+ * HTTP 请求体助手。
  *
- * 用途：统一从 PSR-7 请求中读取 JSON body，消除各控制器
- *       里重复的 file_get_contents('php://input') + json_decode 逻辑。
- *
- * 设计要点：
- *   - 不 echo、不抛异常；解析失败或空 body 一律返回 []，
- *     由调用方决定错误响应（避免破坏"控制器决定 4xx 语义"的边界）；
- *   - 支持两种数据源：PSR-7 parsed body（Slim 已经 parse 的）或 php://input。
- *
- * 对应 Java / Spring Boot：@RequestBody Map<String,Object>
+ * 用于从 PSR-7 Request 中读取并解析 JSON 请求体。
  */
 final class RequestBody
 {
@@ -28,35 +19,118 @@ final class RequestBody
     }
 
     /**
-     * 从 PSR-7 请求解析 JSON body，返回关联数组。
+     * 获取 JSON 请求体。
      *
-     * 优先级：
-     *   1. $psr7->getParsedBody() 已经是数组（Slim 的 RequestBodyParser 已经解析）
-     *   2. 否则回退到 php://input + json_decode
+     * 优先使用 PSR-7 已解析的 body。
+     * 如果没有解析结果，则从原始 body 中解析 JSON。
      *
-     * @return array<string,mixed> 解析失败返回 []
+     * @return array<string, mixed>
      */
-    public static function json(ServerRequestInterface $psr7): array
+    public static function json(ServerRequestInterface $request): array
     {
-        $parsed = $psr7->getParsedBody();
-        if (is_array($parsed) && $parsed !== []) {
+        $parsed = $request->getParsedBody();
+
+        if (is_array($parsed)) {
             return $parsed;
         }
 
-        return self::fromRaw((string)file_get_contents('php://input'));
+        if (is_object($parsed)) {
+            return get_object_vars($parsed);
+        }
+
+        return self::decode((string) $request->getBody());
     }
 
     /**
-     * 从原始 JSON 字符串解析；解析失败或不是 JSON 对象时返回 []。
+     * 将 JSON 请求体转换为指定实体。
      *
-     * @return array<string,mixed>
+     * 例如：
+     *
+     *     $user = RequestBody::entity($request, CreateUserRequest::class);
+     *
+     * @template T of object
+     *
+     * @param class-string<T> $class
+     * @return T
      */
-    private static function fromRaw(string $raw): array
+    public static function entity(
+        ServerRequestInterface $request,
+        string $class,
+    ): object {
+        $data = self::json($request);
+
+        return self::map($class, $data);
+    }
+
+    /**
+     * 将数组映射为实体。
+     *
+     * @template T of object
+     *
+     * @param class-string<T> $class
+     * @param array<string, mixed> $data
+     * @return T
+     */
+    private static function map(string $class, array $data): object
+    {
+        $reflection = new \ReflectionClass($class);
+        $constructor = $reflection->getConstructor();
+
+        if ($constructor === null) {
+            $entity = $reflection->newInstance();
+
+            foreach ($data as $property => $value) {
+                if ($reflection->hasProperty($property)) {
+                    $reflection->getProperty($property)->setValue($entity, $value);
+                }
+            }
+
+            return $entity;
+        }
+
+        $arguments = [];
+
+        foreach ($constructor->getParameters() as $parameter) {
+            $name = $parameter->getName();
+
+            if (array_key_exists($name, $data)) {
+                $arguments[] = $data[$name];
+                continue;
+            }
+
+            if ($parameter->isDefaultValueAvailable()) {
+                $arguments[] = $parameter->getDefaultValue();
+                continue;
+            }
+
+            $arguments[] = null;
+        }
+
+        return $reflection->newInstanceArgs($arguments);
+    }
+
+    /**
+     * 解析 JSON 字符串。
+     *
+     * @return array<string, mixed>
+     */
+    private static function decode(string $raw): array
     {
         if (trim($raw) === '') {
             return [];
         }
-        $data = json_decode($raw, true);
+
+        try {
+            $data = json_decode(
+                $raw,
+                true,
+                512,
+                JSON_THROW_ON_ERROR,
+            );
+        } catch (JsonException) {
+            return [];
+        }
+
         return is_array($data) ? $data : [];
     }
 }

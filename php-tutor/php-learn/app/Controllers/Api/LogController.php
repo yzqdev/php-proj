@@ -6,6 +6,7 @@ namespace App\Controllers\Api;
 
 use App\Helpers\Config;
 use App\Helpers\JsonResponse;
+use OpenApi\Attributes as OA;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -36,9 +37,6 @@ final class LogController
     /** 日志文件名前缀（与 Logger.php 里的 RotatingFileHandler 一致） */
     private const FILE_PREFIX = 'app-';
 
-    /** 单次读取最大字节数（512KB） */
-    private const MAX_READ_BYTES = 512 * 1024;
-
     /** 日志目录路径（从 config 读取，延迟初始化） */
     private string $logPath;
 
@@ -53,6 +51,26 @@ final class LogController
      * 列出所有日志文件，按日期倒序排列。
      * 返回：{ list: [{ date, fileName, size, sizeHuman }], total }
      */
+    #[OA\Get(
+        path: '/api/v1/logs',
+        description: '列出所有日志文件，按日期倒序排列',
+        summary: '日志文件列表',
+        tags: ['Logs'],
+        security: [['bearerAuth' => []]],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: '日志文件列表',
+            ),
+            new OA\Response(
+                response: 401,
+                description: '未登录',
+                content: new OA\JsonContent(
+                    ref: '#/components/schemas/ErrorResponse',
+                ),
+            ),
+        ],
+    )]
     public function index(ServerRequestInterface $request): ResponseInterface
     {
         $files = $this->scanLogFiles();
@@ -77,8 +95,61 @@ final class LogController
      *
      * 返回：{ date, fileName, totalLines, offset, limit, lines }
      */
-    public function show(ServerRequestInterface $request, string $date): ResponseInterface
+    #[OA\Get(
+        path: '/api/v1/logs/{date}',
+        description: '读取指定日期的日志内容，支持分页和级别过滤',
+        summary: '日志内容',
+        tags: ['Logs'],
+        security: [['bearerAuth' => []]],
+        parameters: [
+            new OA\PathParameter(
+                name: 'date',
+                description: '日期（YYYY-MM-DD）',
+                schema: new OA\Schema(type: 'string', format: 'date', example: '2026-09-09'),
+            ),
+            new OA\Parameter(
+                name: 'offset',
+                description: '跳过前 N 行',
+                in: 'query',
+                schema: new OA\Schema(type: 'integer', default: 0),
+            ),
+            new OA\Parameter(
+                name: 'limit',
+                description: '最多返回 N 行',
+                in: 'query',
+                schema: new OA\Schema(type: 'integer', default: 500, maximum: 2000),
+            ),
+            new OA\Parameter(
+                name: 'level',
+                description: '按级别过滤',
+                in: 'query',
+                schema: new OA\Schema(type: 'string', enum: ['debug', 'info', 'notice', 'warning', 'error', 'critical']),
+            ),
+        ],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: '日志内容',
+            ),
+            new OA\Response(
+                response: 401,
+                description: '未登录',
+                content: new OA\JsonContent(
+                    ref: '#/components/schemas/ErrorResponse',
+                ),
+            ),
+            new OA\Response(
+                response: 404,
+                description: '日志文件不存在',
+                content: new OA\JsonContent(
+                    ref: '#/components/schemas/ErrorResponse',
+                ),
+            ),
+        ],
+    )]
+    public function show(ServerRequestInterface $request): ResponseInterface
     {
+        $date = (string)$request->getAttribute('date', '');
         // 1) 校验日期格式（防路径穿越）
         if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)) {
             return JsonResponse::validation([
@@ -163,7 +234,7 @@ final class LogController
             $date = substr($fileName, strlen(self::FILE_PREFIX));
 
             // 只保留合法日期格式的文件
-            if ($date === false || !preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)) {
+            if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)) {
                 continue;
             }
 

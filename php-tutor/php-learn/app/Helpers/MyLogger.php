@@ -30,7 +30,7 @@ use Monolog\Logger as MonologLogger;
  */
 final class MyLogger
 {
-    /** @var readonly MonologLogger|null */
+    /** @var MonologLogger|null */
     private static ?MonologLogger $logger = null;
 
     private function __construct()
@@ -70,7 +70,7 @@ final class MyLogger
         $handler = new RotatingFileHandler(
             $path . '/app',
             $maxFiles,
-            $level,
+            $level, // @phpstan-ignore-line levelFromString always returns valid Monolog level
             false,     // useLink 关闭（Windows 下不支持符号链接）
             0644,      // 文件权限
         );

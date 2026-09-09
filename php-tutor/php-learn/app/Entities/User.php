@@ -33,6 +33,8 @@ use OpenApi\Attributes as OA;
  * PHP 8.x 特性：
  *   - readonly 属性：id 由数据库生成，写入后只读；
  *   - 构造器属性提升：把参数直接提升为属性。
+ *
+ * @method static UserRepository repository()
  */
 // ORM 3.x：索引用独立的 #[ORM\Index] / #[ORM\UniqueConstraint] 声明在类上，
 // #[ORM\Table] 的 indexes/uniqueConstraints 参数已废弃（4.0 移除）
@@ -49,12 +51,12 @@ use OpenApi\Attributes as OA;
 )]
 class User
 {
-    /** @ORM\Id @ORM\Column(type="bigint", options:{"unsigned":true}) @ORM\GeneratedValue */
+    /** 主键（bigint unsigned，自增） */
     #[ORM\Id]
     #[ORM\Column(type: 'bigint', options: ['unsigned' => true])]
     #[ORM\GeneratedValue]
     #[OA\Property(type: 'integer', format: 'int64', example: 1)]
-    private int $id;
+    private int $id; // @phpstan-ignore-line Doctrine auto-generated ID
 
     /** 用户名（登录名） */
     #[ORM\Column(type: 'string', length: 50)]

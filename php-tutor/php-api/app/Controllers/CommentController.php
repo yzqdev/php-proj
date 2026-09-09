@@ -36,8 +36,8 @@ final class CommentController
 
     #[OA\Get(
         path: '/api/v1/articles/{id}/comments',
-        tags: ['Comments'],
         summary: '获取文章评论列表（分页）',
+        tags: ['Comments'],
         parameters: [
             new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
             new OA\Parameter(name: 'page', in: 'query', schema: new OA\Schema(type: 'integer', default: 1)),
@@ -72,12 +72,8 @@ final class CommentController
 
     #[OA\Post(
         path: '/api/v1/articles/{id}/comments',
-        tags: ['Comments'],
         summary: '发表评论（需要 JWT）',
         security: [['bearerAuth' => []]],
-        parameters: [
-            new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
-        ],
         requestBody: new OA\RequestBody(
             required: true,
             content: new OA\JsonContent(
@@ -87,6 +83,10 @@ final class CommentController
                 ]
             )
         ),
+        tags: ['Comments'],
+        parameters: [
+            new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
+        ],
         responses: [
             new OA\Response(response: '201', description: '评论成功',
                 content: new OA\JsonContent(ref: '#/components/schemas/Comment')
@@ -107,9 +107,9 @@ final class CommentController
 
     #[OA\Delete(
         path: '/api/v1/comments/{id}',
-        tags: ['Comments'],
         summary: '删除评论（需要 JWT）',
         security: [['bearerAuth' => []]],
+        tags: ['Comments'],
         parameters: [
             new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
         ],

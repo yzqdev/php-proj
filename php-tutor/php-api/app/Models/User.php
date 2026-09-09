@@ -6,6 +6,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/**
+ * @property int $id
+ * @property string $username
+ * @property string $email
+ * @property string $password
+ */
 class User extends Model
 {
     protected $table = 'users';

@@ -195,6 +195,8 @@ final class RainController
     public function getTempFolder(   Request $request,
                                      Response $response)
     {
+
+      $data= json_decode($request->getBody());
          $tmp=sys_get_temp_dir();
          return BaseResponse::success($response, $tmp);
     }

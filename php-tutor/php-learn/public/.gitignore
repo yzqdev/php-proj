@@ -1,0 +1,10 @@
+# Vue 前端构建产物（pnpm build 后复制到这里，不提交）
+app.html
+favicon.svg
+assets/*.js
+assets/*.css
+assets/*.map
+
+# 保留项目原有的前端资源
+!assets/app.css
+!assets/app.js

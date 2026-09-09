@@ -21,6 +21,8 @@ use OpenApi\Attributes as OA;
  *
  * nullable 字段（location / end_time / description）用 string|null，
  * Doctrine 会自动在 SQL 里读写 NULL。
+ *
+ * @method static ActivityRepository repository()
  */
 #[ORM\Entity(repositoryClass: ActivityRepository::class)]
 #[ORM\Table(name: 'activities')]
@@ -37,7 +39,7 @@ class Activity
     #[ORM\Column(type: 'bigint', options: ['unsigned' => true])]
     #[ORM\GeneratedValue]
     #[OA\Property(type: 'integer', format: 'int64', example: 1)]
-    private int $id;
+    private int $id; // @phpstan-ignore-line Doctrine auto-generated ID
 
     /** 活动名称（VARCHAR 120） */
     #[ORM\Column(type: 'string', length: 120)]

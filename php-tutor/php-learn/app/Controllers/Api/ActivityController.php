@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controllers\Api;
 
 use App\Entities\Activity;
+use App\Entities\ActivityRepository;
 use App\Exceptions\ResourceNotFoundException;
 use App\Helpers\Config;
 use App\Helpers\Html;
@@ -30,9 +31,9 @@ use Psr\Http\Message\ServerRequestInterface;
  *   PUT    /api/v1/activities/{id}      更新（需鉴权）
  *   DELETE /api/v1/activities/{id}      删除（需鉴权）
  */
-class ActivityController
+readonly class ActivityController
 {
-    public function __construct(private readonly EntityManager $em)
+    public function __construct(private EntityManager $em)
     {
     }
 
@@ -48,7 +49,7 @@ class ActivityController
      * @response 200 ActivityPage 活动分页列表
      */
     #[OA\Get(
-        path: '/activities',
+        path: '/api/v1/activities',
         description: '支持分页，upcoming=true 只返回即将开始的活动',
         summary: '活动列表',
         tags: ['Activities'],
@@ -91,6 +92,7 @@ class ActivityController
         $upcoming = ($params['upcoming'] ?? '') === 'true';
 
         $repo  = $this->em->getRepository(Activity::class);
+        /** @var ActivityRepository $repo */
         $list  = $repo->paginate($page, $pageSize, $upcoming);
         $total = $repo->countFiltered($upcoming);
 
@@ -99,7 +101,7 @@ class ActivityController
             'total'     => $total,
             'page'      => $page,
             'pageSize'  => $pageSize,
-            'totalPage' => $pageSize > 0 ? (int)ceil($total / $pageSize) : 0,
+            'totalPage' => $pageSize > 0 ? (int)ceil($total / $pageSize) : 0, // @phpstan-ignore-line Doctrine type narrowing
         ];
 
         return JsonResponse::ok($pageData);
@@ -116,7 +118,7 @@ class ActivityController
      * @response 404 活动不存在
      */
     #[OA\Get(
-        path: '/activities/{id}',
+        path: '/api/v1/activities/{id}',
         description: '获取指定 ID 的活动详情',
         summary: '活动详情',
         tags: ['Activities'],
@@ -170,7 +172,7 @@ class ActivityController
      * @response 422 参数校验失败
      */
     #[OA\Post(
-        path: '/activities',
+        path: '/api/v1/activities',
         description: '需要 Bearer Token',
         summary: '新建活动',
         security: [['bearerAuth' => []]],
@@ -248,7 +250,7 @@ class ActivityController
      * @response 422 参数校验失败
      */
     #[OA\Put(
-        path: '/activities/{id}',
+        path: '/api/v1/activities/{id}',
         description: 'PATCH 语义：只更新提交了字段',
         summary: '更新活动',
         security: [['bearerAuth' => []]],
@@ -345,7 +347,7 @@ class ActivityController
      * @response 404 活动不存在
      */
     #[OA\Delete(
-        path: '/activities/{id}',
+        path: '/api/v1/activities/{id}',
         summary: '删除活动',
         security: [['bearerAuth' => []]],
         tags: ['Activities'],

@@ -36,11 +36,11 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\HasLifecycleCallbacks] // 启用生命周期回调，created_at 由 PrePersist 补齐
 class RefreshToken
 {
-    /** @ORM\Id @ORM\Column(type="bigint", options:{"unsigned":true}) @ORM\GeneratedValue */
+    /** 主键（bigint unsigned，自增） */
     #[ORM\Id]
     #[ORM\Column(type: 'bigint', options: ['unsigned' => true])]
     #[ORM\GeneratedValue]
-    private int $id;
+    private int $id; // @phpstan-ignore-line Doctrine auto-generated ID
 
     /** 关联的用户（多对一：多条 token 属于一个用户；inversedBy 对应 User#refreshTokens） */
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'refreshTokens')]

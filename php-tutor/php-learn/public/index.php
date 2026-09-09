@@ -2,26 +2,44 @@
 
 /**
  * ============================================================
- * 唯一的 Web 入口（Front Controller 模式）— Slim 4 版
+ * 唯一的 Web 入口（Front Controller 模式）— Slim 4 + Vue SPA
  * ============================================================
  *
- * 类比 Java / Spring Boot：
- *   - 这里相当于 DispatcherServlet（所有请求都先经过它）；
- *   - Spring Boot 的 SpringApplication.run() 里已经做了容器初始化、
- *     中间件注册、路由扫描，这里通过 bootstrap.php 完成。
+ * 请求分流逻辑：
+ *   1. /api/v1/*  → Slim 走 API Controller（JSON 响应）
+ *   2. /swagger/* → Slim 走 SwaggerController
+ *   3. 其他路径    → 返回 Vue SPA 的 app.html（支持前端路由）
  *
- * 为什么静态资源（CSS/JS）也能被访问？
- *   PHP 内置服务器 `php -S localhost:8080 -t public` 的规则：
- *   - public 下真实存在的文件 → 直接返回（走不到 index.php）；
- *   - 其他请求 → 交给 index.php 处理。
- *   所以 assets/ 里的样式表会被直接读出来。
+ * PHP 内置服务器 `php -S localhost:8080 -t public` 的规则：
+ *   - public 下真实存在的文件（如 /assets/*.js）→ 直接返回（走不到 index.php）
+ *   - 不存在的路径（如 /articles/123）→ 交给 index.php → 返回 app.html
  *
- * 生产环境用 Apache/Nginx 时，需要写一条 rewrite 规则把所有请求指到 index.php。
+ * 对比 Java / Spring Boot：
+ *   - 类似 DispatcherServlet + 前端 Controller 的组合
+ *   - API 走后端路由，其他走前端 SPA
  */
 declare(strict_types=1);
 
-// 引导：构建 Slim App + 容器 + 中间件 + 路由，返回 App 对象
-$app = require dirname(__DIR__) . '/app/bootstrap.php';
+$uri = $_SERVER['REQUEST_URI'] ?? '/';
+$path = parse_url($uri, PHP_URL_PATH);
 
-// 启动应用（Slim 负责处理请求并输出响应）
+// API 和 Swagger 请求 → 走 Slim 后端
+if (str_starts_with($path, '/api/') || str_starts_with($path, '/swagger')) {
+    $app = require dirname(__DIR__) . '/app/bootstrap.php';
+    $app->run();
+    exit;
+}
+
+// 其他请求 → 返回 Vue SPA（支持 History 路由模式）
+// PHP 内置服务器对真实存在的静态文件已经直接返回了，
+// 走到这里的都是不存在的路径（如 /articles/123），需要返回 index.html
+$htmlFile = __DIR__ . '/app.html';
+if (file_exists($htmlFile)) {
+    header('Content-Type: text/html; charset=UTF-8');
+    readfile($htmlFile);
+    exit;
+}
+
+// fallback：没有 app.html 时走 Slim（兼容旧模式）
+$app = require dirname(__DIR__) . '/app/bootstrap.php';
 $app->run();

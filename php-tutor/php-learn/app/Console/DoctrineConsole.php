@@ -122,10 +122,6 @@ final class DbDropCommand extends Command
 // 5) 组装 Console Application
 // ============================================================
 $commands = [
-    // 自定义命令
-    new SchemaCreateCommand(),
-    new DbDropCommand(),
-
     // doctrine/migrations 官方命令（自动带上 DependencyFactory）
     new CurrentCommand($dependencyFactory),
     new DiffCommand($dependencyFactory),
@@ -142,8 +138,10 @@ $commands = [
     new VersionCommand($dependencyFactory),
 ];
 
-// 补充 doctrine/orm 自带的 Entity 校验命令
 $application = ConsoleRunner::createApplication($commands);
+// 自定义命令（非 DoctrineCommand 子类，单独添加）
+$application->add(new SchemaCreateCommand());
+$application->add(new DbDropCommand());
 $application->addCommands([
     new ValidateSchemaCommand(new SingleManagerProvider($em)),
 ]);

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Yzqde\Fox\Controllers;
 
 use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\Exception\ORMException;
 use OpenApi\Attributes as OA;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -177,8 +178,13 @@ class UserController
             return BaseResponse::error($response, 'User not found', BaseResponse::NOT_FOUND);
         }
 
-        $this->em->remove($user);
-        $this->em->flush();
+        try {
+            $this->em->remove($user);
+            $this->em->flush();
+        } catch (ORMException $e) {
+            $this->logger->error($e->getMessage(), ['id' => $id]);
+        }
+
 
         $this->logger->info('User deleted', ['id' => $id]);
 

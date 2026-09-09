@@ -13,8 +13,10 @@ class Logger
 {
     private MonologLogger $logger;
 
-    public function __construct(string $name = 'app', string $logDir =FileConst::LOG_DIR)
+    public function __construct(string $name = 'app', ?string $logDir = null)
     {
+        $logDir ??= FileConst::LOG_DIR;
+
         if (!is_dir($logDir)) {
             mkdir($logDir, 0755, true);
         }

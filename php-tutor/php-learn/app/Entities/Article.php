@@ -26,6 +26,8 @@ use OpenApi\Attributes as OA;
  * PHP 8.x 特性：
  *   - readonly 属性：id 由数据库生成，写入后只读
  *   - DateTimeImmutable：不可变时间对象（比 DateTime 更安全）
+ *
+ * @method static ArticleRepository repository()
  */
 #[ORM\Entity(repositoryClass: ArticleRepository::class)]
 #[ORM\Table(name: 'articles')]
@@ -45,7 +47,7 @@ class Article
     #[ORM\Column(type: 'bigint', options: ['unsigned' => true])]
     #[ORM\GeneratedValue]
     #[OA\Property(type: 'integer', format: 'int64', example: 1)]
-    private int $id;
+    private int $id; // @phpstan-ignore-line Doctrine auto-generated ID
 
     /** 标题（VARCHAR 120） */
     #[ORM\Column(type: 'string', length: 120)]

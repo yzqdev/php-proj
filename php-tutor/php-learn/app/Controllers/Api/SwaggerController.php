@@ -14,8 +14,6 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 
 class SwaggerController
 {
-    // Pinned so a floating `@5` tag can never silently swap the bundle and break the page again.
-    private const SWAGGER_UI_VERSION = '5.32.15';
     private const CDN = 'https://registry.npmmirror.com/swagger-ui-dist/5.32.15/files';
     private const CACHE_TTL = 3600;
 

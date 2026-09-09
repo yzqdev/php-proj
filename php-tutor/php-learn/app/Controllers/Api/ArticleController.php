@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controllers\Api;
 
 use App\Entities\Article;
+use App\Entities\ArticleRepository;
 use App\Exceptions\ResourceNotFoundException;
 use App\Helpers\Config;
 use App\Helpers\Html;
@@ -55,7 +56,7 @@ class ArticleController
      * @response 200 ArticlePage 分页列表
      */
     #[OA\Get(
-        path: '/articles',
+        path: '/api/v1/articles',
         description: '支持分页 + 分类/状态筛选',
         summary: '文章列表',
         tags: ['Articles'],
@@ -115,6 +116,7 @@ class ArticleController
         }
 
         $repo  = $this->em->getRepository(Article::class);
+        /** @var ArticleRepository $repo */
         $list  = $repo->paginate($page, $pageSize, $category, $status);
         $total = $repo->countFiltered($category, $status);
 
@@ -123,7 +125,7 @@ class ArticleController
             'total'     => $total,
             'page'      => $page,
             'pageSize'  => $pageSize,
-            'totalPage' => $pageSize > 0 ? (int)ceil($total / $pageSize) : 0,
+            'totalPage' => $pageSize > 0 ? (int)ceil($total / $pageSize) : 0, // @phpstan-ignore-line Doctrine type narrowing
         ];
 
         return JsonResponse::ok($pageData);
@@ -140,7 +142,7 @@ class ArticleController
      * @response 404 文章不存在
      */
     #[OA\Get(
-        path: '/articles/{id}',
+        path: '/api/v1/articles/{id}',
         description: '获取指定 ID 的文章详情',
         summary: '文章详情',
         tags: ['Articles'],
@@ -194,7 +196,7 @@ class ArticleController
      * @response 422 参数校验失败
      */
     #[OA\Post(
-        path: '/articles',
+        path: '/api/v1/articles',
         description: '需要 Bearer Token',
         summary: '新建文章',
         security: [['bearerAuth' => []]],
@@ -271,7 +273,7 @@ class ArticleController
      * @response 422 参数校验失败
      */
     #[OA\Put(
-        path: '/articles/{id}',
+        path: '/api/v1/articles/{id}',
         description: 'PATCH 语义：只更新提交了字段',
         summary: '更新文章',
         security: [['bearerAuth' => []]],
@@ -364,7 +366,7 @@ class ArticleController
      * @response 404 文章不存在
      */
     #[OA\Delete(
-        path: '/articles/{id}',
+        path: '/api/v1/articles/{id}',
         summary: '删除文章',
         security: [['bearerAuth' => []]],
         tags: ['Articles'],

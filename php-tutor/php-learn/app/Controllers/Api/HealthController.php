@@ -28,7 +28,7 @@ class HealthController
      * @response 200 HealthInfo 服务正常
      */
     #[OA\Get(
-        path: '/health',
+        path: '/api/v1/health',
         description: '不需要鉴权，返回服务状态和当前时间',
         summary: '服务健康检查',
         tags: ['Health'],

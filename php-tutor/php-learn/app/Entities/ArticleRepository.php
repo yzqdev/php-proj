@@ -38,7 +38,7 @@ class ArticleRepository extends EntityRepository
             $q->where('a.category = :category')->setParameter('category', $category);
         }
         if ($status !== '') {
-            if ($q->where() !== null) {
+            if ($q->getDQLPart('where') !== null) {
                 $q->andWhere('a.status = :status')->setParameter('status', $status);
             } else {
                 $q->where('a.status = :status')->setParameter('status', $status);
@@ -61,7 +61,7 @@ class ArticleRepository extends EntityRepository
             $q->where('a.category = :category')->setParameter('category', $category);
         }
         if ($status !== '') {
-            if ($q->where() !== null) {
+            if ($q->getDQLPart('where') !== null) {
                 $q->andWhere('a.status = :status')->setParameter('status', $status);
             } else {
                 $q->where('a.status = :status')->setParameter('status', $status);

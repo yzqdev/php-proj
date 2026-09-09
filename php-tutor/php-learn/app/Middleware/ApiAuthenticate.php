@@ -6,7 +6,7 @@ namespace App\Middleware;
 
 use App\Exceptions\BusinessException;
 use App\Helpers\JsonResponse;
-use App\Services\TokenService;
+use App\Services\Jwt;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
@@ -42,15 +42,18 @@ final class ApiAuthenticate
             }
         }
 
-        // 2) 提取 token（Bearer xxx）
         $token = self::extractBearer($authHeader);
         if ($token === null) {
             return self::sendUnauthorized(JsonResponse::CODE_UNAUTHORIZED, '未提供访问令牌');
         }
 
-        // 3) 校验 Token
         try {
-            $user = TokenService::make()->verifyAccess($token);
+            $claims = Jwt::make()->verify($token);
+            $user = [
+                'userId'   => (int)($claims['userId'] ?? 0),
+                'username' => (string)($claims['username'] ?? ''),
+                'role'     => (string)($claims['role'] ?? ''),
+            ];
         } catch (\Throwable $e) {
             if ($e instanceof BusinessException) {
                 return self::sendUnauthorized($e->getBizCode(), $e->getMessage());
@@ -58,7 +61,6 @@ final class ApiAuthenticate
             return self::sendUnauthorized(JsonResponse::CODE_INVALID_TOKEN, '令牌无效或已过期');
         }
 
-        // 4) 把用户信息挂到 $_SERVER 供 action 读取
         $_SERVER['API_USER'] = $user;
 
         return $handler->handle($request);

@@ -6,6 +6,7 @@ namespace Yzqde\Fox\Services;
 
 use DateTime;
 use Yzqde\Fox\Util\FileCache;
+use Yzqde\Fox\Util\FileConst;
 
 /**
  * Reads the rotated Monolog files written by {@see Logger}.
@@ -27,9 +28,9 @@ class LogReader
     private string $prefix;
     private FileCache $cache;
 
-    public function __construct(string $logDir = __DIR__ . '/../../logs', string $prefix = 'app', ?FileCache $cache = null)
+    public function __construct(?string $logDir = null, string $prefix = 'app', ?FileCache $cache = null)
     {
-        $this->logDir = rtrim($logDir, '/\\');
+        $this->logDir = rtrim($logDir ?? FileConst::LOG_DIR, '/\\');
         $this->prefix = $prefix;
         $this->cache = $cache ?? new FileCache();
     }

@@ -22,11 +22,9 @@ use Lcobucci\JWT\Token;
 use Lcobucci\JWT\Token\Builder as TokenBuilder;
 use Lcobucci\JWT\UnencryptedToken;
 use Lcobucci\JWT\Validation\Constraint;
-use Lcobucci\JWT\Validation\ConstraintViolation;
 use Lcobucci\JWT\Validation\Constraint\PermittedFor;
 use Lcobucci\JWT\Validation\Constraint\SignedWith;
 use Lcobucci\JWT\Validation\Constraint\StrictValidAt;
-use Lcobucci\JWT\Validation\RequiredConstraintsViolated;
 use Lcobucci\JWT\Validation\Validator;
 use Throwable;
 
@@ -126,8 +124,15 @@ final class TokenService
                 new StrictValidAt($clock),
                 new PermittedFor($this->config['audience'])
             );
-        } catch (RequiredConstraintsViolated | ConstraintViolation | Throwable $e) {
+        } catch (Throwable $e) {
             throw NotFoundException::invalidToken($e);
+        }
+
+        // v5: parse() returns the Token interface; claims() lives on
+        // UnencryptedToken. Our HMAC-signed JWS is always unencrypted, but
+        // narrow the type so the call is statically valid.
+        if (!$token instanceof UnencryptedToken) {
+            throw NotFoundException::invalidToken();
         }
 
         $claims = $token->claims();

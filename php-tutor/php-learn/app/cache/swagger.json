@@ -23,14 +23,14 @@
         }
     ],
     "paths": {
-        "\/activities": {
+        "\/api\/v1\/activities": {
             "get": {
                 "tags": [
                     "Activities"
                 ],
                 "summary": "活动列表",
                 "description": "支持分页，upcoming=true 只返回即将开始的活动",
-                "operationId": "a8170488c07f400aac287f1c6c1ff895",
+                "operationId": "1dab40ff9f9f268f997cec3292964f57",
                 "parameters": [
                     {
                         "name": "page",
@@ -72,7 +72,7 @@
                 ],
                 "summary": "新建活动",
                 "description": "需要 Bearer Token",
-                "operationId": "4c1a7613c6d25f9b0bd5aa280c4e1c9b",
+                "operationId": "18d3be118a44ab84dc18046b6cae35b3",
                 "requestBody": {
                     "required": true
                 },
@@ -115,14 +115,14 @@
                 ]
             }
         },
-        "\/activities\/{id}": {
+        "\/api\/v1\/activities\/{id}": {
             "get": {
                 "tags": [
                     "Activities"
                 ],
                 "summary": "活动详情",
                 "description": "获取指定 ID 的活动详情",
-                "operationId": "22d2fceeee1395777adb5e35cb4b0d53",
+                "operationId": "6af2fd7105486970abb693717b6dae5d",
                 "parameters": [
                     {
                         "name": "id",
@@ -151,7 +151,7 @@
                 ],
                 "summary": "更新活动",
                 "description": "PATCH 语义：只更新提交了字段",
-                "operationId": "f68d2a5a85eb2f5111c90c0dc51236fd",
+                "operationId": "04971e6415cdc51cc506cc1c220948fc",
                 "parameters": [
                     {
                         "name": "id",
@@ -222,7 +222,7 @@
                 ],
                 "summary": "删除活动",
                 "description": "DELETE \/api\/v1\/activities\/{id}（需鉴权）",
-                "operationId": "a7e52a4c35d0fa9cbaadd7f61c6fd498",
+                "operationId": "2e160f51898e6414d364c0b4e865b70e",
                 "parameters": [
                     {
                         "name": "id",
@@ -268,14 +268,14 @@
                 ]
             }
         },
-        "\/articles": {
+        "\/api\/v1\/articles": {
             "get": {
                 "tags": [
                     "Articles"
                 ],
                 "summary": "文章列表",
                 "description": "支持分页 + 分类\/状态筛选",
-                "operationId": "66bf6230eeef4cfa0a5c8e7a25e9715e",
+                "operationId": "f65e34a81f6ba81b4d0f248601b9a5d0",
                 "parameters": [
                     {
                         "name": "page",
@@ -335,7 +335,7 @@
                 ],
                 "summary": "新建文章",
                 "description": "需要 Bearer Token",
-                "operationId": "e5e5b148ab57bfb1c951ddf23fec45d7",
+                "operationId": "cb5c14d489a7f9418dcab374dda24a6d",
                 "requestBody": {
                     "required": true
                 },
@@ -378,14 +378,14 @@
                 ]
             }
         },
-        "\/articles\/{id}": {
+        "\/api\/v1\/articles\/{id}": {
             "get": {
                 "tags": [
                     "Articles"
                 ],
                 "summary": "文章详情",
                 "description": "获取指定 ID 的文章详情",
-                "operationId": "b52c3be0bc4fedb09a4b12b9e4802165",
+                "operationId": "91fcba16ad39a2b73ba1d13fac3dba38",
                 "parameters": [
                     {
                         "name": "id",
@@ -428,7 +428,7 @@
                 ],
                 "summary": "更新文章",
                 "description": "PATCH 语义：只更新提交了字段",
-                "operationId": "822c46f61b39bce0ca3e8158393301f6",
+                "operationId": "e381b764b34f75fb0a300b646158e26d",
                 "parameters": [
                     {
                         "name": "id",
@@ -499,7 +499,7 @@
                 ],
                 "summary": "删除文章",
                 "description": "DELETE \/api\/v1\/articles\/{id}（需鉴权）",
-                "operationId": "8ec6712f08b29739e503b70f0487584d",
+                "operationId": "7909a060ab9489bda9ca8c12a66fbd06",
                 "parameters": [
                     {
                         "name": "id",
@@ -545,14 +545,14 @@
                 ]
             }
         },
-        "\/auth\/login": {
+        "\/api\/v1\/auth\/login": {
             "post": {
                 "tags": [
                     "Auth"
                 ],
                 "summary": "登录",
                 "description": "用登录名和密码换取 Access + Refresh Token",
-                "operationId": "c542ba0f20b129ebb73c48d9561d560b",
+                "operationId": "c98208956edf503076ca79cb684046cf",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -684,14 +684,14 @@
                 }
             }
         },
-        "\/auth\/refresh": {
+        "\/api\/v1\/auth\/refresh": {
             "post": {
                 "tags": [
                     "Auth"
                 ],
                 "summary": "刷新令牌",
                 "description": "用 Refresh Token 换取新的 Access Token（同时轮转 Refresh Token）",
-                "operationId": "7f8016872ebe19d2ce467c9feab85394",
+                "operationId": "acb8c15a49af62dcda5fd427ea594b33",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -771,14 +771,14 @@
                 }
             }
         },
-        "\/auth\/logout": {
+        "\/api\/v1\/auth\/logout": {
             "post": {
                 "tags": [
                     "Auth"
                 ],
                 "summary": "登出",
                 "description": "撤销当前用户的所有 Refresh Token（Access Token 等自然过期）",
-                "operationId": "e401b18266e30a630a8c26f097388086",
+                "operationId": "fa3955aca164d123a2ffe8498554b87d",
                 "responses": {
                     "204": {
                         "description": "登出成功（无 body）"
@@ -819,14 +819,14 @@
                 ]
             }
         },
-        "\/auth\/me": {
+        "\/api\/v1\/auth\/me": {
             "get": {
                 "tags": [
                     "Auth"
                 ],
                 "summary": "获取当前用户",
                 "description": "返回当前登录用户的信息（需 Bearer Token）",
-                "operationId": "f7ae1fe2dcffa6eafa62de88e6441088",
+                "operationId": "5c677a0b57d54a9c8a799954c9736bf1",
                 "responses": {
                     "200": {
                         "description": "用户信息",
@@ -856,14 +856,14 @@
                 ]
             }
         },
-        "\/health": {
+        "\/api\/v1\/health": {
             "get": {
                 "tags": [
                     "Health"
                 ],
                 "summary": "服务健康检查",
                 "description": "不需要鉴权，返回服务状态和当前时间",
-                "operationId": "7e6ad97e9fd1bdf92073a7edb79ff0ec",
+                "operationId": "1c953d377c1fd0d6f1d47c3e9b197eb8",
                 "responses": {
                     "200": {
                         "description": "服务正常"
@@ -871,17 +871,203 @@
                 }
             }
         },
-        "\/tool\/check": {
+        "\/api\/v1\/logs": {
+            "get": {
+                "tags": [
+                    "Logs"
+                ],
+                "summary": "日志文件列表",
+                "description": "列出所有日志文件，按日期倒序排列",
+                "operationId": "fd94b7435c0c8a9a95a4be8e856b7090",
+                "responses": {
+                    "200": {
+                        "description": "日志文件列表"
+                    },
+                    "401": {
+                        "description": "未登录",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "$ref": "#\/components\/schemas\/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "\/api\/v1\/logs\/{date}": {
+            "get": {
+                "tags": [
+                    "Logs"
+                ],
+                "summary": "日志内容",
+                "description": "读取指定日期的日志内容，支持分页和级别过滤",
+                "operationId": "c65de0a9bf43b1766bcabcfce2452255",
+                "parameters": [
+                    {
+                        "name": "date",
+                        "in": "path",
+                        "description": "日期（YYYY-MM-DD）",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "date",
+                            "example": "2026-09-09"
+                        }
+                    },
+                    {
+                        "name": "offset",
+                        "in": "query",
+                        "description": "跳过前 N 行",
+                        "schema": {
+                            "type": "integer",
+                            "default": 0
+                        }
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "description": "最多返回 N 行",
+                        "schema": {
+                            "type": "integer",
+                            "default": 500,
+                            "maximum": 2000
+                        }
+                    },
+                    {
+                        "name": "level",
+                        "in": "query",
+                        "description": "按级别过滤",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "debug",
+                                "info",
+                                "notice",
+                                "warning",
+                                "error",
+                                "critical"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "日志内容"
+                    },
+                    "401": {
+                        "description": "未登录",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "$ref": "#\/components\/schemas\/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "日志文件不存在",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "$ref": "#\/components\/schemas\/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "\/api\/v1\/tool\/check": {
             "get": {
                 "tags": [
                     "Tool"
                 ],
                 "summary": "服务健康检查",
                 "description": "不需要鉴权，返回服务状态和当前时间",
-                "operationId": "ac3cbed95499f667d8f2e825c47cf0cd",
+                "operationId": "9f71ea33c534ac8178f1bb27f90faef6",
                 "responses": {
                     "200": {
                         "description": "服务正常"
+                    }
+                }
+            }
+        },
+        "\/api\/v1\/tool\/login": {
+            "post": {
+                "tags": [
+                    "Tool"
+                ],
+                "summary": "用户登录",
+                "description": "用户登录接口",
+                "operationId": "aa3d13f46f6551327ee8a2c05ba6f8e0",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application\/json": {
+                            "schema": {
+                                "required": [
+                                    "username",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "username": {
+                                        "description": "用户名",
+                                        "type": "string",
+                                        "example": "admin"
+                                    },
+                                    "password": {
+                                        "description": "密码",
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "123456"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "登录成功",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer",
+                                            "example": 200
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "token": {
+                                                    "type": "string",
+                                                    "example": "eyJhbGciOiJIUzI1NiIs..."
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -1109,8 +1295,12 @@
             "description": "Activities 相关接口"
         },
         {
+            "name": "Logs",
+            "description": "系统日志相关接口"
+        },
+        {
             "name": "Tool",
-            "description": "Tool"
+            "description": "Tool 相关接口"
         }
     ]
 }

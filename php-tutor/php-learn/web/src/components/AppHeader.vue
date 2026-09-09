@@ -6,7 +6,7 @@
  *
  * 显示：
  *   - 左侧：站点 logo + 标题
- *   - 中间：主导航（首页 / 文章 / 活动）
+ *   - 中间：主导航（首页 / 文章 / 活动 / 日志）
  *   - 右侧：用户名 + 角色标签 + 登出按钮
  *
  * 对应 Java：类似 th:replace="layouts/app :: navbar"
@@ -23,6 +23,7 @@ const navLinks = computed(() => [
   { to: '/', label: '首页', exact: true },
   { to: '/articles', label: '文章' },
   { to: '/activities', label: '活动' },
+  { to: '/logs', label: '日志' },
 ])
 
 // 是否当前路由（支持 exact 匹配首页）

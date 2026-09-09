@@ -99,6 +99,7 @@ return function (App $app): void {
 
 
     $app->get('/api/v1/tool/check',           [ToolController::class, 'check']);
+    $app->post('/api/v1/tool/login',           [ToolController::class, 'login']);
 
 
     $app->get('/swagger', [SwaggerController::class, 'index']);

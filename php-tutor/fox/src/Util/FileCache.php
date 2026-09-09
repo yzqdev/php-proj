@@ -16,7 +16,7 @@ class FileCache
 
     public function __construct(?string $directory = null)
     {
-        $this->directory = $directory ?? FileConst::cacheDir() . '/fox-cache';
+        $this->directory = $directory ?? FileConst::CACHE_DIR . '/fox-cache';
     }
 
     /**

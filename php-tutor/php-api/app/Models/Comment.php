@@ -6,6 +6,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * @property int $id
+ * @property int $article_id
+ * @property int $user_id
+ * @property string $content
+ */
 class Comment extends Model
 {
     protected $table = 'comments';

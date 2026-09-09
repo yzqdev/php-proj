@@ -8,7 +8,6 @@ use OpenApi\Attributes as OA;
 
 #[OA\Info(
     version: '1.0.0',
-    title: 'PHP Tutor API',
     description: "多用户博客系统的 REST API，支持文章、评论和 JWT 认证。\n\n"
         . "## 认证方式\n\n"
         . "使用 Bearer Token 认证，在请求头中携带 `Authorization: Bearer <token>`。\n\n"
@@ -19,7 +18,8 @@ use OpenApi\Attributes as OA;
         . "  \"data\": { ... },\n"
         . "  \"request_id\": \"xxx\"\n"
         . "}\n"
-        . "```"
+        . "```",
+    title: 'PHP Tutor API'
 )]
 #[OA\Server(
     url: 'http://localhost:8080',

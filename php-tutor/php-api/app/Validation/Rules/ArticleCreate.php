@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Validation\Rules;
 
+use Respect\Validation\Validatable;
 use Respect\Validation\Validator as V;
 
 /**
@@ -11,7 +12,7 @@ use Respect\Validation\Validator as V;
 final class ArticleCreate
 {
     /**
-     * @return array<string, array{0: V, 1: string}>
+     * @return array<string, array{0: Validatable, 1: string}>
      */
     public static function rules(): array
     {

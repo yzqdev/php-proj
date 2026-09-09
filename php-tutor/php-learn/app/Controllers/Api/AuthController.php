@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controllers\Api;
 
 use App\Entities\User;
+use App\Entities\UserRepository;
 use App\Helpers\Html;
 use App\Helpers\JsonResponse;
 use App\Helpers\MyLogger;
@@ -47,7 +48,7 @@ class AuthController
      * @response 422 参数校验失败
      */
     #[OA\Post(
-        path: '/auth/login',
+        path: '/api/v1/auth/login',
         description: '用登录名和密码换取 Access + Refresh Token',
         summary: '登录',
         requestBody: new OA\RequestBody(
@@ -135,6 +136,7 @@ class AuthController
         }
 
         $repo = $this->em->getRepository(User::class);
+        /** @var UserRepository $repo */
         $user = $repo->findByLogin(trim($login));
 
         // 防时序攻击：用户不存在时也跑一次 bcrypt，避免通过响应时间区分
@@ -179,7 +181,7 @@ class AuthController
      * @response 401 Refresh Token 无效或已过期
      */
     #[OA\Post(
-        path: '/auth/refresh',
+        path: '/api/v1/auth/refresh',
         description: '用 Refresh Token 换取新的 Access Token（同时轮转 Refresh Token）',
         summary: '刷新令牌',
         requestBody: new OA\RequestBody(
@@ -257,7 +259,7 @@ class AuthController
      * @response 401 未登录
      */
     #[OA\Post(
-        path: '/auth/logout',
+        path: '/api/v1/auth/logout',
         description: '撤销当前用户的所有 Refresh Token（Access Token 等自然过期）',
         summary: '登出',
         security: [['bearerAuth' => []]],
@@ -317,7 +319,7 @@ class AuthController
      * @response 401 未登录或 token 失效
      */
     #[OA\Get(
-        path: '/auth/me',
+        path: '/api/v1/auth/me',
         description: '返回当前登录用户的信息（需 Bearer Token）',
         summary: '获取当前用户',
         security: [['bearerAuth' => []]],

@@ -252,12 +252,15 @@ request.interceptors.response.use(
     if (httpStatus === 401 && env?.code === CODE.INVALID_TOKEN && !config?._retry && !config?._skipRefresh) {
       try {
         await ensureRefresh()
-        // refresh 成功：重试原请求
-        // 关键点：必须删掉原 config 上的 Authorization 头，否则 request interceptor 会直接用旧 header
-        // 而不从 localStorage 重新读取新 token（interceptor 只在 header 不存在时才读 localStorage）
+        // refresh 成功：用新 token 显式重试原请求
+        const newToken = localStorage.getItem(ACCESS_TOKEN_KEY)
+        if (!newToken) {
+          throw new Error('refresh 后 token 缺失')
+        }
         const originalConfig = config as RequestConfig
-        delete (originalConfig.headers as Record<string, unknown>)?.Authorization
         originalConfig._retry = true
+        // 确保用新 token 覆盖旧 header（delete 在某些环境下不可靠）
+        originalConfig.headers = { ...originalConfig.headers, Authorization: `Bearer ${newToken}` }
         return request(originalConfig)
       } catch {
         // refresh 失败：清空所有 token + 跳登录

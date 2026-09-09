@@ -18,8 +18,7 @@
                     "Articles"
                 ],
                 "summary": "获取文章列表（分页）",
-                "description": "Single-action controller dispatching by HTTP method:\n  GET    \/api\/v1\/articles        list\n  GET    \/api\/v1\/articles\/{id}   show\n  POST   \/api\/v1\/articles        create   (JWT)\n  PUT    \/api\/v1\/articles\/{id}   update   (JWT)\n  DELETE \/api\/v1\/articles\/{id}   delete   (JWT)",
-                "operationId": "4e4dc6921a27d2c3f0fcee859d4b9aed",
+                "operationId": "9fa68fc97ea24ba8c0a837e1bf9bf2b4",
                 "parameters": [
                     {
                         "name": "page",
@@ -56,7 +55,7 @@
                     "Articles"
                 ],
                 "summary": "创建文章（需要 JWT）",
-                "operationId": "0dc6c54a91162830caa7ae181dd62086",
+                "operationId": "92a2f8801cbe8b9db8aba5661fb54600",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -112,7 +111,7 @@
                     "Articles"
                 ],
                 "summary": "获取单篇文章",
-                "operationId": "557c939f82de5c0e22f1c57e6e2d55c7",
+                "operationId": "2c08720fd8099090fb487c36314036e5",
                 "parameters": [
                     {
                         "name": "id",
@@ -144,7 +143,7 @@
                     "Articles"
                 ],
                 "summary": "更新文章（需要 JWT）",
-                "operationId": "e60d2e7b9016be10f05a1aae8a55a3b0",
+                "operationId": "8a4d686d044f99d4969ae0371949385f",
                 "parameters": [
                     {
                         "name": "id",
@@ -204,7 +203,7 @@
                     "Articles"
                 ],
                 "summary": "删除文章（需要 JWT）",
-                "operationId": "4ff25c15a0a4e752e82c3682e8c6aaab",
+                "operationId": "e9e511bc6772ac09752d8e1603a0d024",
                 "parameters": [
                     {
                         "name": "id",
@@ -233,140 +232,13 @@
                 ]
             }
         },
-        "\/api\/v1\/auth\/login": {
-            "post": {
-                "tags": [
-                    "Auth"
-                ],
-                "summary": "用户登录",
-                "description": "POST \/api\/v1\/auth\/login",
-                "operationId": "d84fceab9bc0144ea15c4c97885ac602",
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application\/json": {
-                            "schema": {
-                                "required": [
-                                    "username",
-                                    "password"
-                                ],
-                                "properties": {
-                                    "username": {
-                                        "type": "string",
-                                        "example": "johndoe"
-                                    },
-                                    "password": {
-                                        "type": "string",
-                                        "example": "password123"
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "登录成功，返回用户信息和 JWT Token",
-                        "content": {
-                            "application\/json": {
-                                "schema": {
-                                    "$ref": "#\/components\/schemas\/TokenResponse"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "用户名或密码错误"
-                    },
-                    "422": {
-                        "description": "验证失败"
-                    }
-                }
-            }
-        },
-        "\/api\/v1\/auth\/me": {
-            "get": {
-                "tags": [
-                    "Auth"
-                ],
-                "summary": "获取当前用户信息",
-                "description": "GET \/api\/v1\/auth\/me — 当前认证用户信息",
-                "operationId": "40a67d524835ccd6e3a77994cea63b13",
-                "responses": {
-                    "200": {
-                        "description": "成功返回当前用户信息",
-                        "content": {
-                            "application\/json": {
-                                "schema": {
-                                    "$ref": "#\/components\/schemas\/User"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "未认证"
-                    }
-                },
-                "security": [
-                    {
-                        "bearerAuth": []
-                    }
-                ]
-            }
-        },
-        "\/api\/v1\/auth\/refresh": {
-            "post": {
-                "tags": [
-                    "Auth"
-                ],
-                "summary": "刷新 Token",
-                "description": "POST \/api\/v1\/auth\/refresh",
-                "operationId": "73bb9015c5f0d0a56bcdc1e28976a8f1",
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application\/json": {
-                            "schema": {
-                                "required": [
-                                    "refresh_token"
-                                ],
-                                "properties": {
-                                    "refresh_token": {
-                                        "type": "string",
-                                        "example": "eyJ0eXAiOiJKV1QiLCJhbGc..."
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "刷新成功，返回新的 Token 对",
-                        "content": {
-                            "application\/json": {
-                                "schema": {
-                                    "$ref": "#\/components\/schemas\/TokenResponse"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Refresh Token 无效或已过期"
-                    }
-                }
-            }
-        },
         "\/api\/v1\/auth\/register": {
             "post": {
                 "tags": [
                     "Auth"
                 ],
                 "summary": "用户注册",
-                "description": "POST \/api\/v1\/auth\/register",
-                "operationId": "349c74d32138c34796d7f58a6fb32c8d",
+                "operationId": "0228b9a1bb2c8ea02ed84c1d0c0f9e2c",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -413,14 +285,136 @@
                 }
             }
         },
+        "\/api\/v1\/auth\/login": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "用户登录",
+                "operationId": "1ce6ca791ed660e4b9556e70cdb40584",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application\/json": {
+                            "schema": {
+                                "required": [
+                                    "username",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "username": {
+                                        "type": "string",
+                                        "example": "johndoe"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "example": "password123"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "登录成功，返回用户信息和 JWT Token",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "$ref": "#\/components\/schemas\/TokenResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "用户名或密码错误"
+                    },
+                    "422": {
+                        "description": "验证失败"
+                    }
+                }
+            }
+        },
+        "\/api\/v1\/auth\/refresh": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "刷新 Token",
+                "operationId": "fb5da762408592f98a302d7a5c9dfabf",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application\/json": {
+                            "schema": {
+                                "required": [
+                                    "refresh_token"
+                                ],
+                                "properties": {
+                                    "refresh_token": {
+                                        "type": "string",
+                                        "example": "eyJ0eXAiOiJKV1QiLCJhbGc..."
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "刷新成功，返回新的 Token 对",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "$ref": "#\/components\/schemas\/TokenResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Refresh Token 无效或已过期"
+                    }
+                }
+            }
+        },
+        "\/api\/v1\/auth\/me": {
+            "get": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "获取当前用户信息",
+                "operationId": "92abddce6e0a9d4f8f6ed9d078e44e48",
+                "responses": {
+                    "200": {
+                        "description": "成功返回当前用户信息",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "$ref": "#\/components\/schemas\/User"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "未认证"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "\/api\/v1\/articles\/{id}\/comments": {
             "get": {
                 "tags": [
                     "Comments"
                 ],
                 "summary": "获取文章评论列表（分页）",
-                "description": "Single-action controller dispatching by HTTP method:\n  GET    \/api\/v1\/articles\/{id}\/comments  list for article\n  POST   \/api\/v1\/articles\/{id}\/comments  create (JWT)\n  DELETE \/api\/v1\/comments\/{id}           delete (JWT)",
-                "operationId": "51f3ce5c57845b97e5d57b01dfa56d07",
+                "operationId": "542358ddd40231f2b5a32a21bf56db8e",
                 "parameters": [
                     {
                         "name": "id",
@@ -465,7 +459,7 @@
                     "Comments"
                 ],
                 "summary": "发表评论（需要 JWT）",
-                "operationId": "28146074496cbd218dee62a65ae61fbd",
+                "operationId": "fb3a908574bf212a2b0367b676ba5e9f",
                 "parameters": [
                     {
                         "name": "id",
@@ -526,7 +520,7 @@
                     "Comments"
                 ],
                 "summary": "删除评论（需要 JWT）",
-                "operationId": "35652c0bef6cb196d094aac5616d51b4",
+                "operationId": "46aa46a14f20613d91f8431ef4c3c9a3",
                 "parameters": [
                     {
                         "name": "id",

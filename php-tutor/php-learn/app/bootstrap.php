@@ -30,12 +30,14 @@ use App\Helpers\MyLogger;
 use App\Middleware\Cors;
 use App\Services\DoctrineServiceProvider;
 use App\Services\Jwt;
+use App\Services\RedisRefreshTokenStore;
 use App\Services\TokenService;
 use DI\ContainerBuilder;
 use Doctrine\ORM\EntityManager;
 use Monolog\Handler\RotatingFileHandler;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
+use Predis\Client as RedisClient;
 use Slim\Factory\AppFactory;
 use Slim\Interfaces\ErrorRendererInterface;
 
@@ -65,6 +67,29 @@ $containerBuilder->addDefinitions([
     Jwt::class => function (\Psr\Container\ContainerInterface $c): Jwt {
         return Jwt::make();
     },
+
+    // Redis 客户端
+    RedisClient::class => function (\Psr\Container\ContainerInterface $c): RedisClient {
+        $config = Config::get('redis', []);
+        $params = [
+            'scheme' => $config['scheme'] ?? 'tcp',
+            'host'   => $config['host'] ?? '127.0.0.1',
+            'port'   => $config['port'] ?? 6379,
+        ];
+        if (!empty($config['password'])) {
+            $params['password'] = $config['password'];
+        }
+        return new RedisClient($params);
+    },
+
+    // Refresh Token 存储（Redis 版）
+    RedisRefreshTokenStore::class => function (\Psr\Container\ContainerInterface $c): RedisRefreshTokenStore {
+        $db = (int)(Config::get('redis.database', 0));
+        $client = $c->get(RedisClient::class);
+        $client->select($db);
+        return new RedisRefreshTokenStore($client);
+    },
+
     Logger::class => function (): Logger {
         $logger = new Logger('app');
         $logger->pushHandler(new StreamHandler('php://stderr', Logger::DEBUG));
@@ -84,9 +109,10 @@ $containerBuilder->addDefinitions([
         return $logger;
     },
 
-    // TokenService（依赖 EntityManager + Jwt，两者已注册）
+    // TokenService（依赖 RedisRefreshTokenStore + EntityManager + Jwt）
     TokenService::class => function (\Psr\Container\ContainerInterface $c): TokenService {
         return new TokenService(
+            $c->get(RedisRefreshTokenStore::class),
             $c->get(EntityManager::class),
             $c->get(Jwt::class),
         );

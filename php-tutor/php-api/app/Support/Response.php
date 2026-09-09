@@ -24,13 +24,6 @@ final class Response
     public const CODE_NOT_FOUND = 404;
     public const CODE_SERVER_ERROR = 500;
 
-    private SlimResponse $response;
-
-    public function __construct(?ResponseInterface $response = null)
-    {
-        $this->response = $response ?? new SlimResponse();
-    }
-
     public static function json(mixed $data, int $status = 200): ResponseInterface
     {
         $body = json_encode([

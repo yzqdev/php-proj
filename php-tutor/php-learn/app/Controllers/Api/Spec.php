@@ -54,20 +54,12 @@ use OpenApi\Attributes as OA;
 #[OA\Tag(name: 'Auth', description: 'Auth 相关接口')]
 #[OA\Tag(name: 'Articles', description: 'Articles 相关接口')]
 #[OA\Tag(name: 'Activities', description: 'Activities 相关接口')]
+#[OA\Tag(name: 'Logs', description: '系统日志相关接口')]
+#[OA\Tag(name: 'Tool', description: 'Tool 相关接口')]
 
 #[OA\Components(
-    parameters: [
-        'Id' => new OA\Parameter(
-            name: 'id',
-            description: '资源 ID',
-            in: 'path',
-            required: true,
-            schema: new OA\Schema(type: 'integer', minimum: 1),
-            example: 1
-        )
-    ],
     securitySchemes: [
-        'bearerAuth' => new OA\SecurityScheme(
+        new OA\SecurityScheme(
             securityScheme: 'bearerAuth',
             type: 'http',
             description: 'Bearer Token（JWT Access Token），通过登录接口获取',
