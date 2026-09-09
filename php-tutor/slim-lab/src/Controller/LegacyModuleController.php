@@ -4,16 +4,15 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use OpenApi\Attributes as OA;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use App\Middleware\CloudDriveAccessRules;
 
 /**
  * 旧版直连入口兼容：完整复刻迁移前根目录 index.php 的行为。
- *   - /?module=php|doctrine|clouddrive&action=xxx → 转发到对应模块控制器（含 clouddrive 的
- *     session_start 与访问规则校验，行为与旧文件一致）
- *   - module 缺失/未知（包括其他未匹配路径）→ {"code":404,"message":"未知模块","data":null}
  */
+
 final class LegacyModuleController
 {
     private const MODULE_MAP = [
@@ -29,7 +28,18 @@ final class LegacyModuleController
         private readonly ResponseFactory $responseFactory = new ResponseFactory(),
     ) {
     }
-
+    #[OA\Get(
+        path: '/api/legacy/{module}',
+        tags: ['Legacy'],
+        summary: '旧版接口兼容入口',
+        parameters: [
+            new OA\Parameter(name: 'module', in: 'path', required: true, description: '模块名：php/doctrine/clouddrive', schema: new OA\Schema(type: 'string')),
+        ],
+        responses: [
+            new OA\Response(response: '200', description: '成功'),
+            new OA\Response(response: '404', description: '未知模块'),
+        ]
+    )]
     public function handle(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
     {
         $module = (string) ($request->getQueryParams()['module'] ?? '');

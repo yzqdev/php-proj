@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace App\Middleware;
 
+use App\Controller\ResponseFactory;
+use App\Service\TokenStore;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use App\Auth\TokenStore;
-use App\Controller\ResponseFactory;
 
 /**
  * 平台接口（Bearer Token）鉴权中间件。

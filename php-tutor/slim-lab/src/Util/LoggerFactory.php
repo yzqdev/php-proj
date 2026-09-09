@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Log;
+namespace App\Util;
 
 use Monolog\Formatter\LineFormatter;
 use Monolog\Handler\StreamHandler;

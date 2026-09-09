@@ -7,14 +7,14 @@ namespace App\Controller\OpenApi;
 use OpenApi\Attributes as OA;
 
 /**
- * OpenAPI 组件：消息数据。
+ * OpenAPI 组件：旧版模块数据。
  */
 #[OA\Schema(
-    schema: 'MessageData',
+    schema: 'LegacyModuleData',
     properties: [
         new OA\Property(property: 'message', type: 'string', example: 'success'),
     ],
 )]
-final class MessageDataSchema
+final class LegacyModuleDataSchema
 {
 }

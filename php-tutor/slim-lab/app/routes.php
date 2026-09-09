@@ -53,17 +53,14 @@ return function (App $app): void {
     // PHP 8.5 下 static 闭包 bindTo 返回 null 导致路由注册失败）
     $app->group('/api', function (RouteCollectorProxy $group): void {
         // php 演示模块（旧后端不校验请求方法，此处沿用 any 保持一致）
-        $group->any('/php-demo.php', [PhpDemoController::class, 'handle']);
+
         $group->any('/php-demo', [PhpDemoController::class, 'handle']);
 
         // doctrine 演示模块
-        $group->any('/doctrine.php', [DoctrineController::class, 'handle']);
+
         $group->any('/doctrine', [DoctrineController::class, 'handle']);
 
-        // clouddrive 网盘模块：Session 中间件 + 鉴权中间件（先 Session 后 Auth）
-        $group->any('/clouddrive.php', [CloudDriveController::class, 'handle'])
-            ->add(CloudDriveAuthMiddleware::class)
-            ->add(SessionMiddleware::class);
+
         $group->any('/clouddrive', [CloudDriveController::class, 'handle'])
             ->add(CloudDriveAuthMiddleware::class)
             ->add(SessionMiddleware::class);

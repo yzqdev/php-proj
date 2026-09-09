@@ -2,11 +2,12 @@
 
 declare(strict_types=1);
 
-namespace App\Auth;
+namespace App\Service;
 
-use Doctrine\ORM\EntityManager;
 use App\Entity\User;
 use App\Exception\ApiException;
+use Doctrine\ORM\EntityManager;
+use Psr\Log\LoggerInterface;
 
 /**
  * 统一认证服务：JSON 注册用户（storage/users.json）与 ORM 演示用户（MySQL users 表）
@@ -17,6 +18,7 @@ final class AuthService
     public function __construct(
         private readonly EntityManager $em,
         private readonly UserStore $jsonUsers,
+        private LoggerInterface $logger
     ) {
     }
 

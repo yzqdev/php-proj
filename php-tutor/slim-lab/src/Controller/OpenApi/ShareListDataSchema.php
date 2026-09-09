@@ -7,14 +7,12 @@ namespace App\Controller\OpenApi;
 use OpenApi\Attributes as OA;
 
 /**
- * OpenAPI 组件：get_share_list �?data 结构�?
+ * OpenAPI 组件：网盘分享列表数据。
  */
 #[OA\Schema(
     schema: 'ShareListData',
-    type: 'object',
-    required: ['list'],
     properties: [
-        new OA\Property(property: 'list', type: 'array', items: new OA\Items(ref: '#/components/schemas/ShareEntry')),
+        new OA\Property(property: 'shares', type: 'array', items: new OA\Items(ref: '#/components/schemas/ShareEntry')),
     ],
 )]
 final class ShareListDataSchema

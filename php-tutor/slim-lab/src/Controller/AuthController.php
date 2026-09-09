@@ -4,26 +4,20 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Exception\ApiException;
+use App\Service\AuthService;
+use App\Service\TokenStore;
+use App\Service\UserStore;
+use OpenApi\Attributes as OA;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerInterface;
-use App\Exception\ApiException;
-use App\Auth\AuthService;
-use App\Auth\TokenStore;
-use App\Auth\UserStore;
 
 /**
  * 认证模块控制器：注册 / 登录 / 登出 / 当前用户信息。
- *
- * 响应信封与全站一致 {code, message, data}：
- *   POST /api/auth/register  {username, email?, password} → data=null
- *   POST /api/auth/login     {username, password}         → data={token, user{...}}
- *   POST /api/auth/logout    （需 Bearer token）           → data=null
- *   GET  /api/auth/userInfo  （需 Bearer token）           → data={user{...}}
- *
- * 登录支持两类账号：JSON 注册用户（storage/users.json）与
- * MySQL 演示用户（users 表，name/email 均可作账号，须已设置密码）。
  */
+
+
 final class AuthController
 {
     /** 用户名规则：3-20 位，字母/数字/下划线 */
@@ -36,7 +30,28 @@ final class AuthController
         private readonly LoggerInterface $logger,
     ) {
     }
-
+    #[OA\Get(
+        path: '/api/auth/register',
+        tags: ['Auth'],
+        summary: '注册账号',
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                required: ['username', 'password'],
+                properties: [
+                    new OA\Property(property: 'username', type: 'string', example: 'demo_user'),
+                    new OA\Property(property: 'password', type: 'string', example: 'secret123'),
+                    new OA\Property(property: 'email', type: 'string', format: 'email', example: 'demo@test.com'),
+                ],
+            ),
+        ),
+        responses: [
+            new OA\Response(response: '200', description: '注册成功'),
+            new OA\Response(response: '400', description: '参数错误'),
+            new OA\Response(response: '429', description: '请求过于频繁'),
+            new OA\Response(response: '500', description: '服务器错误'),
+        ]
+    )]
     public function register(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
     {
         $body = (array) $request->getParsedBody();
@@ -64,6 +79,28 @@ final class AuthController
         return ResponseFactory::ok($response, null, '注册成功，请登录');
     }
 
+    #[OA\Get(
+        path: '/api/auth/login',
+        tags: ['Auth'],
+        summary: '登录获取令牌',
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                required: ['username', 'password'],
+                properties: [
+                    new OA\Property(property: 'username', type: 'string', example: 'demo_user'),
+                    new OA\Property(property: 'password', type: 'string', example: 'secret123'),
+                ],
+            ),
+        ),
+        responses: [
+            new OA\Response(response: '200', description: '登录成功', content: new OA\JsonContent(ref: '#/components/schemas/AuthTokenData')),
+            new OA\Response(response: '400', description: '参数错误'),
+            new OA\Response(response: '429', description: '请求过于频繁'),
+            new OA\Response(response: '500', description: '服务器错误'),
+        ]
+    )]
+
     public function login(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
     {
         $body = (array) $request->getParsedBody();
@@ -84,7 +121,17 @@ final class AuthController
             'user' => $result['user'],
         ]);
     }
-
+    #[OA\Get(
+        path: '/api/auth/logout',
+        tags: ['Auth'],
+        summary: '退出登录',
+        security: [['BearerAuth' => []]],
+        responses: [
+            new OA\Response(response: '200', description: '已退出登录'),
+            new OA\Response(response: '401', description: '未登录'),
+            new OA\Response(response: '500', description: '服务器错误'),
+        ]
+    )]
     public function logout(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
     {
         $token = $this->requireToken($request);
@@ -92,7 +139,17 @@ final class AuthController
 
         return ResponseFactory::ok($response, null, '已退出登录');
     }
-
+    #[OA\Get(
+        path: '/api/auth/userInfo',
+        tags: ['Auth'],
+        summary: '获取当前用户信息',
+        security: [['BearerAuth' => []]],
+        responses: [
+            new OA\Response(response: '200', description: '成功', content: new OA\JsonContent(ref: '#/components/schemas/AuthUserWrap')),
+            new OA\Response(response: '401', description: '未登录'),
+            new OA\Response(response: '500', description: '服务器错误'),
+        ]
+    )]
     public function userInfo(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
     {
         $subject = $this->tokens->resolve($this->requireToken($request));

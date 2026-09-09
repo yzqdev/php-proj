@@ -6,16 +6,16 @@ namespace App\Controller;
 
 use App\Exception\ApiException;
 use App\Service\CloudDriveService;
+use OpenApi\Attributes as OA;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UploadedFileInterface;
 use Slim\Psr7\Stream;
 
 /**
- * /api/clouddrive 控制器（兼容别名 /api/clouddrive.php）：仅做 action 分发与流式输出，业务逻辑在 CloudDriveService。
- * 方法校验（POST 才允许）与未登录校验分别由本类 requirePost 与 AuthMiddleware 承担，
- * 与旧代码每分支开头的 apiError('方法不允许', 405) / apiError('未登录', 401) 行为一致。
+ * /api/clouddrive 控制器（兼容别名 /api/clouddrive.php）：仅做 action 分发与流式输出。
  */
+
 final class CloudDriveController
 {
     /** 无登录要求的 action（与旧代码一致：logout/check 不需要登录；分享访客接口见 AccessRules） */
@@ -25,7 +25,67 @@ final class CloudDriveController
         private readonly CloudDriveService $service,
     ) {
     }
-
+    #[OA\Get(
+        path: '/api/clouddrive',
+        summary: '网盘操作（读接口与文件流）',
+        security: [['SessionCookie' => []]],
+        tags: ['CloudDrive'],
+        parameters: [
+            new OA\Parameter(
+                name: 'action',
+                in: 'query',
+                required: true,
+                description: '操作类型',
+                schema: new OA\Schema(
+                    type: 'string',
+                    enum: [
+                        'login',
+                        'logout',
+                        'check',
+                        'list_dir',
+                        'download',
+                        'zip',
+                        'stream',
+                        'share_info',
+                        'upload',
+                        'mkdir',
+                        'delete',
+                        'rename',
+                        'move',
+                    ],
+                    example: 'list_dir'
+                )
+            ),
+            new OA\Parameter(
+                name: 'pwd',
+                in: 'query',
+                description: '密码（login 时）',
+                schema: new OA\Schema(type: 'string')
+            ),
+            new OA\Parameter(
+                name: 'dir',
+                in: 'query',
+                description: '目录路径（list_dir 时）',
+                schema: new OA\Schema(type: 'string')
+            ),
+            new OA\Parameter(
+                name: 'file',
+                in: 'query',
+                description: '文件名（download/stream 时）',
+                schema: new OA\Schema(type: 'string')
+            ),
+        ],
+        responses: [
+            new OA\Response(
+                response: '200',
+                description: '成功',
+                content: new OA\JsonContent(ref: '#/components/schemas/CloudDriveGetData')
+            ),
+            new OA\Response(response: '401', description: '未登录'),
+            new OA\Response(response: '405', description: '方法不允许'),
+            new OA\Response(response: '500', description: '服务器错误'),
+        ]
+    )]
     public function handle(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
     {
         $params = $request->getQueryParams();

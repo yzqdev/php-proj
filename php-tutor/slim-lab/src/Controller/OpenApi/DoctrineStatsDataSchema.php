@@ -7,15 +7,13 @@ namespace App\Controller\OpenApi;
 use OpenApi\Attributes as OA;
 
 /**
- * OpenAPI 组件：doctrine stats 接口�?data 结构�?
+ * OpenAPI 组件：doctrine stats 数据。
  */
 #[OA\Schema(
     schema: 'DoctrineStatsData',
-    type: 'object',
-    required: ['userCount', 'productCount'],
     properties: [
-        new OA\Property(property: 'userCount', type: 'integer', example: 2),
-        new OA\Property(property: 'productCount', type: 'integer', example: 3),
+        new OA\Property(property: 'users', type: 'integer', example: 10),
+        new OA\Property(property: 'products', type: 'integer', example: 50),
     ],
 )]
 final class DoctrineStatsDataSchema

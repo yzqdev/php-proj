@@ -11,17 +11,501 @@
             "description": "当前部署（相对地址）"
         }
     ],
+    "paths": {
+        "\/api\/auth\/register": {
+            "get": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "注册账号",
+                "operationId": "bba4a3135b763ec936bcdda39e629488",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application\/json": {
+                            "schema": {
+                                "required": [
+                                    "username",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "username": {
+                                        "type": "string",
+                                        "example": "demo_user"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "example": "secret123"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "demo@test.com"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "注册成功"
+                    },
+                    "400": {
+                        "description": "参数错误"
+                    },
+                    "429": {
+                        "description": "请求过于频繁"
+                    },
+                    "500": {
+                        "description": "服务器错误"
+                    }
+                }
+            }
+        },
+        "\/api\/auth\/login": {
+            "get": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "登录获取令牌",
+                "operationId": "756342a72b526a9561720a3c4d81f1da",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application\/json": {
+                            "schema": {
+                                "required": [
+                                    "username",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "username": {
+                                        "type": "string",
+                                        "example": "demo_user"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "example": "secret123"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "登录成功",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "$ref": "#\/components\/schemas\/AuthTokenData"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "参数错误"
+                    },
+                    "429": {
+                        "description": "请求过于频繁"
+                    },
+                    "500": {
+                        "description": "服务器错误"
+                    }
+                }
+            }
+        },
+        "\/api\/auth\/logout": {
+            "get": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "退出登录",
+                "operationId": "0b53504a7c5b7fbc89616c0b80e20aaf",
+                "responses": {
+                    "200": {
+                        "description": "已退出登录"
+                    },
+                    "401": {
+                        "description": "未登录"
+                    },
+                    "500": {
+                        "description": "服务器错误"
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "\/api\/auth\/userInfo": {
+            "get": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "获取当前用户信息",
+                "operationId": "11392d8d113b146031cb651790b4243d",
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "$ref": "#\/components\/schemas\/AuthUserWrap"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "未登录"
+                    },
+                    "500": {
+                        "description": "服务器错误"
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "\/api\/clouddrive": {
+            "get": {
+                "tags": [
+                    "CloudDrive"
+                ],
+                "summary": "网盘操作（读接口与文件流）",
+                "operationId": "84b036a70743130ff5b64bf0e0f96f4d",
+                "parameters": [
+                    {
+                        "name": "action",
+                        "in": "query",
+                        "description": "操作类型",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "login",
+                                "logout",
+                                "check",
+                                "list_dir",
+                                "download",
+                                "zip",
+                                "stream",
+                                "share_info",
+                                "upload",
+                                "mkdir",
+                                "delete",
+                                "rename",
+                                "move"
+                            ],
+                            "example": "list_dir"
+                        }
+                    },
+                    {
+                        "name": "pwd",
+                        "in": "query",
+                        "description": "密码（login 时）",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "dir",
+                        "in": "query",
+                        "description": "目录路径（list_dir 时）",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "file",
+                        "in": "query",
+                        "description": "文件名（download\/stream 时）",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "$ref": "#\/components\/schemas\/CloudDriveGetData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "未登录"
+                    },
+                    "405": {
+                        "description": "方法不允许"
+                    },
+                    "500": {
+                        "description": "服务器错误"
+                    }
+                },
+                "security": [
+                    {
+                        "SessionCookie": []
+                    }
+                ]
+            }
+        },
+        "\/api\/doctrine": {
+            "get": {
+                "tags": [
+                    "Doctrine"
+                ],
+                "summary": "Doctrine ORM 演示",
+                "operationId": "4276b57980cb289e791e1c0ab10a3063",
+                "parameters": [
+                    {
+                        "name": "action",
+                        "in": "query",
+                        "description": "演示项",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "init",
+                                "create_users",
+                                "create_products",
+                                "find_user",
+                                "dql_query",
+                                "join_query",
+                                "update_user",
+                                "delete_product",
+                                "repository",
+                                "count",
+                                "transaction",
+                                "stats"
+                            ],
+                            "example": "stats"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "$ref": "#\/components\/schemas\/DoctrineData"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "未知操作"
+                    },
+                    "500": {
+                        "description": "服务器错误"
+                    }
+                }
+            }
+        },
+        "\/api\/legacy\/{module}": {
+            "get": {
+                "tags": [
+                    "Legacy"
+                ],
+                "summary": "旧版接口兼容入口",
+                "operationId": "6d419c40771a364cb3682e8e582b961c",
+                "parameters": [
+                    {
+                        "name": "module",
+                        "in": "path",
+                        "description": "模块名：php\/doctrine\/clouddrive",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功"
+                    },
+                    "404": {
+                        "description": "未知模块"
+                    }
+                }
+            }
+        },
+        "\/api\/logs\/days": {
+            "get": {
+                "tags": [
+                    "Logs"
+                ],
+                "summary": "列出可查的日志日期",
+                "operationId": "efc3a521b85e62d7d57b7c0d687c5020",
+                "parameters": [
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "description": "最多返回的天数",
+                        "schema": {
+                            "type": "integer",
+                            "default": 30,
+                            "maximum": 90
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "$ref": "#\/components\/schemas\/LogDaysData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "未登录"
+                    },
+                    "500": {
+                        "description": "服务器错误"
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "\/api\/logs": {
+            "get": {
+                "tags": [
+                    "Logs"
+                ],
+                "summary": "分页读取某一天的日志",
+                "operationId": "0aa1a8c5b6ee61f1c22bb25143543613",
+                "parameters": [
+                    {
+                        "name": "date",
+                        "in": "query",
+                        "description": "日志日期 YYYY-MM-DD",
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    },
+                    {
+                        "name": "offset",
+                        "in": "query",
+                        "description": "起始行号",
+                        "schema": {
+                            "type": "integer",
+                            "default": 0,
+                            "minimum": 0
+                        }
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "description": "本页最大行数",
+                        "schema": {
+                            "type": "integer",
+                            "default": 500,
+                            "maximum": 2000
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "$ref": "#\/components\/schemas\/LogData"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "未登录"
+                    },
+                    "500": {
+                        "description": "服务器错误"
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "\/api\/php-demo": {
+            "get": {
+                "tags": [
+                    "PHP Demo"
+                ],
+                "summary": "PHP 演示",
+                "operationId": "43ce6caa9fb350514f9c85a7bf080d29",
+                "parameters": [
+                    {
+                        "name": "action",
+                        "in": "query",
+                        "description": "演示项",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "array_ops",
+                                "string_ops",
+                                "date_ops",
+                                "json_ops",
+                                "regex_ops",
+                                "file_ops",
+                                "random_ops",
+                                "filter_ops",
+                                "closure_ops"
+                            ],
+                            "example": "array_ops"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "$ref": "#\/components\/schemas\/PhpDemoData"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "未知操作"
+                    },
+                    "500": {
+                        "description": "服务器错误"
+                    }
+                }
+            }
+        }
+    },
     "components": {
         "schemas": {
             "ApiEnvelope": {
-                "required": [
-                    "code",
-                    "message",
-                    "data"
-                ],
                 "properties": {
                     "code": {
-                        "description": "0=成功；其余等�?HTTP 状态码",
+                        "description": "OpenAPI 组件：统一响应信封（与 apiSuccess\/apiError 的 JSON 结构一致）。",
                         "type": "integer",
                         "example": 0
                     },
@@ -30,29 +514,148 @@
                         "example": "success"
                     },
                     "data": {
-                        "description": "业务数据，业务错误时�?null",
                         "example": null,
                         "nullable": true
                     }
                 },
                 "type": "object"
             },
+            "AuthTokenData": {
+                "properties": {
+                    "token": {
+                        "description": "OpenAPI 组件：auth login 返回的令牌数据。",
+                        "type": "string",
+                        "example": "9f86d081884c7d659a2feaa0c55ad0159f86d081884c7d659a2feaa0c55ad015"
+                    },
+                    "user": {
+                        "$ref": "#\/components\/schemas\/AuthUser"
+                    }
+                },
+                "type": "object"
+            },
+            "AuthUser": {
+                "properties": {
+                    "id": {
+                        "description": "OpenAPI 组件：认证用户信息。",
+                        "type": "string",
+                        "example": "json:1"
+                    },
+                    "username": {
+                        "type": "string",
+                        "example": "demo_user"
+                    },
+                    "email": {
+                        "type": "string",
+                        "example": "demo@test.com"
+                    }
+                },
+                "type": "object"
+            },
+            "AuthUserWrap": {
+                "properties": {
+                    "user": {
+                        "$ref": "#\/components\/schemas\/AuthUser"
+                    }
+                },
+                "type": "object"
+            },
+            "CloudDriveGetData": {
+                "oneOf": [
+                    {
+                        "$ref": "#\/components\/schemas\/LoginData"
+                    },
+                    {
+                        "$ref": "#\/components\/schemas\/ShareListData"
+                    },
+                    {
+                        "$ref": "#\/components\/schemas\/DirListData"
+                    }
+                ]
+            },
+            "CloudDrivePostData": {
+                "properties": {
+                    "message": {
+                        "description": "OpenAPI 组件：网盘创建\/更新数据。",
+                        "type": "string",
+                        "example": "上传成功"
+                    }
+                },
+                "type": "object"
+            },
+            "CloudDrivePostForm": {
+                "properties": {
+                    "action": {
+                        "description": "OpenAPI 组件：网盘通用表单结构。",
+                        "type": "string",
+                        "example": "login"
+                    },
+                    "pwd": {
+                        "type": "string",
+                        "example": "123456"
+                    },
+                    "kw": {
+                        "type": "string",
+                        "example": "test"
+                    },
+                    "dir": {
+                        "type": "string",
+                        "example": "docs"
+                    },
+                    "token": {
+                        "type": "string",
+                        "example": "9f86d081884c7d659a2feaa0c55ad015"
+                    },
+                    "share_pwd": {
+                        "type": "string",
+                        "example": "gm0mmf"
+                    },
+                    "share_file": {
+                        "type": "string",
+                        "example": "speedtest-master.zip"
+                    },
+                    "is_dir_share": {
+                        "type": "string",
+                        "example": "0"
+                    },
+                    "share_expire": {
+                        "type": "integer",
+                        "example": 7
+                    }
+                },
+                "type": "object"
+            },
+            "CloudDriveUploadForm": {
+                "properties": {
+                    "action": {
+                        "description": "OpenAPI 组件：网盘上传表单结构。",
+                        "type": "string",
+                        "example": "upload"
+                    },
+                    "current_folder": {
+                        "type": "string",
+                        "example": "docs"
+                    },
+                    "relative_path": {
+                        "type": "string",
+                        "example": ""
+                    },
+                    "file": {
+                        "type": "string",
+                        "format": "binary"
+                    }
+                },
+                "type": "object"
+            },
             "DirListData": {
-                "required": [
-                    "list",
-                    "dirs",
-                    "current_folder"
-                ],
                 "properties": {
                     "list": {
-                        "description": "OpenAPI 组件：list_dir 的 data 结构。",
+                        "description": "OpenAPI 组件：网盘目录列表数据。",
                         "type": "array",
                         "items": {
                             "$ref": "#\/components\/schemas\/FileEntry"
                         }
                     },
                     "dirs": {
-                        "description": "全部子目录相对路径",
                         "type": "array",
                         "items": {
                             "type": "string"
@@ -69,95 +672,82 @@
                 },
                 "type": "object"
             },
-            "DoctrineStatsData": {
-                "required": [
-                    "userCount",
-                    "productCount"
-                ],
-                "properties": {
-                    "userCount": {
-                        "description": "OpenAPI 组件：doctrine stats 接口�?data 结构�?",
-                        "type": "integer",
-                        "example": 2
+            "DoctrineData": {
+                "oneOf": [
+                    {
+                        "$ref": "#\/components\/schemas\/MessageData"
                     },
-                    "productCount": {
+                    {
+                        "$ref": "#\/components\/schemas\/DoctrineStatsData"
+                    }
+                ]
+            },
+            "DoctrineStatsData": {
+                "properties": {
+                    "users": {
+                        "description": "OpenAPI 组件：doctrine stats 数据。",
                         "type": "integer",
-                        "example": 3
+                        "example": 10
+                    },
+                    "products": {
+                        "type": "integer",
+                        "example": 50
                     }
                 },
                 "type": "object"
             },
             "FileEntry": {
-                "required": [
-                    "name",
-                    "is_dir",
-                    "size",
-                    "size_text",
-                    "mtime",
-                    "ext"
-                ],
                 "properties": {
                     "name": {
-                        "description": "OpenAPI 组件：文件条目（list_dir 用）�?",
+                        "description": "OpenAPI 组件：网盘文件条目。",
                         "type": "string",
                         "example": "speedtest-master.zip"
                     },
-                    "is_dir": {
-                        "type": "boolean",
-                        "example": false
-                    },
                     "size": {
                         "type": "integer",
-                        "example": 2150945
-                    },
-                    "size_text": {
-                        "type": "string",
-                        "example": "2.05 MB"
+                        "example": 1234567
                     },
                     "mtime": {
                         "type": "string",
-                        "example": "2026-09-06 10:00"
+                        "example": "2026-09-08 10:00:00"
                     },
-                    "ext": {
+                    "isDir": {
+                        "type": "boolean",
+                        "example": false
+                    }
+                },
+                "type": "object"
+            },
+            "LegacyModuleData": {
+                "properties": {
+                    "message": {
+                        "description": "OpenAPI 组件：旧版模块数据。",
                         "type": "string",
-                        "example": "zip"
+                        "example": "success"
                     }
                 },
                 "type": "object"
             },
             "LogData": {
-                "required": [
-                    "date",
-                    "total",
-                    "offset",
-                    "limit",
-                    "truncated",
-                    "lines"
-                ],
                 "properties": {
                     "date": {
-                        "description": "查询的日期",
+                        "description": "OpenAPI 组件：日志查询数据。",
                         "type": "string",
-                        "format": "date",
                         "example": "2026-09-08"
                     },
                     "total": {
-                        "description": "当日日志总行数",
                         "type": "integer",
                         "example": 1234
                     },
                     "offset": {
-                        "description": "本页起始行号",
                         "type": "integer",
                         "example": 0
                     },
                     "limit": {
-                        "description": "本页最大行数（服务端上限 2000）",
                         "type": "integer",
                         "example": 500
                     },
                     "truncated": {
-                        "description": "是否还有未返回的行",
                         "type": "boolean",
                         "example": false
                     },
@@ -171,81 +761,63 @@
                 "type": "object"
             },
             "LogDay": {
-                "required": [
-                    "date",
-                    "bytes"
-                ],
                 "properties": {
                     "date": {
-                        "description": "日志日期",
+                        "description": "OpenAPI 组件：单个日志日期信息。",
                         "type": "string",
-                        "format": "date",
                         "example": "2026-09-08"
                     },
                     "bytes": {
-                        "description": "当日日志文件大小（字节）",
                         "type": "integer",
-                        "format": "int64",
-                        "example": 125840
+                        "example": 12345
+                    }
+                },
+                "type": "object"
+            },
+            "LogDaysData": {
+                "properties": {
+                    "days": {
+                        "description": "OpenAPI 组件：日志日期列表数据。",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#\/components\/schemas\/LogDay"
+                        }
                     }
                 },
                 "type": "object"
             },
             "LogLine": {
-                "required": [
-                    "no",
-                    "message",
-                    "raw"
-                ],
                 "properties": {
                     "no": {
-                        "description": "当日文件内的行号（从 0 开始）",
+                        "description": "OpenAPI 组件：日志行数据。",
                         "type": "integer",
                         "example": 1234
                     },
                     "timestamp": {
-                        "description": "记录时间 Y-m-d H:i:s",
                         "type": "string",
-                        "format": "date-time",
                         "example": "2026-09-08 08:31:02",
                         "nullable": true
                     },
                     "channel": {
-                        "description": "日志通道",
                         "type": "string",
                         "example": "app",
                         "nullable": true
                     },
                     "level": {
-                        "description": "日志级别",
                         "type": "string",
-                        "enum": [
-                            "DEBUG",
-                            "INFO",
-                            "NOTICE",
-                            "WARNING",
-                            "ERROR",
-                            "CRITICAL",
-                            "ALERT",
-                            "EMERGENCY"
-                        ],
                         "example": "INFO",
                         "nullable": true
                     },
                     "message": {
-                        "description": "日志正文（不含尾部 context JSON）",
                         "type": "string",
                         "example": "GET \/api\/logs 200"
                     },
                     "context": {
-                        "description": "Monolog context（请求 ID、耗时、IP、异常等），无上下文时为 null",
                         "type": "object",
                         "example": null,
-                        "nullable": true,
-                        "additionalProperties": true
+                        "nullable": true
                     },
                     "raw": {
-                        "description": "原始日志行，便于排查解析失败的记录",
                         "type": "string",
                         "example": "[2026-09-08 08:31:02] app.INFO: GET \/api\/logs 200 {\"rid\":\"1a2b3c4d\"}"
                     }
@@ -253,81 +825,61 @@
                 "type": "object"
             },
             "LoginData": {
-                "required": [
-                    "login"
-                ],
                 "properties": {
-                    "login": {
-                        "description": "OpenAPI 组件：clouddrive login\/logout\/check �?data 结构�?",
-                        "type": "boolean",
-                        "example": true
+                    "userId": {
+                        "description": "OpenAPI 组件：login 返回的登录数据。",
+                        "type": "string",
+                        "example": "json:1"
+                    },
+                    "username": {
+                        "type": "string",
+                        "example": "demo_user"
                     }
                 },
                 "type": "object"
             },
             "MessageData": {
-                "required": [
-                    "message"
-                ],
                 "properties": {
                     "message": {
-                        "description": "演示结果文本（可含换行）",
+                        "description": "OpenAPI 组件：消息数据。",
                         "type": "string",
-                        "example": "Repository::findAll()\n所有用�? 张三, 李四"
+                        "example": "success"
+                    }
+                },
+                "type": "object"
+            },
+            "PhpDemoData": {
+                "properties": {
+                    "message": {
+                        "description": "OpenAPI 组件：php-demo 数据。",
+                        "type": "string",
+                        "example": "{\"key\":\"value\"}"
                     }
                 },
                 "type": "object"
             },
             "SearchEntry": {
-                "required": [
-                    "full_rel",
-                    "name",
-                    "parent_dir",
-                    "is_dir",
-                    "size",
-                    "mtime",
-                    "ext"
-                ],
                 "properties": {
-                    "full_rel": {
-                        "description": "OpenAPI 组件：global_search 结果条目�?",
-                        "type": "string",
-                        "example": "docs\/report.pdf"
-                    },
                     "name": {
+                        "description": "OpenAPI 组件：网盘搜索条目。",
                         "type": "string",
-                        "example": "report.pdf"
+                        "example": "speedtest-master.zip"
                     },
-                    "parent_dir": {
+                    "path": {
                         "type": "string",
-                        "example": "docs"
-                    },
-                    "is_dir": {
-                        "type": "boolean",
-                        "example": false
+                        "example": "docs\/speedtest-master.zip"
                     },
                     "size": {
                         "type": "integer",
-                        "example": 1024
-                    },
-                    "mtime": {
-                        "type": "string",
-                        "example": "2026-09-06 10:00"
-                    },
-                    "ext": {
-                        "type": "string",
-                        "example": "pdf"
+                        "example": 1234567
                     }
                 },
                 "type": "object"
             },
             "SearchListData": {
-                "required": [
-                    "list"
-                ],
                 "properties": {
-                    "list": {
-                        "description": "OpenAPI 组件：global_search �?data 结构�?",
+                    "items": {
+                        "description": "OpenAPI 组件：网盘搜索结果列表。",
                         "type": "array",
                         "items": {
                             "$ref": "#\/components\/schemas\/SearchEntry"
@@ -337,94 +889,67 @@
                 "type": "object"
             },
             "ShareCreateData": {
-                "required": [
-                    "url",
-                    "pwd",
-                    "token"
-                ],
                 "properties": {
-                    "url": {
-                        "description": "OpenAPI 组件：create_share �?data 结构�?",
-                        "type": "string",
-                        "example": "http:\/\/localhost:5200\/?share=9f86d081884c7d659a2feaa0c55ad015"
-                    },
-                    "pwd": {
-                        "type": "string",
-                        "example": "abc123"
-                    },
                     "token": {
+                        "description": "OpenAPI 组件：网盘分享创建数据。",
                         "type": "string",
                         "example": "9f86d081884c7d659a2feaa0c55ad015"
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "speedtest-master.zip"
+                    },
+                    "url": {
+                        "type": "string",
+                        "example": "http:\/\/localhost:5200\/api\/clouddrive?action=share_info&token=9f86d081884c7d659a2feaa0c55ad015"
                     }
                 },
                 "type": "object"
             },
             "ShareEntry": {
-                "required": [
-                    "token",
-                    "url",
-                    "name",
-                    "parent_path",
-                    "is_dir",
-                    "pwd",
-                    "expire",
-                    "create_time",
-                    "is_expire",
-                    "expire_text"
-                ],
                 "properties": {
                     "token": {
-                        "description": "OpenAPI 组件：分享条目（get_share_list 用）�?",
+                        "description": "OpenAPI 组件：网盘分享条目。",
                         "type": "string",
                         "example": "9f86d081884c7d659a2feaa0c55ad015"
                     },
-                    "url": {
+                    "name": {
                         "type": "string",
-                        "example": "http:\/\/localhost:5200\/?share=9f86d081884c7d659a2feaa0c55ad015"
+                        "example": "speedtest-master.zip"
+                    },
+                    "expire": {
+                        "type": "string",
+                        "example": "2026-09-15"
+                    }
+                },
+                "type": "object"
+            },
+            "ShareInfoData": {
+                "properties": {
+                    "token": {
+                        "description": "OpenAPI 组件：网盘分享信息数据。",
+                        "type": "string",
+                        "example": "9f86d081884c7d659a2feaa0c55ad015"
                     },
                     "name": {
                         "type": "string",
-                        "example": "report.pdf"
+                        "example": "speedtest-master.zip"
                     },
-                    "parent_path": {
-                        "type": "string",
-                        "example": "docs"
-                    },
-                    "is_dir": {
+                    "need_pwd": {
                         "type": "boolean",
                         "example": false
                     },
-                    "pwd": {
-                        "type": "string",
-                        "example": "abc123"
-                    },
-                    "expire": {
-                        "description": "过期时间戳，0=永久",
-                        "type": "integer",
-                        "example": 0
-                    },
-                    "create_time": {
-                        "type": "integer",
-                        "example": 1757110000
-                    },
-                    "is_expire": {
+                    "expired": {
                         "type": "boolean",
                         "example": false
-                    },
-                    "expire_text": {
-                        "type": "string",
-                        "example": "永久有效"
                     }
                 },
                 "type": "object"
             },
             "ShareListData": {
-                "required": [
-                    "list"
-                ],
                 "properties": {
-                    "list": {
-                        "description": "OpenAPI 组件：get_share_list �?data 结构�?",
+                    "shares": {
+                        "description": "OpenAPI 组件：网盘分享列表数据。",
                         "type": "array",
                         "items": {
                             "$ref": "#\/components\/schemas\/ShareEntry"
@@ -436,16 +961,74 @@
         },
         "responses": {
             "BadRequest": {
-                "description": "业务\/参数错误（code=400�?,\r\n    content: new OA\\JsonContent(ref: "
+                "description": "业务\/参数错误（code=400）",
+                "content": {
+                    "application\/json": {
+                        "schema": {
+                            "$ref": "#\/components\/schemas\/ApiEnvelope"
+                        }
+                    }
+                }
             },
             "Unauthorized": {
-                "description": "未登录（code=401�?,\r\n    content: new OA\\JsonContent(ref: "
+                "description": "未登录 \/ 令牌无效（code=401）",
+                "content": {
+                    "application\/json": {
+                        "schema": {
+                            "$ref": "#\/components\/schemas\/ApiEnvelope"
+                        }
+                    }
+                }
+            },
+            "NotFound": {
+                "description": "未知模块、未知操作，或分享\/目录不存在（code=404）",
+                "content": {
+                    "application\/json": {
+                        "schema": {
+                            "$ref": "#\/components\/schemas\/ApiEnvelope"
+                        }
+                    }
+                }
             },
             "MethodNotAllowed": {
-                "description": "方法不允许（code=405�?,\r\n    content: new OA\\JsonContent(ref: "
+                "description": "方法不允许：POST-only 动作用非 POST 访问（code=405）",
+                "content": {
+                    "application\/json": {
+                        "schema": {
+                            "$ref": "#\/components\/schemas\/ApiEnvelope"
+                        }
+                    }
+                }
+            },
+            "Gone": {
+                "description": "分享链接已过期（code=410）",
+                "content": {
+                    "application\/json": {
+                        "schema": {
+                            "$ref": "#\/components\/schemas\/ApiEnvelope"
+                        }
+                    }
+                }
+            },
+            "TooManyRequests": {
+                "description": "登录\/注册限流：同 IP 60 秒内超过 10 次（code=429）",
+                "content": {
+                    "application\/json": {
+                        "schema": {
+                            "$ref": "#\/components\/schemas\/ApiEnvelope"
+                        }
+                    }
+                }
             },
             "ServerError": {
-                "description": "服务器内部错误（code=500�?,\r\n    content: new OA\\JsonContent(ref: "
+                "description": "服务器内部错误（code=500）",
+                "content": {
+                    "application\/json": {
+                        "schema": {
+                            "$ref": "#\/components\/schemas\/ApiEnvelope"
+                        }
+                    }
+                }
             }
         },
         "securitySchemes": {
@@ -462,5 +1045,31 @@
                 "scheme": "bearer"
             }
         }
-    }
+    },
+    "tags": [
+        {
+            "name": "Auth",
+            "description": "Auth"
+        },
+        {
+            "name": "CloudDrive",
+            "description": "CloudDrive"
+        },
+        {
+            "name": "Doctrine",
+            "description": "Doctrine"
+        },
+        {
+            "name": "Legacy",
+            "description": "Legacy"
+        },
+        {
+            "name": "Logs",
+            "description": "Logs"
+        },
+        {
+            "name": "PHP Demo",
+            "description": "PHP Demo"
+        }
+    ]
 }

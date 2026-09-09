@@ -2,9 +2,6 @@
 
 declare(strict_types=1);
 
-use App\Auth\AuthService;
-use App\Auth\TokenStore;
-use App\Auth\UserStore;
 use App\Controller\ApiErrorHandler;
 use App\Controller\AuthController;
 use App\Controller\CloudDriveController;
@@ -12,11 +9,14 @@ use App\Controller\DoctrineController;
 use App\Controller\LogController;
 use App\Controller\PhpDemoController;
 use App\Doctrine\EntityManagerFactory;
-use App\Log\LoggerFactory;
-use App\Log\LogStore;
 use App\Redis\RedisClient;
+use App\Service\AuthService;
 use App\Service\DoctrineDemoService;
 use App\Service\PhpDemoService;
+use App\Service\TokenStore;
+use App\Service\UserStore;
+use App\Util\LoggerFactory;
+use App\Util\LogStore;
 use DI\ContainerBuilder;
 use Doctrine\ORM\EntityManager;
 use Predis\ClientInterface;

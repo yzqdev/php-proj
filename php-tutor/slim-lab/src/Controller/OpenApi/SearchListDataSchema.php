@@ -7,14 +7,12 @@ namespace App\Controller\OpenApi;
 use OpenApi\Attributes as OA;
 
 /**
- * OpenAPI 组件：global_search �?data 结构�?
+ * OpenAPI 组件：网盘搜索结果列表。
  */
 #[OA\Schema(
     schema: 'SearchListData',
-    type: 'object',
-    required: ['list'],
     properties: [
-        new OA\Property(property: 'list', type: 'array', items: new OA\Items(ref: '#/components/schemas/SearchEntry')),
+        new OA\Property(property: 'items', type: 'array', items: new OA\Items(ref: '#/components/schemas/SearchEntry')),
     ],
 )]
 final class SearchListDataSchema
